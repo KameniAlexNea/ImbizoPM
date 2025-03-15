@@ -100,3 +100,39 @@ def tasks_generation_prompt(project_description: str) -> str:
     
     Ensure the tasks cover all aspects of the project, including setup, core features, testing, and documentation.
     """
+
+
+def aggregation_prompt(descriptions: list, original_prompt: str) -> str:
+    """
+    Get prompt template for aggregating multiple project descriptions.
+
+    Args:
+        descriptions: List of project descriptions from different providers
+        original_prompt: The original user prompt
+
+    Returns:
+        Complete prompt for the master LLM to aggregate descriptions
+    """
+    prompt = f"""
+    I have received multiple project descriptions for the same project idea:
+
+    Original project idea: {original_prompt}
+
+    """
+    
+    for i, description in enumerate(descriptions, 1):
+        prompt += f"""
+        Description {i}:
+        ---
+        {description}
+        ---
+
+        """
+    
+    prompt += """
+    Please create a comprehensive project description that combines the best elements
+    from all these descriptions. The final description should be well-structured,
+    comprehensive, and cover all important aspects of the project.
+    """
+    
+    return prompt

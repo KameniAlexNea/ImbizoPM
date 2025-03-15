@@ -3,13 +3,15 @@ Project Generator module for creating project descriptions and task lists using 
 """
 
 import json
-from typing import Dict, List, Tuple, Union
+import concurrent.futures
+from typing import Dict, List, Tuple, Union, Optional
 
 from ..llm_providers import LLMProvider, get_llm_provider
 from .prompts import (
     project_description_prompt,
     project_refinement_prompt,
     tasks_generation_prompt,
+    aggregation_prompt,
 )
 
 
