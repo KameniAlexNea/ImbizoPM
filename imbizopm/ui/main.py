@@ -9,6 +9,7 @@ from .base import BaseUI
 from .github_ui import GitHubUI
 from .multi_provider import MultiProviderUI
 from .single_provider import SingleProviderUI
+from .workflow_ui import WorkflowUI
 
 
 def launch_ui(
@@ -29,6 +30,7 @@ def launch_ui(
     single_provider_ui = SingleProviderUI()
     multi_provider_ui = MultiProviderUI()
     github_ui = GitHubUI()
+    workflow_ui = WorkflowUI()
 
     # Create the main UI with tabs
     with gr.Blocks(theme=base_ui.theme, title="ImbizoPM - Project Manager") as app:
@@ -69,15 +71,17 @@ def launch_ui(
             )
 
         with gr.Tabs() as tabs:
-            # Single Provider Tab
+            # Workflow Tab (New)
+            with gr.Tab("Project Workflow"):
+                workflow_ui.build_ui()
+
+            # Individual component tabs
             with gr.Tab("Single Provider"):
                 single_provider_ui.build_ui()
 
-            # Multi Provider Tab
             with gr.Tab("Multiple Providers"):
                 multi_provider_ui.build_ui()
 
-            # GitHub Tab
             with gr.Tab("GitHub"):
                 github_ui.build_ui()
 
