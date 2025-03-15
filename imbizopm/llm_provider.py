@@ -4,12 +4,13 @@ LLM Provider module for interacting with different large language model APIs.
 
 import os
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Iterator
 
 import httpx
 from anthropic import Anthropic
 from dotenv import load_dotenv
 from openai import OpenAI
+import ollama  # Added the ollama client library
 
 from .config import config
 
@@ -28,6 +29,19 @@ class LLMProvider(ABC):
 
         Returns:
             Generated text response
+        """
+    
+    @abstractmethod
+    def generate_text_stream(self, prompt: str, **kwargs) -> Iterator[str]:
+        """
+        Stream generated text based on a prompt.
+
+        Args:
+            prompt: The prompt to send to the language model
+            kwargs: Additional provider-specific parameters
+
+        Returns:
+            Iterator yielding chunks of generated text
         """
 
 
@@ -73,6 +87,32 @@ class OpenAIProvider(LLMProvider):
         )
 
         return response.choices[0].message.content
+
+    def generate_text_stream(self, prompt: str, **kwargs) -> Iterator[str]:
+        """
+        Stream text generation using OpenAI API.
+
+        Args:
+            prompt: The prompt to send to the language model
+            kwargs: Additional parameters like temperature, max_tokens, etc.
+
+        Returns:
+            Iterator yielding chunks of generated text
+        """
+        temperature = kwargs.get("temperature", 0.7)
+        max_tokens = kwargs.get("max_tokens", 1000)
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stream=True,
+        )
+
+        for chunk in response:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
 
 
 class AnthropicProvider(LLMProvider):
@@ -120,6 +160,29 @@ class AnthropicProvider(LLMProvider):
 
         return response.content[0].text
 
+    def generate_text_stream(self, prompt: str, **kwargs) -> Iterator[str]:
+        """
+        Stream text generation using Anthropic API.
+
+        Args:
+            prompt: The prompt to send to the language model
+            kwargs: Additional parameters like temperature, max_tokens, etc.
+
+        Returns:
+            Iterator yielding chunks of generated text
+        """
+        temperature = kwargs.get("temperature", 0.7)
+        max_tokens = kwargs.get("max_tokens", 1000)
+
+        with self.client.messages.stream(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=max_tokens,
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
 
 class OllamaProvider(LLMProvider):
     """Ollama provider for local language model interactions."""
@@ -134,7 +197,8 @@ class OllamaProvider(LLMProvider):
         """
         self.base_url = base_url
         self.model = model
-        self.client = httpx.Client(timeout=60.0)  # Longer timeout for local models
+        # Use the official ollama client library instead of httpx
+        self.client = ollama.Client(host=base_url)
 
     def generate_text(self, prompt: str, **kwargs) -> str:
         """
@@ -149,17 +213,38 @@ class OllamaProvider(LLMProvider):
         """
         temperature = kwargs.get("temperature", 0.7)
 
-        data = {
-            "model": self.model,
-            "prompt": prompt,
-            "temperature": temperature,
-            "stream": False,
-        }
+        # Using the ollama client library for generation
+        response = self.client.generate(
+            model=self.model,
+            prompt=prompt,
+            temperature=temperature,
+            stream=False,
+        )
 
-        response = self.client.post(f"{self.base_url}/api/generate", json=data)
-        response.raise_for_status()
+        return response['response']
 
-        return response.json()["response"]
+    def generate_text_stream(self, prompt: str, **kwargs) -> Iterator[str]:
+        """
+        Stream text generation using Ollama API.
+
+        Args:
+            prompt: The prompt to send to the language model
+            kwargs: Additional parameters like temperature, etc.
+
+        Returns:
+            Iterator yielding chunks of generated text
+        """
+        temperature = kwargs.get("temperature", 0.7)
+
+        # Using the ollama client library for streaming
+        for chunk in self.client.generate(
+            model=self.model,
+            prompt=prompt,
+            temperature=temperature,
+            stream=True,
+        ):
+            if 'response' in chunk:
+                yield chunk['response']
 
 
 def get_llm_provider(provider: str, **kwargs) -> LLMProvider:
