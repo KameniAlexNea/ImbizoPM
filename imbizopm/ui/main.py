@@ -11,10 +11,12 @@ from .multi_provider import MultiProviderUI
 from .single_provider import SingleProviderUI
 
 
-def launch_ui(share: bool = False, server_name: str = "0.0.0.0", server_port: int = 7860):
+def launch_ui(
+    share: bool = False, server_name: str = "0.0.0.0", server_port: int = 7860
+):
     """
     Launch the ImbizoPM Gradio interface.
-    
+
     Args:
         share: Whether to create a public link for the interface
         server_name: Server address to listen on
@@ -22,12 +24,12 @@ def launch_ui(share: bool = False, server_name: str = "0.0.0.0", server_port: in
     """
     # Create base UI for theme and configuration
     base_ui = BaseUI()
-    
+
     # Initialize UI components
     single_provider_ui = SingleProviderUI()
     multi_provider_ui = MultiProviderUI()
     github_ui = GitHubUI()
-    
+
     # Create the main UI with tabs
     with gr.Blocks(theme=base_ui.theme, title="ImbizoPM - Project Manager") as app:
         gr.Markdown(
@@ -37,9 +39,12 @@ def launch_ui(share: bool = False, server_name: str = "0.0.0.0", server_port: in
             Create and manage GitHub projects with AI assistance.
             """
         )
-        
+
         # Check for available providers and show warning if none
-        if len(base_ui.available_providers) == 1 and base_ui.available_providers[0] == "none":
+        if (
+            len(base_ui.available_providers) == 1
+            and base_ui.available_providers[0] == "none"
+        ):
             gr.Markdown(
                 """
                 ⚠️ **Warning**: No LLM providers are configured. Set up API keys in your .env file.
@@ -54,7 +59,7 @@ def launch_ui(share: bool = False, server_name: str = "0.0.0.0", server_port: in
                 Until providers are configured, functionality will be limited.
                 """
             )
-        
+
         # Check for GitHub token
         if not config.github_token:
             gr.Markdown(
@@ -62,20 +67,20 @@ def launch_ui(share: bool = False, server_name: str = "0.0.0.0", server_port: in
                 ⚠️ **Warning**: GitHub token not found. Set GITHUB_TOKEN in your .env file for GitHub integration.
                 """
             )
-        
+
         with gr.Tabs() as tabs:
             # Single Provider Tab
             with gr.Tab("Single Provider"):
                 single_provider_ui.build_ui()
-            
+
             # Multi Provider Tab
             with gr.Tab("Multiple Providers"):
                 multi_provider_ui.build_ui()
-            
+
             # GitHub Tab
             with gr.Tab("GitHub"):
                 github_ui.build_ui()
-            
+
             # About Tab
             with gr.Tab("About"):
                 gr.Markdown(
@@ -110,6 +115,6 @@ def launch_ui(share: bool = False, server_name: str = "0.0.0.0", server_port: in
                     ```
                     """
                 )
-    
+
     # Launch the app
     app.launch(share=share, server_name=server_name, server_port=server_port)

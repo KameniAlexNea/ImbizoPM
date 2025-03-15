@@ -27,64 +27,68 @@ class BaseUI:
 
         # Get available LLM providers based on environment variables
         self.available_providers = self._get_available_providers()
-        
+
         # Initialize GitHub token
         self.github_token = config.github_token
-    
+
     def _get_available_providers(self) -> List[str]:
         """Get the list of available LLM providers based on environment variables."""
         providers = []
-        
+
         # Check for OpenAI API key
         if config.openai_api_key:
             providers.append("openai")
-            
+
         # Check for Anthropic API key
         if config.anthropic_api_key:
             providers.append("anthropic")
-            
+
         # Always add Ollama as it doesn't require API key (though may not be running)
         providers.append("ollama")
-        
+
         return providers if providers else ["none"]
 
     def _format_tasks_for_display(self, tasks_data: Dict) -> str:
         """Format tasks data as a readable string for display."""
         if not tasks_data:
             return "No tasks generated."
-        
+
         result = [
             f"# {tasks_data.get('project_title', 'Project')}\n",
             f"{tasks_data.get('project_description', '')}\n\n",
-            "## Tasks\n"
+            "## Tasks\n",
         ]
-        
+
         for i, task in enumerate(tasks_data.get("tasks", []), 1):
             result.append(f"### {i}. {task['title']} ({task['complexity']})\n")
             result.append(f"{task['description']}\n")
             result.append(f"Labels: {', '.join(task.get('labels', []))}\n")
-            
+
             # Add subtasks if any
             if task.get("subtasks"):
                 result.append("\nSubtasks:\n")
                 for j, subtask in enumerate(task["subtasks"], 1):
-                    result.append(f"  {i}.{j} {subtask['title']} ({subtask['complexity']})\n")
+                    result.append(
+                        f"  {i}.{j} {subtask['title']} ({subtask['complexity']})\n"
+                    )
                     result.append(f"  {subtask['description']}\n")
-                    result.append(f"  Labels: {', '.join(subtask.get('labels', []))}\n\n")
+                    result.append(
+                        f"  Labels: {', '.join(subtask.get('labels', []))}\n\n"
+                    )
             result.append("\n")
-            
+
         return "".join(result)
 
     def _format_github_result(self, result: Dict) -> str:
         """Format GitHub operation result as a readable string."""
         if not result:
             return "No result data."
-        
+
         if not result.get("success"):
             return f"Error: {result.get('error', 'Unknown error')}"
-        
+
         lines = ["## Operation Successful\n"]
-        
+
         # Repository info
         if "repository" in result:
             repo = result["repository"]
@@ -95,7 +99,7 @@ class BaseUI:
             if "url" in repo:
                 lines.append(f"- URL: {repo.get('url')}\n")
             lines.append("\n")
-        
+
         # Project info
         if "project" in result:
             project = result["project"]
@@ -106,7 +110,7 @@ class BaseUI:
             if "columns" in project:
                 lines.append(f"- Columns: {', '.join(project.get('columns'))}\n")
             lines.append("\n")
-        
+
         # Issues info
         if "issues" in result:
             issues = result["issues"]
@@ -115,8 +119,8 @@ class BaseUI:
                 lines.append(f"{i}. {issue.get('title')} (#{issue.get('number')})\n")
                 if "url" in issue:
                     lines.append(f"   URL: {issue.get('url')}\n")
-            
+
             if len(issues) > 10:
                 lines.append(f"\n... and {len(issues) - 10} more issues.\n")
-        
+
         return "".join(lines)

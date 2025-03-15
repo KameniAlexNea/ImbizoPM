@@ -26,9 +26,9 @@ def main():
     parser.add_argument(
         "--env-file", type=str, help="Path to .env file with configuration"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Load environment variables if env-file is specified
     if args.env_file:
         if os.path.exists(args.env_file):
@@ -39,7 +39,7 @@ def main():
     else:
         # Default .env file in the current directory
         load_dotenv()
-    
+
     # Launch the UI
     print(f"Starting ImbizoPM UI on http://{args.host}:{args.port}")
     launch_ui(share=args.share, server_name=args.host, server_port=args.port)

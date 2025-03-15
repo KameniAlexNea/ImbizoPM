@@ -169,7 +169,7 @@ def task_aggregation_prompt(task_lists: list, project_description: str) -> str:
             }}
         ]
     }}"""
-    task_lists_format = '\n\n'.join(task_lists) 
+    task_lists_format = "\n\n".join(task_lists)
     return f"""
     I have received multiple task lists for the same project:
     
