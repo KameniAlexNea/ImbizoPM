@@ -4,7 +4,7 @@ LLM Provider module for interacting with different large language model APIs.
 
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Optional
 
 import httpx
 from anthropic import Anthropic
@@ -29,7 +29,6 @@ class LLMProvider(ABC):
         Returns:
             Generated text response
         """
-        pass
 
 
 class OpenAIProvider(LLMProvider):
@@ -45,10 +44,10 @@ class OpenAIProvider(LLMProvider):
         """
         load_dotenv()
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
-        
+
         if not self.api_key:
             raise ValueError("OpenAI API key is required")
-            
+
         self.client = OpenAI(api_key=self.api_key)
         self.model = model
 
@@ -65,21 +64,23 @@ class OpenAIProvider(LLMProvider):
         """
         temperature = kwargs.get("temperature", 0.7)
         max_tokens = kwargs.get("max_tokens", 1000)
-        
+
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
             max_tokens=max_tokens,
         )
-        
+
         return response.choices[0].message.content
 
 
 class AnthropicProvider(LLMProvider):
     """Anthropic Claude provider for language model interactions."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-3-opus-20240229"):
+    def __init__(
+        self, api_key: Optional[str] = None, model: str = "claude-3-opus-20240229"
+    ):
         """
         Initialize Anthropic provider.
 
@@ -89,10 +90,10 @@ class AnthropicProvider(LLMProvider):
         """
         load_dotenv()
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
-        
+
         if not self.api_key:
             raise ValueError("Anthropic API key is required")
-            
+
         self.client = Anthropic(api_key=self.api_key)
         self.model = model
 
@@ -109,14 +110,14 @@ class AnthropicProvider(LLMProvider):
         """
         temperature = kwargs.get("temperature", 0.7)
         max_tokens = kwargs.get("max_tokens", 1000)
-        
+
         response = self.client.messages.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
             max_tokens=max_tokens,
         )
-        
+
         return response.content[0].text
 
 
@@ -147,17 +148,17 @@ class OllamaProvider(LLMProvider):
             Generated text response
         """
         temperature = kwargs.get("temperature", 0.7)
-        
+
         data = {
             "model": self.model,
             "prompt": prompt,
             "temperature": temperature,
             "stream": False,
         }
-        
+
         response = self.client.post(f"{self.base_url}/api/generate", json=data)
         response.raise_for_status()
-        
+
         return response.json()["response"]
 
 
@@ -177,13 +178,13 @@ def get_llm_provider(provider: str, **kwargs) -> LLMProvider:
         "anthropic": AnthropicProvider,
         "ollama": OllamaProvider,
     }
-    
+
     if provider.lower() not in providers:
         raise ValueError(f"Unsupported LLM provider: {provider}")
-        
+
     # If no kwargs provided, get from config
     if not kwargs:
         kwargs = config.get_llm_config(provider)
-        
+
     provider_class = providers[provider.lower()]
     return provider_class(**kwargs)
