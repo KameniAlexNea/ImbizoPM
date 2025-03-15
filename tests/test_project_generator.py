@@ -4,7 +4,7 @@ Tests for the project generator module.
 
 import json
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from imbizopm.llm_providers import LLMProvider
 from imbizopm.project_generator import ProjectGenerator
@@ -44,6 +44,10 @@ class MockLLMProvider(LLMProvider):
             )
         else:
             return "Mock response"
+            
+    def generate_text_stream(self, prompt: str, **kwargs):
+        """Return a mock stream."""
+        yield "Mock stream"
 
 
 class TestProjectGenerator(unittest.TestCase):
@@ -89,6 +93,15 @@ class TestProjectGenerator(unittest.TestCase):
         cleaned = self.generator._clean_json_response(response)
         self.assertEqual(cleaned, '{"key": "value"}')
 
+        # Test with nested JSON
+        response = 'Here\'s the complex JSON:\n```\n{"outer": {"inner": "value"}}\n```'
+        cleaned = self.generator._clean_json_response(response)
+        self.assertEqual(cleaned, '{"outer": {"inner": "value"}}')
+        
+        # Test with invalid input (no JSON)
+        with self.assertRaises(ValueError):
+            self.generator._clean_json_response("No JSON here at all")
+
     def test_generate_github_issues(self):
         """Test generating GitHub issues from task data."""
         task_data = {
@@ -118,6 +131,47 @@ class TestProjectGenerator(unittest.TestCase):
         self.assertEqual(issues[1]["title"], "Main task - Subtask")
         self.assertIn("enhancement", issues[0]["labels"])
         self.assertIn("bug", issues[1]["labels"])
+        self.assertIn("Main task description", issues[0]["body"])
+        self.assertIn("Complexity: Medium", issues[0]["body"])
+        self.assertIn("Subtask description", issues[1]["body"])
+        self.assertIn("Parent task: Main task", issues[1]["body"])
+
+        # Test with multiple main tasks, no subtasks
+        task_data = {
+            "project_title": "Test Project",
+            "project_description": "Test description",
+            "tasks": [
+                {
+                    "title": "Task 1",
+                    "description": "Task 1 description",
+                    "complexity": "Low",
+                    "labels": ["documentation"],
+                },
+                {
+                    "title": "Task 2",
+                    "description": "Task 2 description",
+                    "complexity": "High",
+                    "labels": ["bug"],
+                }
+            ],
+        }
+
+        issues = self.generator.generate_github_issues(task_data)
+        self.assertEqual(len(issues), 2)
+        self.assertEqual(issues[0]["title"], "Task 1")
+        self.assertEqual(issues[1]["title"], "Task 2")
+        self.assertIn("documentation", issues[0]["labels"])
+        self.assertIn("bug", issues[1]["labels"])
+        
+        # Test with empty tasks array
+        task_data = {
+            "project_title": "Empty Project",
+            "project_description": "No tasks",
+            "tasks": []
+        }
+        
+        issues = self.generator.generate_github_issues(task_data)
+        self.assertEqual(len(issues), 0)
 
     @patch("builtins.input", side_effect=["", "yes"])
     @patch("builtins.print")
@@ -128,6 +182,38 @@ class TestProjectGenerator(unittest.TestCase):
         )
         self.assertEqual(project_data["project_title"], "Task Manager App")
         self.assertEqual(len(issues), 2)  # 1 main task + 1 subtask
+
+    @patch("builtins.input", side_effect=["Add more features", "no"])
+    @patch("builtins.print")
+    def test_interactive_project_creation_with_feedback(self, mock_print, mock_input):
+        """Test interactive project creation with feedback."""
+        project_data, issues = self.generator.interactive_project_creation(
+            "Create a task manager"
+        )
+        self.assertEqual(project_data["project_title"], "Task Manager App")
+        self.assertEqual(len(issues), 0)  # User declined to create issues
+        mock_input.assert_any_call("\nHow would you like to improve this description? (Press Enter to accept as is): ")
+        
+    @patch("builtins.input", side_effect=["", "invalid"])
+    @patch("builtins.print")
+    def test_interactive_project_creation_invalid_confirmation(self, mock_print, mock_input):
+        """Test interactive project creation with invalid confirmation."""
+        project_data, issues = self.generator.interactive_project_creation(
+            "Create a task manager"
+        )
+        self.assertEqual(project_data["project_title"], "Task Manager App")
+        self.assertEqual(len(issues), 0)  # Invalid confirmation treated as "no"
+        
+    @patch("imbizopm.llm_providers.get_llm_provider")
+    def test_initialization_with_provider_name(self, mock_get_provider):
+        """Test initialization with provider name."""
+        mock_provider = MagicMock()
+        mock_get_provider.return_value = mock_provider
+        
+        generator = ProjectGenerator("openai", api_key="test_key")
+        
+        mock_get_provider.assert_called_once_with("openai", api_key="test_key")
+        self.assertEqual(generator.llm, mock_provider)
 
 
 if __name__ == "__main__":
