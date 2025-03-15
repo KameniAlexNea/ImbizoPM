@@ -27,6 +27,20 @@ Alternatively, you can create a `.env` file in the root directory:
 GITHUB_TOKEN=your_github_token
 ```
 
+For AI-powered project generation, you'll need an API key for your preferred LLM provider:
+
+```bash
+# For OpenAI
+export OPENAI_API_KEY=your_openai_api_key
+
+# For Anthropic
+export ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# For Ollama (local setup)
+export OLLAMA_BASE_URL=http://localhost:11434
+export OLLAMA_MODEL=llama3
+```
+
 ## Usage
 
 ### Creating a Repository
@@ -71,6 +85,32 @@ Then run:
 ```bash
 imbizopm create-full-project --repo my-awesome-project --project-name "Sprint 1" --issues-file issues.json
 ```
+
+### AI-Powered Project Creation
+
+Generate a project structure using an AI model and create it on GitHub:
+
+```bash
+imbizopm ai-project --prompt "Create a task management application with user authentication"
+```
+
+With specific provider:
+
+```bash
+imbizopm ai-project --provider openai --model gpt-4 --prompt "Create a Python web scraper with proxy rotation"
+```
+
+Generate without creating on GitHub:
+
+```bash
+imbizopm ai-project --prompt "Create a mobile app for tracking fitness" --dry-run --save-tasks project-tasks.json
+```
+
+Available LLM providers:
+
+- `openai`: OpenAI GPT models (requires OPENAI_API_KEY)
+- `anthropic`: Anthropic Claude models (requires ANTHROPIC_API_KEY)
+- `ollama`: Local Ollama models (requires Ollama running locally or specified OLLAMA_BASE_URL)
 
 ## License
 
