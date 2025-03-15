@@ -4,3 +4,4 @@ argparse
 openai>=1.0.0
 anthropic
 httpx
+ollama

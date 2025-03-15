@@ -6,7 +6,6 @@ import os
 from abc import ABC, abstractmethod
 from typing import Optional, Iterator
 
-import httpx
 from anthropic import Anthropic
 from dotenv import load_dotenv
 from openai import OpenAI
