@@ -2,16 +2,13 @@
 Multi-provider project generator that uses multiple LLM providers and aggregates their outputs.
 """
 
-import json
 import concurrent.futures
+import json
 from typing import Dict, List, Optional, Union
 
 from ..llm_providers import LLMProvider, get_llm_provider
 from .project_generator import ProjectGenerator
-from .prompts import (
-    project_description_prompt,
-    tasks_generation_prompt,
-)
+from .prompts import project_description_prompt, tasks_generation_prompt
 
 
 class MultiProviderProjectGenerator(ProjectGenerator):

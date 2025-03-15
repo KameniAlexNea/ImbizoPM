@@ -119,7 +119,7 @@ def aggregation_prompt(descriptions: list, original_prompt: str) -> str:
     Original project idea: {original_prompt}
 
     """
-    
+
     for i, description in enumerate(descriptions, 1):
         prompt += f"""
         Description {i}:
@@ -128,11 +128,11 @@ def aggregation_prompt(descriptions: list, original_prompt: str) -> str:
         ---
 
         """
-    
+
     prompt += """
     Please create a comprehensive project description that combines the best elements
     from all these descriptions. The final description should be well-structured,
     comprehensive, and cover all important aspects of the project.
     """
-    
+
     return prompt
