@@ -1,7 +1,7 @@
 PyGithub
 python-dotenv
 argparse
-openai>=1.0.0
+openai
 anthropic
 httpx
 ollama

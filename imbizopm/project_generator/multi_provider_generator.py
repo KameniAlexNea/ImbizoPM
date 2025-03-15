@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Union
 
 from ..llm_providers import LLMProvider, get_llm_provider
 from .project_generator import ProjectGenerator
-from .prompts import project_description_prompt, tasks_generation_prompt
+from .prompts import project_description_prompt, tasks_generation_prompt, aggregation_prompt, task_aggregation_prompt
 
 
 class MultiProviderProjectGenerator(ProjectGenerator):
@@ -166,30 +166,8 @@ class MultiProviderProjectGenerator(ProjectGenerator):
         if len(valid_descriptions) == 1:
             return valid_descriptions[0]
         
-        # Create a prompt for the master provider to aggregate descriptions
-        aggregation_prompt_text = f"""
-        I have received multiple project descriptions for the same project idea:
-        
-        Original project idea: {original_prompt}
-        
-        Description 1:
-        {valid_descriptions[0]}
-        
-        """
-        
-        # Add additional descriptions
-        for i, desc in enumerate(valid_descriptions[1:], 2):
-            aggregation_prompt_text += f"""
-            Description {i}:
-            {desc}
-            
-            """
-            
-        aggregation_prompt_text += """
-        Please create a comprehensive project description that combines the best elements
-        from all these descriptions. The final description should be well-structured,
-        comprehensive, and cover all important aspects of the project.
-        """
+        # Use the imported aggregation_prompt function
+        aggregation_prompt_text = aggregation_prompt(valid_descriptions, original_prompt)
         
         # Use the master provider to generate the aggregated description
         return self.llm.generate_text(aggregation_prompt_text)
@@ -220,44 +198,11 @@ class MultiProviderProjectGenerator(ProjectGenerator):
         for i, tl in enumerate(valid_task_lists):
             formatted_task_lists.append(f"Task List {i+1}:\n```json\n{json.dumps(tl, indent=2)}\n```")
         
-        # Create a prompt for the master provider to aggregate task lists
-        task_aggregation_prompt = f"""
-        I have received multiple task lists for the same project:
-        
-        Project description:
-        {project_description}
-        
-        {'\n\n'.join(formatted_task_lists)}
-        
-        Please create a comprehensive task list that combines the best elements from all these lists.
-        Include all important tasks while avoiding duplication. Make sure to maintain the structure
-        with main tasks and subtasks, and include complexity and labels for each.
-        
-        Return only a valid JSON object with the following structure:
-        {{
-            "project_title": "Title from description",
-            "project_description": "A concise version of the project description",
-            "tasks": [
-                {{
-                    "title": "Task 1 title",
-                    "description": "Task 1 description",
-                    "complexity": "Medium",
-                    "labels": ["enhancement"],
-                    "subtasks": [
-                        {{
-                            "title": "Subtask 1.1 title",
-                            "description": "Subtask 1.1 description",
-                            "complexity": "Low",
-                            "labels": ["documentation"]
-                        }}
-                    ]
-                }}
-            ]
-        }}
-        """
+        # Use the imported task_aggregation_prompt function
+        prompt = task_aggregation_prompt(formatted_task_lists, project_description)
         
         # Use the master provider to generate the aggregated task list
-        response = self.llm.generate_text(task_aggregation_prompt)
+        response = self.llm.generate_text(prompt)
         
         # Extract and parse the JSON
         try:

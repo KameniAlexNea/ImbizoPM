@@ -136,3 +136,52 @@ def aggregation_prompt(descriptions: list, original_prompt: str) -> str:
     """
 
     return prompt
+
+
+def task_aggregation_prompt(task_lists: list, project_description: str) -> str:
+    """
+    Get prompt template for aggregating multiple task lists.
+
+    Args:
+        task_lists: List of formatted task list strings
+        project_description: The project description
+
+    Returns:
+        Complete prompt for the master LLM to aggregate task lists
+    """
+    output_schema = """{{
+        "project_title": "Title from description",
+        "project_description": "A concise version of the project description",
+        "tasks": [
+            {{
+                "title": "Task 1 title",
+                "description": "Task 1 description",
+                "complexity": "Medium",
+                "labels": ["enhancement"],
+                "subtasks": [
+                    {{
+                        "title": "Subtask 1.1 title",
+                        "description": "Subtask 1.1 description",
+                        "complexity": "Low",
+                        "labels": ["documentation"]
+                    }}
+                ]
+            }}
+        ]
+    }}"""
+    task_lists_format = '\n\n'.join(task_lists) 
+    return f"""
+    I have received multiple task lists for the same project:
+    
+    Project description:
+    {project_description}
+    
+    {task_lists_format}
+    
+    Please create a comprehensive task list that combines the best elements from all these lists.
+    Include all important tasks while avoiding duplication. Make sure to maintain the structure
+    with main tasks and subtasks, and include complexity and labels for each.
+    
+    Return only a valid JSON object with the following structure:
+    {output_schema}
+    """
