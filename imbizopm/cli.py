@@ -7,7 +7,9 @@ import json
 import sys
 from typing import Any, Dict, List
 
+from .config import config
 from .github_manager import GitHubManager
+from .project_generator import ProjectGenerator
 
 
 def parse_args():
@@ -52,8 +54,39 @@ def parse_args():
     full_parser.add_argument("--project-description", help="Project description")
     full_parser.add_argument("--issues-file", help="JSON file with issues definition")
 
+    # AI-powered project creation command - NEW
+    ai_project_parser = subparsers.add_parser(
+        "ai-project", help="Generate project structure using AI and create it on GitHub"
+    )
+    ai_project_parser.add_argument("--prompt", help="Project idea prompt")
+    ai_project_parser.add_argument(
+        "--repo",
+        help="Repository name (if not provided, will be extracted from generated title)",
+    )
+    ai_project_parser.add_argument(
+        "--provider",
+        default="openai",
+        choices=["openai", "anthropic", "ollama"],
+        help="LLM provider to use",
+    )
+    ai_project_parser.add_argument(
+        "--model", help="Model name for the selected provider"
+    )
+    ai_project_parser.add_argument(
+        "--private", action="store_true", help="Make repository private"
+    )
+    ai_project_parser.add_argument(
+        "--save-tasks", help="Save generated tasks to a JSON file"
+    )
+    ai_project_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Generate tasks without creating GitHub project",
+    )
+
     # Token option for all commands
     parser.add_argument("--token", help="GitHub personal access token")
+    parser.add_argument("--api-key", help="API key for LLM provider")
 
     return parser.parse_args()
 
@@ -77,7 +110,107 @@ def main():
         sys.exit(1)
 
     try:
-        manager = GitHubManager(token=args.token)
+        # Handle AI project generation
+        if args.command == "ai-project":
+            # Initialize the LLM provider
+            provider_kwargs = {}
+
+            if args.api_key:
+                provider_kwargs["api_key"] = args.api_key
+            else:
+                # Get configuration from the config module
+                provider_kwargs = config.get_llm_config(args.provider)
+
+            if args.model:
+                provider_kwargs["model"] = args.model
+
+            try:
+                # Initialize the project generator
+                generator = ProjectGenerator(args.provider, **provider_kwargs)
+
+                # Get project prompt
+                prompt = args.prompt
+                if not prompt:
+                    prompt = input("Enter your project idea: ")
+
+                # Generate project interactively
+                project_data, issues = generator.interactive_project_creation(prompt)
+
+                # Save tasks to file if requested
+                if args.save_tasks and project_data:
+                    with open(args.save_tasks, "w") as f:
+                        json.dump(project_data, f, indent=2)
+                    print(f"Tasks saved to {args.save_tasks}")
+
+                # Exit if dry run
+                if args.dry_run or not issues:
+                    sys.exit(0)
+
+                # Create GitHub resources
+                github_token = args.token or config.github_token
+                manager = GitHubManager(token=github_token)
+
+                # Determine repository name
+                repo_name = args.repo
+                if not repo_name:
+                    # Generate repo name from project title
+                    repo_name = project_data["project_title"].lower().replace(" ", "-")
+                    repo_name = "".join(
+                        c if c.isalnum() or c == "-" else "" for c in repo_name
+                    )
+                    print(f"Using repository name: {repo_name}")
+
+                # Create repository
+                repo_result = manager.create_repository(
+                    name=repo_name,
+                    description=project_data.get("project_description", ""),
+                    private=args.private,
+                )
+
+                if not repo_result["success"]:
+                    print(
+                        f"Failed to create repository: {repo_result.get('error', 'Unknown error')}"
+                    )
+                    sys.exit(1)
+
+                # Create project
+                project_result = manager.create_project(
+                    repo_name=repo_name,
+                    project_name=project_data["project_title"],
+                    body=project_data.get("project_description", ""),
+                )
+
+                if not project_result["success"]:
+                    print(
+                        f"Failed to create project: {project_result.get('error', 'Unknown error')}"
+                    )
+                    sys.exit(1)
+
+                # Create issues
+                created_issues = []
+                for issue in issues:
+                    issue_result = manager.create_issue(
+                        repo_name=repo_name,
+                        title=issue["title"],
+                        body=issue["body"],
+                        labels=issue.get("labels", []),
+                    )
+                    if issue_result["success"]:
+                        created_issues.append(issue_result["issue"])
+
+                print(
+                    f"\nSuccessfully created repository, project, and {len(created_issues)} issues!"
+                )
+                print(f"Repository URL: {repo_result['repository']['url']}")
+
+                sys.exit(0)
+
+            except Exception as e:
+                print(f"Error during AI project generation: {str(e)}")
+                sys.exit(1)
+
+        # Handle other commands (existing functionality)
+        manager = GitHubManager(token=args.token or config.github_token)
 
         if args.command == "create-repo":
             result = manager.create_repository(

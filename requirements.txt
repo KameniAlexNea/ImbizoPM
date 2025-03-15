@@ -1,3 +1,7 @@
 PyGithub
 python-dotenv
 argparse
+openai
+anthropic
+httpx
+ollama
