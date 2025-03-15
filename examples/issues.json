@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Project Setup",
+    "body": "Set up the initial project structure with necessary folders and configuration files",
+    "labels": ["setup", "documentation"],
+    "assignees": []
+  },
+  {
+    "title": "Design Database Schema",
+    "body": "Create database schema design for the application",
+    "labels": ["database", "design"],
+    "assignees": []
+  },
+  {
+    "title": "Implement Authentication System",
+    "body": "Implement user authentication including login, registration, and password reset",
+    "labels": ["feature", "security"],
+    "assignees": []
+  },
+  {
+    "title": "Create API Documentation",
+    "body": "Document all API endpoints with parameters, responses, and examples",
+    "labels": ["documentation"],
+    "assignees": []
+  },
+  {
+    "title": "Set Up Continuous Integration",
+    "body": "Configure CI pipeline for automated testing and deployment",
+    "labels": ["devops", "ci-cd"],
+    "assignees": []
+  }
+]
