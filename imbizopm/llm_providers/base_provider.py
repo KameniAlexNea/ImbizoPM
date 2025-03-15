@@ -21,7 +21,7 @@ class LLMProvider(ABC):
         Returns:
             Generated text response
         """
-    
+
     @abstractmethod
     def generate_text_stream(self, prompt: str, **kwargs) -> Iterator[str]:
         """

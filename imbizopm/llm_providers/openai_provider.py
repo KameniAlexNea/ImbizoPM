@@ -3,7 +3,8 @@ OpenAI provider implementation.
 """
 
 import os
-from typing import Optional, Iterator
+from typing import Iterator, Optional
+
 from dotenv import load_dotenv
 from openai import OpenAI
 

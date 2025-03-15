@@ -6,7 +6,7 @@ import os
 import unittest
 from unittest.mock import MagicMock, patch
 
-from imbizopm.llm_provider import (
+from imbizopm.llm_providers import (
     AnthropicProvider,
     OllamaProvider,
     OpenAIProvider,

@@ -6,7 +6,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from imbizopm.llm_provider import LLMProvider
+from imbizopm.llm_providers import LLMProvider
 from imbizopm.project_generator import ProjectGenerator
 
 

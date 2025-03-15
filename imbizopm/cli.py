@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 
 from .config import config
 from .github_manager import GitHubManager
-from .llm_project_generator import ProjectGenerator
+from .project_generator import ProjectGenerator
 
 
 def parse_args():

@@ -3,9 +3,10 @@ Anthropic provider implementation.
 """
 
 import os
-from typing import Optional, Iterator
-from dotenv import load_dotenv
+from typing import Iterator, Optional
+
 from anthropic import Anthropic
+from dotenv import load_dotenv
 
 from .base_provider import LLMProvider
 

@@ -3,10 +3,10 @@ Factory function for creating LLM provider instances.
 """
 
 from ..config import config
-from .base_provider import LLMProvider
-from .openai_provider import OpenAIProvider
 from .anthropic_provider import AnthropicProvider
+from .base_provider import LLMProvider
 from .ollama_provider import OllamaProvider
+from .openai_provider import OpenAIProvider
 
 
 def get_llm_provider(provider: str, **kwargs) -> LLMProvider:

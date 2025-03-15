@@ -3,6 +3,7 @@ Ollama provider implementation for local LLMs.
 """
 
 from typing import Iterator
+
 import ollama
 
 from .base_provider import LLMProvider
@@ -43,7 +44,7 @@ class OllamaProvider(LLMProvider):
             stream=False,
         )
 
-        return response['response']
+        return response["response"]
 
     def generate_text_stream(self, prompt: str, **kwargs) -> Iterator[str]:
         """
@@ -64,5 +65,5 @@ class OllamaProvider(LLMProvider):
             temperature=temperature,
             stream=True,
         ):
-            if 'response' in chunk:
-                yield chunk['response']
+            if "response" in chunk:
+                yield chunk["response"]

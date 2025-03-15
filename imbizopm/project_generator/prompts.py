@@ -2,13 +2,14 @@
 Prompts module containing templates for various LLM prompts used in the ImbizoPM system.
 """
 
+
 def project_description_prompt(project_prompt: str) -> str:
     """
     Get prompt template for generating a project description.
-    
+
     Args:
         project_prompt: User's prompt describing the project idea
-        
+
     Returns:
         Complete prompt for the LLM
     """
@@ -23,14 +24,15 @@ def project_description_prompt(project_prompt: str) -> str:
     Project idea: {project_prompt}
     """
 
+
 def project_refinement_prompt(original_description: str, user_feedback: str) -> str:
     """
     Get prompt template for refining a project description.
-    
+
     Args:
         original_description: The original generated description
         user_feedback: User's feedback on how to improve the description
-        
+
     Returns:
         Complete prompt for the LLM
     """
@@ -48,13 +50,14 @@ def project_refinement_prompt(original_description: str, user_feedback: str) -> 
     Please revise the project description according to the feedback and provide an improved version.
     """
 
+
 def tasks_generation_prompt(project_description: str) -> str:
     """
     Get prompt template for generating tasks based on project description.
-    
+
     Args:
         project_description: The finalized project description
-        
+
     Returns:
         Complete prompt for the LLM
     """
