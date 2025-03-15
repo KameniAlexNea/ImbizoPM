@@ -21,7 +21,7 @@ class GitHubManager:
         Initialize the GitHub manager.
 
         Args:
-            token: GitHub personal access token. 
+            token: GitHub personal access token.
             If not provided, will look for 'GITHUB_TOKEN' in environment.
         """
         # Load environment variables
@@ -208,3 +208,89 @@ class GitHubManager:
             "project": project_result["project"],
             "issues": created_issues,
         }
+
+    def list_issues(self, repo_name: str, project_name: Optional[str] = None) -> Dict:
+        """
+        List all issues in a repository, optionally filtered by project.
+
+        Args:
+            repo_name: Repository name
+            project_name: Optional project name to filter issues
+
+        Returns:
+            Dictionary with issues details
+        """
+        try:
+            repo = self.github.get_repo(f"{self.user.login}/{repo_name}")
+
+            # Get all issues in the repository
+            all_issues = list(repo.get_issues(state="all"))
+
+            # If project name is provided, filter issues by project
+            if project_name:
+                # Get the project
+                projects = list(repo.get_projects())
+                target_project = None
+
+                for project in projects:
+                    if project.name == project_name:
+                        target_project = project
+                        break
+
+                if not target_project:
+                    return {
+                        "success": False,
+                        "error": f"Project '{project_name}' not found",
+                    }
+
+                # Get all columns in the project
+                columns = list(target_project.get_columns())
+
+                # Get all cards across all columns
+                project_cards = []
+                for column in columns:
+                    project_cards.extend(list(column.get_cards()))
+
+                # Filter issues that are in the project
+                filtered_issues = []
+                for issue in all_issues:
+                    for card in project_cards:
+                        if card.get_content() and card.get_content().id == issue.id:
+                            filtered_issues.append(
+                                {
+                                    "number": issue.number,
+                                    "title": issue.title,
+                                    "state": issue.state,
+                                    "url": issue.html_url,
+                                    "column": column.name,
+                                }
+                            )
+                            break
+
+                return {
+                    "success": True,
+                    "project": project_name,
+                    "issues_count": len(filtered_issues),
+                    "issues": filtered_issues,
+                }
+
+            # If no project name provided, return all issues
+            issues_data = [
+                {
+                    "number": issue.number,
+                    "title": issue.title,
+                    "state": issue.state,
+                    "url": issue.html_url,
+                }
+                for issue in all_issues
+            ]
+
+            return {
+                "success": True,
+                "repository": repo_name,
+                "issues_count": len(issues_data),
+                "issues": issues_data,
+            }
+
+        except GithubException as e:
+            return {"success": False, "error": f"Failed to list issues: {str(e)}"}
