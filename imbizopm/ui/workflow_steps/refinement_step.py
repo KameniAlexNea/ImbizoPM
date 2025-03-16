@@ -55,6 +55,17 @@ class RefinementStep(BaseWorkflowStep):
         except Exception as e:
             yield f"Error refining project description: {str(e)}"
 
+    def update_model_default(self, provider: str) -> gr.Textbox:
+        """Update the model input field with the default model for the selected provider."""
+        if provider == "none" or not provider:
+            return gr.Textbox(value="")
+
+        try:
+            default_model = config.models.get_provider_config(provider).default_model.name
+            return gr.Textbox(value=default_model)
+        except (ValueError, AttributeError):
+            return gr.Textbox(value="")
+
     def build_step(self, visible: bool = False) -> None:
         """Build the UI for the refinement step."""
         gr.Markdown("## Step 2: Project Review & Refinement")
@@ -79,9 +90,24 @@ class RefinementStep(BaseWorkflowStep):
                     ),
                     visible=True,
                 )
+                
+                # Get default model name for the selected provider
+                default_model = None
+                if (
+                    self.available_providers
+                    and self.available_providers[0] != "none"
+                ):
+                    try:
+                        default_model = config.models.get_provider_config(
+                            self.available_providers[0]
+                        ).default_model.name
+                    except (ValueError, AttributeError):
+                        default_model = ""
+                
                 self.model = gr.Textbox(
-                    label="Model (optional)",
-                    placeholder="Leave blank for default model",
+                    label="Model",
+                    placeholder="Enter model or deployment name",
+                    value=default_model if default_model else "",
                     visible=True,
                 )
 
@@ -109,6 +135,13 @@ class RefinementStep(BaseWorkflowStep):
             if text2 and text2 != "Refined description will appear here...":
                 return text2
             return text1
+
+        # Update the model textbox with appropriate default when provider changes
+        self.provider.change(
+            fn=self.update_model_default,
+            inputs=[self.provider],
+            outputs=[self.model],
+        )
 
         # Refine description
         self.refine_btn.click(
