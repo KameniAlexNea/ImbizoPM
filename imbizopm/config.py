@@ -7,6 +7,8 @@ from typing import Dict, Optional
 
 from dotenv import load_dotenv
 
+from .model_config import ModelConfigManager
+
 
 class Config:
     """Configuration class for ImbizoPM."""
@@ -20,6 +22,9 @@ class Config:
         """
         # Load environment variables
         load_dotenv(dotenv_path=env_file)
+        
+        # Initialize model configuration manager
+        self.models = ModelConfigManager(env_file=env_file)
 
     @property
     def github_token(self) -> Optional[str]:
@@ -44,17 +49,22 @@ class Config:
     @property
     def ollama_model(self) -> str:
         """Get the Ollama model from environment."""
-        return os.environ.get("OLLAMA_MODEL", "phi4")
+        return self.models.ollama.default_model.name
 
     @property
     def openai_model(self) -> str:
         """Get the OpenAI model from environment."""
-        return os.environ.get("OPENAI_MODEL", "gpt-4")
+        return self.models.openai.default_model.name
 
     @property
     def anthropic_model(self) -> str:
         """Get the Anthropic model from environment."""
-        return os.environ.get("ANTHROPIC_MODEL", "claude-3-opus-20240229")
+        return self.models.anthropic.default_model.name
+    
+    @property
+    def master_provider(self) -> str:
+        """Get the master provider for multi-provider operations."""
+        return self.models.master_provider
 
     def get_llm_config(self, provider: str) -> Dict:
         """
@@ -66,14 +76,7 @@ class Config:
         Returns:
             Dictionary with provider-specific configuration
         """
-        if provider.lower() == "openai":
-            return {"api_key": self.openai_api_key, "model": self.openai_model}
-        elif provider.lower() == "anthropic":
-            return {"api_key": self.anthropic_api_key, "model": self.anthropic_model}
-        elif provider.lower() == "ollama":
-            return {"base_url": self.ollama_base_url, "model": self.ollama_model}
-        else:
-            raise ValueError(f"Unsupported provider: {provider}")
+        return self.models.get_llm_config(provider)
 
 
 # Create a global configuration instance

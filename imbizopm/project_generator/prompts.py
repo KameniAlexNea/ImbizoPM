@@ -2,6 +2,8 @@
 Prompts module containing templates for various LLM prompts used in the ImbizoPM system.
 """
 
+from ..config import config
+
 
 def project_description_prompt(project_prompt: str) -> str:
     """
@@ -170,6 +172,11 @@ def task_aggregation_prompt(task_lists: list, project_description: str) -> str:
         ]
     }}"""
     task_lists_format = "\n\n".join(task_lists)
+    
+    # Use master model capabilities to improve task aggregation
+    master_provider = config.master_provider
+    master_model = config.models.get_provider_config(master_provider).default_model.name
+    
     return f"""
     I have received multiple task lists for the same project:
     
@@ -181,6 +188,9 @@ def task_aggregation_prompt(task_lists: list, project_description: str) -> str:
     Please create a comprehensive task list that combines the best elements from all these lists.
     Include all important tasks while avoiding duplication. Make sure to maintain the structure
     with main tasks and subtasks, and include complexity and labels for each.
+    
+    You are using {master_provider}'s {master_model} model to produce this aggregation.
+    Focus on generating high-quality structured output.
     
     Return only a valid JSON object with the following structure:
     {output_schema}
