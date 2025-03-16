@@ -115,7 +115,7 @@ def launch_ui(
                     
                     # Ollama Configuration (default is http://localhost:11434)
                     OLLAMA_BASE_URL=http://localhost:11434
-                    OLLAMA_MODEL=llama3
+                    OLLAMA_MODEL=phi4
                     ```
                     """
                 )

@@ -44,7 +44,7 @@ class Config:
     @property
     def ollama_model(self) -> str:
         """Get the Ollama model from environment."""
-        return os.environ.get("OLLAMA_MODEL", "llama3")
+        return os.environ.get("OLLAMA_MODEL", "phi4")
 
     @property
     def openai_model(self) -> str:

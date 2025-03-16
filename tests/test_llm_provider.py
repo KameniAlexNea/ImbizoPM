@@ -246,7 +246,7 @@ class TestLLMProvider(unittest.TestCase):
         data = mock_client.post.call_args[1]["json"]
         self.assertEqual(url, "http://localhost:11434/api/generate")
         self.assertEqual(data["prompt"], "Test prompt")
-        self.assertEqual(data["model"], "llama3")
+        self.assertEqual(data["model"], "phi4")
 
     @patch("ollama.Client")
     def test_ollama_provider_with_custom_params(self, mock_client_class):

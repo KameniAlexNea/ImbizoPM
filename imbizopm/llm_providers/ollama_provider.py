@@ -10,13 +10,13 @@ from .base_provider import LLMProvider
 class OllamaProvider(LLMProvider):
     """Ollama provider for local language model interactions."""
 
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3"):
+    def __init__(self, base_url: str = "http://localhost:11434", model: str = "phi4"):
         """
         Initialize Ollama provider.
 
         Args:
             base_url: Base URL for the Ollama API (default: "http://localhost:11434")
-            model: The model to use (default: "llama3")
+            model: The model to use (default: "phi4")
         """
         self.base_url = base_url
         self.model = model

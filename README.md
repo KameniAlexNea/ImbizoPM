@@ -38,7 +38,7 @@ export ANTHROPIC_API_KEY=your_anthropic_api_key
 
 # For Ollama (local setup)
 export OLLAMA_BASE_URL=http://localhost:11434
-export OLLAMA_MODEL=llama3
+export OLLAMA_MODEL=phi4
 ```
 
 ## Usage
