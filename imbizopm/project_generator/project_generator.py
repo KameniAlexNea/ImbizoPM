@@ -2,10 +2,10 @@
 Project Generator module for creating project descriptions and task lists using LLMs.
 """
 
-import json
 from typing import Dict, List, Tuple, Union
 
 from ..llm_providers import LLMProvider, get_llm_provider
+from ..utilities.parser import parse_json
 from .prompts import (
     project_description_prompt,
     project_refinement_prompt,
@@ -72,37 +72,12 @@ class ProjectGenerator:
         response = self.llm.generate_text(prompt)
 
         # Extract the JSON part (in case the LLM adds extra text)
-        try:
-            # Find the first '{' and the last '}'
-            start_idx = response.find("{")
-            end_idx = response.rfind("}")
 
-            if start_idx == -1 or end_idx == -1:
-                raise ValueError("No valid JSON found in the response")
-
-            json_str = response[start_idx : end_idx + 1]
-            return json.loads(json_str)
-        except json.JSONDecodeError:
-            # If parsing fails, try to clean up the response
-            clean_response = self._clean_json_response(response)
-            return json.loads(clean_response)
-
-    def _clean_json_response(self, response: str) -> str:
-        """Clean up an LLM response to extract valid JSON."""
-        # Find content between triple backticks if present
-        import re
-
-        json_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", response)
-        if json_match:
-            return json_match.group(1)
-
-        # Otherwise try to extract between the first { and last }
-        start_idx = response.find("{")
-        end_idx = response.rfind("}")
-        if start_idx >= 0 and end_idx >= 0:
-            return response[start_idx : end_idx + 1]
-
-        raise ValueError("Could not extract valid JSON from the LLM response")
+        # Find the first '{' and the last '}'
+        text = parse_json(response)
+        if not text:
+            raise ValueError("No valid JSON found in the LLM response")
+        return text
 
     def generate_github_issues(self, tasks_data: Dict) -> List[Dict]:
         """
