@@ -5,7 +5,7 @@ Multi-provider project generator that uses multiple LLM providers and aggregates
 import concurrent.futures
 import json
 from typing import Dict, List, Optional, Union
-
+from ..utilities.parser import parse_json
 from ..llm_providers import LLMProvider, get_llm_provider
 from .project_generator import ProjectGenerator
 from .prompts import (
@@ -62,7 +62,7 @@ class MultiProviderProjectGenerator(ProjectGenerator):
             master_provider_idx
         ]  # Set master provider as default
 
-    def generate_project_description(self, project_prompt: str) -> str:
+    def generate_project_description(self, project_prompt: str):
         """
         Generate a project description using multiple providers and aggregate results.
 
@@ -79,10 +79,10 @@ class MultiProviderProjectGenerator(ProjectGenerator):
 
         # If only one provider, return its result directly
         if len(descriptions) == 1:
-            return descriptions[0]
-
-        # Aggregate the descriptions using the master provider
-        return self._aggregate_descriptions(descriptions, project_prompt)
+            yield descriptions[0]
+        else:
+            # Aggregate the descriptions using the master provider
+            yield from self._aggregate_descriptions(descriptions, project_prompt)
 
     def generate_tasks(self, project_description: str) -> Dict:
         """
@@ -109,8 +109,9 @@ class MultiProviderProjectGenerator(ProjectGenerator):
             except json.JSONDecodeError:
                 # If that fails, try to clean up the response
                 try:
-                    clean_response = self._clean_json_response(response)
-                    task_list = json.loads(clean_response)
+                    task_list = parse_json(response)
+                    if task_list is None:
+                        raise ValueError("No valid JSON found in the task response")
                     task_lists.append(task_list)
                 except (json.JSONDecodeError, ValueError):
                     # If still fails, skip this response
@@ -156,7 +157,7 @@ class MultiProviderProjectGenerator(ProjectGenerator):
 
     def _aggregate_descriptions(
         self, descriptions: List[str], original_prompt: str
-    ) -> str:
+    ):
         """
         Aggregate multiple descriptions into one using the master provider.
 
@@ -183,7 +184,7 @@ class MultiProviderProjectGenerator(ProjectGenerator):
         )
 
         # Use the master provider to generate the aggregated description
-        return self.llm.generate_text(aggregation_prompt_text)
+        yield from self.llm.generate_text_stream(aggregation_prompt_text)
 
     def _aggregate_tasks(
         self, task_lists: List[Dict], project_description: str
@@ -223,8 +224,10 @@ class MultiProviderProjectGenerator(ProjectGenerator):
 
         # Extract and parse the JSON
         try:
-            clean_response = self._clean_json_response(response)
-            return json.loads(clean_response)
+            clean_response = parse_json(response)
+            if not clean_response:
+                raise ValueError("No valid JSON found in the task response")
+            return clean_response
         except (json.JSONDecodeError, ValueError) as e:
             # If aggregation fails, return the first valid task list
             print(f"Error aggregating tasks: {e}")

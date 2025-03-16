@@ -29,7 +29,7 @@ class ProjectGenerator:
         else:
             self.llm = llm_provider
 
-    def generate_project_description(self, project_prompt: str) -> str:
+    def generate_project_description(self, project_prompt: str):
         """
         Generate a project description from a user prompt.
 
@@ -40,11 +40,11 @@ class ProjectGenerator:
             Generated project description
         """
         prompt = project_description_prompt(project_prompt)
-        return self.llm.generate_text(prompt)
+        yield from self.llm.generate_text_stream(prompt)
 
     def refine_project_description(
         self, original_description: str, user_feedback: str
-    ) -> str:
+    ):
         """
         Refine the project description based on user feedback.
 
@@ -56,7 +56,7 @@ class ProjectGenerator:
             Refined project description
         """
         prompt = project_refinement_prompt(original_description, user_feedback)
-        return self.llm.generate_text(prompt)
+        yield from self.llm.generate_text_stream(prompt)
 
     def generate_tasks(self, project_description: str) -> Dict:
         """
@@ -72,8 +72,6 @@ class ProjectGenerator:
         response = self.llm.generate_text(prompt)
 
         # Extract the JSON part (in case the LLM adds extra text)
-
-        # Find the first '{' and the last '}'
         text = parse_json(response)
         if not text:
             raise ValueError("No valid JSON found in the LLM response")

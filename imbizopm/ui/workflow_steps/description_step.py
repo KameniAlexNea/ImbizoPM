@@ -36,7 +36,7 @@ class DescriptionStep(BaseWorkflowStep):
 
     def _generate_project_description(
         self, project_idea: str, provider: str, model: str = None
-    ) -> str:
+    ):
         """
         Generate a project description using the specified LLM provider.
         """
@@ -52,11 +52,12 @@ class DescriptionStep(BaseWorkflowStep):
             # Initialize project generator
             generator = ProjectGenerator(provider, **provider_kwargs)
 
-            # Generate description with streaming
-            return generator.generate_project_description(project_idea)
-
+            text = ""
+            for t in generator.generate_project_description(project_idea):
+                text += t
+                yield text
         except Exception as e:
-            return f"Error generating project description: {str(e)}"
+            yield f"Error generating project description: {str(e)}"
 
     def _multi_provider_generate(
         self,
@@ -65,7 +66,7 @@ class DescriptionStep(BaseWorkflowStep):
         use_anthropic: bool,
         use_ollama: bool,
         master_provider: str,
-    ) -> str:
+    ):
         """
         Generate a project description using multiple providers.
         """
@@ -106,10 +107,13 @@ class DescriptionStep(BaseWorkflowStep):
             )
 
             # Generate description with streaming
-            return generator.generate_project_description(project_idea)
+            text = ""
+            for t in generator.generate_project_description(project_idea):
+                text += t
+                yield text
 
         except Exception as e:
-            return f"Error generating project description: {str(e)}"
+            yield f"Error generating project description: {str(e)}"
 
     def generate_description(
         self,
@@ -121,12 +125,12 @@ class DescriptionStep(BaseWorkflowStep):
         use_an: bool,
         use_ol: bool,
         master_prov: str,
-    ) -> str:
+    ):
         """Generate project description using either single or multiple providers."""
         if use_single:
-            return self._generate_project_description(idea, prov, mod)
+            yield from self._generate_project_description(idea, prov, mod)
         else:
-            return self._multi_provider_generate(
+            yield from self._multi_provider_generate(
                 idea, use_oa, use_an, use_ol, master_prov
             )
 

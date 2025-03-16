@@ -26,7 +26,7 @@ class RefinementStep(BaseWorkflowStep):
 
     def _refine_project_description(
         self, original_description: str, feedback: str, provider: str, model: str = None
-    ) -> str:
+    ):
         """
         Refine a project description based on feedback.
         """
@@ -47,10 +47,13 @@ class RefinementStep(BaseWorkflowStep):
             generator = ProjectGenerator(provider, **provider_kwargs)
 
             # Refine description with streaming
-            return generator.refine_project_description(original_description, feedback)
+            text = ""
+            for t in generator.refine_project_description(original_description, feedback):
+                text += t
+                yield text
 
         except Exception as e:
-            return f"Error refining project description: {str(e)}"
+            yield f"Error refining project description: {str(e)}"
 
     def build_step(self, visible: bool = False) -> None:
         """Build the UI for the refinement step."""
