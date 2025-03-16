@@ -152,20 +152,6 @@ class DescriptionStep(BaseWorkflowStep):
             gr.Group(visible=not use_single),  # Multi-provider options
         )
 
-    def update_model_choices(self, provider: str) -> gr.Dropdown:
-        """Update the model choices based on selected provider."""
-        if provider == "none" or not provider:
-            return gr.Dropdown(choices=[], value=None)
-
-        try:
-            models = config.models.get_provider_model_names(provider)
-            default_model = config.models.get_provider_config(
-                provider
-            ).default_model.name
-            return gr.Dropdown(choices=models, value=default_model)
-        except ValueError:
-            return gr.Dropdown(choices=[], value=None)
-
     def build_step(self, visible: bool = False) -> None:
         """Build the UI for the description step."""
         gr.Markdown("## Step 1: Project Idea")
@@ -195,25 +181,24 @@ class DescriptionStep(BaseWorkflowStep):
                             visible=True,
                         )
 
-                        # Use model configuration for model dropdown
-                        provider_models = []
+                        # Get default model name for the selected provider
+                        default_model = None
                         if (
                             self.available_providers
                             and self.available_providers[0] != "none"
                         ):
                             try:
-                                provider_models = (
-                                    config.models.get_provider_model_names(
-                                        self.available_providers[0]
-                                    )
-                                )
-                            except ValueError:
-                                provider_models = []
+                                default_model = config.models.get_provider_config(
+                                    self.available_providers[0]
+                                ).default_model.name
+                            except (ValueError, AttributeError):
+                                default_model = ""
 
-                        self.model = gr.Dropdown(
-                            choices=provider_models,
+                        # Use a textbox for model input instead of dropdown
+                        self.model = gr.Textbox(
                             label="Model",
-                            value=provider_models[0] if provider_models else None,
+                            placeholder="Enter model or deployment name",
+                            value=default_model if default_model else "",
                             visible=True,
                         )
 
@@ -273,6 +258,17 @@ class DescriptionStep(BaseWorkflowStep):
         # Register event handlers
         self.register_event_handlers(single_provider_group)
 
+    def update_model_default(self, provider: str) -> gr.Textbox:
+        """Update the model input field with the default model for the selected provider."""
+        if provider == "none" or not provider:
+            return gr.Textbox(value="")
+
+        try:
+            default_model = config.models.get_provider_config(provider).default_model.name
+            return gr.Textbox(value=default_model)
+        except (ValueError, AttributeError):
+            return gr.Textbox(value="")
+
     def register_event_handlers(self, single_provider_group) -> None:
         """Register event handlers for this step's UI elements."""
         # Toggle between single and multi provider options
@@ -282,9 +278,9 @@ class DescriptionStep(BaseWorkflowStep):
             outputs=[single_provider_group, self.multi_provider_options],
         )
 
-        # Update model dropdown when provider changes
+        # Update the model textbox with appropriate default when provider changes
         self.provider.change(
-            fn=self.update_model_choices,
+            fn=self.update_model_default,
             inputs=[self.provider],
             outputs=[self.model],
         )
