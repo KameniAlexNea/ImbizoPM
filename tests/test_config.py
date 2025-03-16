@@ -52,7 +52,7 @@ class TestConfig(unittest.TestCase):
         """Test default Ollama model."""
         with patch.dict(os.environ, {}, clear=True):
             config = Config()
-            self.assertEqual(config.ollama_model, "llama3")
+            self.assertEqual(config.ollama_model, "phi4")
 
     @patch.dict(os.environ, {"OPENAI_MODEL": "gpt-3.5-turbo"})
     def test_openai_model(self):

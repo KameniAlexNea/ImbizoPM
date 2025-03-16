@@ -26,6 +26,7 @@ setup(
     entry_points={
         "console_scripts": [
             "imbizopm=imbizopm.cli:main",
+            "imbizopm-ui=imbizopm.ui.launcher:main",
         ],
     },
 )
