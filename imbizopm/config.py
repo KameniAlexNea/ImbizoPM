@@ -1,5 +1,9 @@
 """
 Configuration module for ImbizoPM.
+
+This is the central configuration for the entire application. All modules should
+import and use the 'config' instance from this module rather than creating their
+own configuration objects.
 """
 
 import os
@@ -11,7 +15,13 @@ from .model_config import ModelConfigManager
 
 
 class Config:
-    """Configuration class for ImbizoPM."""
+    """
+    Configuration class for ImbizoPM.
+
+    This is the main configuration class that provides access to all settings
+    including environment variables and model configuration. The global 'config'
+    instance at the bottom of this file should be used throughout the application.
+    """
 
     def __init__(self, env_file: Optional[str] = None):
         """
@@ -80,4 +90,5 @@ class Config:
 
 
 # Create a global configuration instance
+# This is the single instance that should be imported and used throughout the application
 config = Config()

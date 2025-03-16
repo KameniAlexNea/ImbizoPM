@@ -2,6 +2,8 @@
 Model configuration module for ImbizoPM.
 
 This module provides configuration classes for different LLM providers and models.
+It's designed to be used through the Config class in config.py, which creates a ModelConfigManager
+instance and provides it through the 'models' attribute.
 """
 
 import os
@@ -167,5 +169,4 @@ class ModelConfigManager:
         return self.get_provider_config(provider).get_config()
 
 
-# Create a global model configuration instance
-model_config = ModelConfigManager()
+# NOTE: No global instance here. Use config.models from config.py instead.
