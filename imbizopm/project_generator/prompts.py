@@ -172,11 +172,11 @@ def task_aggregation_prompt(task_lists: list, project_description: str) -> str:
         ]
     }}"""
     task_lists_format = "\n\n".join(task_lists)
-    
+
     # Use master model capabilities to improve task aggregation
     master_provider = config.master_provider
     master_model = config.models.get_provider_config(master_provider).default_model.name
-    
+
     return f"""
     I have received multiple task lists for the same project:
     

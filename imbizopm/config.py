@@ -22,7 +22,7 @@ class Config:
         """
         # Load environment variables
         load_dotenv(dotenv_path=env_file)
-        
+
         # Initialize model configuration manager
         self.models = ModelConfigManager(env_file=env_file)
 
@@ -60,7 +60,7 @@ class Config:
     def anthropic_model(self) -> str:
         """Get the Anthropic model from environment."""
         return self.models.anthropic.default_model.name
-    
+
     @property
     def master_provider(self) -> str:
         """Get the master provider for multi-provider operations."""

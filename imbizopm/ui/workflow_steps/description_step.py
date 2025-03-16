@@ -147,15 +147,17 @@ class DescriptionStep(BaseWorkflowStep):
             gr.Group(visible=use_single),  # Single provider options
             gr.Group(visible=not use_single),  # Multi-provider options
         )
-        
+
     def update_model_choices(self, provider: str) -> gr.Dropdown:
         """Update the model choices based on selected provider."""
         if provider == "none" or not provider:
             return gr.Dropdown(choices=[], value=None)
-            
+
         try:
             models = config.models.get_provider_model_names(provider)
-            default_model = config.models.get_provider_config(provider).default_model.name
+            default_model = config.models.get_provider_config(
+                provider
+            ).default_model.name
             return gr.Dropdown(choices=models, value=default_model)
         except ValueError:
             return gr.Dropdown(choices=[], value=None)
@@ -188,15 +190,22 @@ class DescriptionStep(BaseWorkflowStep):
                             ),
                             visible=True,
                         )
-                        
+
                         # Use model configuration for model dropdown
                         provider_models = []
-                        if self.available_providers and self.available_providers[0] != "none":
+                        if (
+                            self.available_providers
+                            and self.available_providers[0] != "none"
+                        ):
                             try:
-                                provider_models = config.models.get_provider_model_names(self.available_providers[0])
+                                provider_models = (
+                                    config.models.get_provider_model_names(
+                                        self.available_providers[0]
+                                    )
+                                )
                             except ValueError:
                                 provider_models = []
-                                
+
                         self.model = gr.Dropdown(
                             choices=provider_models,
                             label="Model",
@@ -229,11 +238,15 @@ class DescriptionStep(BaseWorkflowStep):
                                 p for p in self.available_providers if p != "none"
                             ],
                             label="Master Provider (for aggregation)",
-                            value=config.master_provider if config.master_provider in self.available_providers else (
-                                self.available_providers[0]
-                                if self.available_providers
-                                and self.available_providers[0] != "none"
-                                else None
+                            value=(
+                                config.master_provider
+                                if config.master_provider in self.available_providers
+                                else (
+                                    self.available_providers[0]
+                                    if self.available_providers
+                                    and self.available_providers[0] != "none"
+                                    else None
+                                )
                             ),
                         )
 
@@ -264,7 +277,7 @@ class DescriptionStep(BaseWorkflowStep):
             inputs=[self.use_single_provider],
             outputs=[single_provider_group, self.multi_provider_options],
         )
-        
+
         # Update model dropdown when provider changes
         self.provider.change(
             fn=self.update_model_choices,
