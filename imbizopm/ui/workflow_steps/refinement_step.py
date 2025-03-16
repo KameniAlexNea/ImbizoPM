@@ -101,8 +101,18 @@ class RefinementStep(BaseWorkflowStep):
     
     def register_event_handlers(self) -> None:
         """Register event handlers for this step's UI elements."""
+
+        def update_step(text1: str, text2: str):
+            if text2 and text2 != "Refined description will appear here...":
+                return text2
+            return text1
         # Refine description
         self.refine_btn.click(
+            fn=update_step,
+            inputs=[self.current_description, self.refined_description],
+            outputs=[self.current_description],
+            queue=True,
+        ).success(
             fn=self._refine_project_description,
             inputs=[self.current_description, self.feedback, self.provider, self.model],
             outputs=[self.refined_description],
