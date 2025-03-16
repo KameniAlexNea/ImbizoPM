@@ -6,9 +6,7 @@ import gradio as gr
 
 from ..config import config
 from .base import BaseUI
-from .github_ui import GitHubUI
-from .multi_provider import MultiProviderUI
-from .single_provider import SingleProviderUI
+from .workflow_steps.github_step import GitHubStep
 from .workflow_ui import WorkflowUI
 
 
@@ -27,9 +25,6 @@ def launch_ui(
     base_ui = BaseUI()
 
     # Initialize UI components
-    single_provider_ui = SingleProviderUI()
-    multi_provider_ui = MultiProviderUI()
-    github_ui = GitHubUI()
     workflow_ui = WorkflowUI()
 
     # Create the main UI with tabs
@@ -75,15 +70,9 @@ def launch_ui(
             with gr.Tab("Project Workflow"):
                 workflow_ui.build_ui()
 
-            # Individual component tabs
-            with gr.Tab("Single Provider"):
-                single_provider_ui.build_ui()
-
-            with gr.Tab("Multiple Providers"):
-                multi_provider_ui.build_ui()
-
-            with gr.Tab("GitHub"):
-                github_ui.build_ui()
+            # GitHub Tab (New)
+            with gr.Tab("GitHub Step"):
+                GitHubStep().build_step(True)
 
             # About Tab
             with gr.Tab("About"):

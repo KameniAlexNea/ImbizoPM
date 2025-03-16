@@ -264,7 +264,9 @@ class DescriptionStep(BaseWorkflowStep):
             return gr.Textbox(value="")
 
         try:
-            default_model = config.models.get_provider_config(provider).default_model.name
+            default_model = config.models.get_provider_config(
+                provider
+            ).default_model.name
             return gr.Textbox(value=default_model)
         except (ValueError, AttributeError):
             return gr.Textbox(value="")

@@ -5,8 +5,9 @@ Multi-provider project generator that uses multiple LLM providers and aggregates
 import concurrent.futures
 import json
 from typing import Dict, List, Optional, Union
-from ..utilities.parser import parse_json
+
 from ..llm_providers import LLMProvider, get_llm_provider
+from ..utilities.parser import parse_json
 from .project_generator import ProjectGenerator
 from .prompts import (
     aggregation_prompt,
@@ -155,9 +156,7 @@ class MultiProviderProjectGenerator(ProjectGenerator):
 
         return results
 
-    def _aggregate_descriptions(
-        self, descriptions: List[str], original_prompt: str
-    ):
+    def _aggregate_descriptions(self, descriptions: List[str], original_prompt: str):
         """
         Aggregate multiple descriptions into one using the master provider.
 

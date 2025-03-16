@@ -42,9 +42,7 @@ class ProjectGenerator:
         prompt = project_description_prompt(project_prompt)
         yield from self.llm.generate_text_stream(prompt)
 
-    def refine_project_description(
-        self, original_description: str, user_feedback: str
-    ):
+    def refine_project_description(self, original_description: str, user_feedback: str):
         """
         Refine the project description based on user feedback.
 

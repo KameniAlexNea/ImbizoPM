@@ -48,7 +48,9 @@ class RefinementStep(BaseWorkflowStep):
 
             # Refine description with streaming
             text = ""
-            for t in generator.refine_project_description(original_description, feedback):
+            for t in generator.refine_project_description(
+                original_description, feedback
+            ):
                 text += t
                 yield text
 
@@ -61,7 +63,9 @@ class RefinementStep(BaseWorkflowStep):
             return gr.Textbox(value="")
 
         try:
-            default_model = config.models.get_provider_config(provider).default_model.name
+            default_model = config.models.get_provider_config(
+                provider
+            ).default_model.name
             return gr.Textbox(value=default_model)
         except (ValueError, AttributeError):
             return gr.Textbox(value="")
@@ -90,20 +94,17 @@ class RefinementStep(BaseWorkflowStep):
                     ),
                     visible=True,
                 )
-                
+
                 # Get default model name for the selected provider
                 default_model = None
-                if (
-                    self.available_providers
-                    and self.available_providers[0] != "none"
-                ):
+                if self.available_providers and self.available_providers[0] != "none":
                     try:
                         default_model = config.models.get_provider_config(
                             self.available_providers[0]
                         ).default_model.name
                     except (ValueError, AttributeError):
                         default_model = ""
-                
+
                 self.model = gr.Textbox(
                     label="Model",
                     placeholder="Enter model or deployment name",
