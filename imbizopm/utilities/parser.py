@@ -24,7 +24,7 @@ def parse_json(json_str: str):
         pass
 
     # Attempt 2: Look for a JSON block delimited by ```json and ```.
-    match = re.search(r"```json\s*(.*?)\s*```", json_str, re.DOTALL)
+    match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", json_str)
     if match:
         json_block = match.group(1)
         try:
@@ -41,8 +41,7 @@ def parse_json(json_str: str):
         try:
             return json.loads(json_block)
         except json.JSONDecodeError as e:
-            print("Error parsing fallback JSON block:", e)
-            return
+            pass
 
     # Attempt 3: Fallback to extracting text between the first '{' and the last '}'.
     start = json_str.find("[")
@@ -52,8 +51,7 @@ def parse_json(json_str: str):
         try:
             return json.loads(json_block)
         except json.JSONDecodeError as e:
-            print("Error parsing fallback JSON block:", e)
-            return
+            pass
 
     # If no JSON could be parsed, return None.
     return

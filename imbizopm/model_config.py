@@ -61,9 +61,9 @@ class OpenAIConfig(ProviderConfig):
     provider_name = "openai"
     models = [
         ModelInfo(name="gpt-3.5-turbo", context_length=16385),
-        ModelInfo(name="gpt-4", context_length=8192, is_default=True),
+        ModelInfo(name="gpt-4", context_length=8192),
         ModelInfo(name="gpt-4-turbo", context_length=128000),
-        ModelInfo(name="gpt-4o", context_length=128000),
+        ModelInfo(name="gpt-4o", context_length=128000, is_default=True),
     ]
 
 
@@ -75,7 +75,7 @@ class AnthropicConfig(ProviderConfig):
         ModelInfo(name="claude-3-haiku-20240307", context_length=200000),
         ModelInfo(name="claude-3-sonnet-20240229", context_length=200000),
         ModelInfo(
-            name="claude-3-opus-20240229", context_length=200000, is_default=True
+            name="claude-3-7-sonnet-20250219", context_length=200000, is_default=True
         ),
     ]
 
@@ -167,6 +167,3 @@ class ModelConfigManager:
             Dictionary with provider-specific configuration
         """
         return self.get_provider_config(provider).get_config()
-
-
-# NOTE: No global instance here. Use config.models from config.py instead.

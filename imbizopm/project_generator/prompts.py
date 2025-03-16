@@ -151,26 +151,6 @@ def task_aggregation_prompt(task_lists: list, project_description: str) -> str:
     Returns:
         Complete prompt for the master LLM to aggregate task lists
     """
-    output_schema = """{{
-        "project_title": "Title from description",
-        "project_description": "A concise version of the project description",
-        "tasks": [
-            {{
-                "title": "Task 1 title",
-                "description": "Task 1 description",
-                "complexity": "Medium",
-                "labels": ["enhancement"],
-                "subtasks": [
-                    {{
-                        "title": "Subtask 1.1 title",
-                        "description": "Subtask 1.1 description",
-                        "complexity": "Low",
-                        "labels": ["documentation"]
-                    }}
-                ]
-            }}
-        ]
-    }}"""
     task_lists_format = "\n\n".join(task_lists)
 
     # Use master model capabilities to improve task aggregation
@@ -193,5 +173,24 @@ def task_aggregation_prompt(task_lists: list, project_description: str) -> str:
     Focus on generating high-quality structured output.
     
     Return only a valid JSON object with the following structure:
-    {output_schema}
+    {{
+        "project_title": "Title from description",
+        "project_description": "A concise version of the project description",
+        "tasks": [
+            {{
+                "title": "Task 1 title",
+                "description": "Task 1 description",
+                "complexity": "Medium",
+                "labels": ["enhancement"],
+                "subtasks": [
+                    {{
+                        "title": "Subtask 1.1 title",
+                        "description": "Subtask 1.1 description",
+                        "complexity": "Low",
+                        "labels": ["documentation"]
+                    }}
+                ]
+            }}
+        ]
+    }}
     """
