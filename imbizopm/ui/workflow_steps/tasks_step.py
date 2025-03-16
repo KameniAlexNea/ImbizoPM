@@ -14,7 +14,7 @@ from .base_step import BaseWorkflowStep
 
 class TasksStep(BaseWorkflowStep):
     """Project task generation step."""
-    
+
     def __init__(self):
         """Initialize the tasks step."""
         super().__init__()
@@ -29,7 +29,7 @@ class TasksStep(BaseWorkflowStep):
         self.export_btn = None
         self.prev_btn = None
         self.next_btn = None
-        
+
     def _generate_project_tasks(
         self, project_description: str, provider: str, model: str = None
     ) -> Tuple[str, Dict]:
@@ -58,7 +58,7 @@ class TasksStep(BaseWorkflowStep):
 
         except Exception as e:
             return f"Error generating project tasks: {str(e)}", {}
-            
+
     def _export_tasks_to_json(self, tasks_data: Dict, filename: str) -> str:
         """
         Export tasks data to a JSON file.
@@ -81,15 +81,15 @@ class TasksStep(BaseWorkflowStep):
 
         except Exception as e:
             return f"Error exporting tasks: {str(e)}"
-            
+
     def build_step(self, visible: bool = False) -> None:
         """Build the UI for the task generation step."""
         gr.Markdown("## Step 3: Task Generation")
-        
+
         with gr.Row():
             with gr.Column(scale=1):
                 self.final_description = gr.Markdown(label="Project Description")
-                
+
                 with gr.Accordion("Task Generation Options", open=False):
                     self.task_provider = gr.Dropdown(
                         choices=self.available_providers,
@@ -104,18 +104,18 @@ class TasksStep(BaseWorkflowStep):
                         label="Model (optional)",
                         placeholder="Leave blank for default model",
                     )
-                
+
                 self.generate_btn = gr.Button("Generate Tasks", variant="primary")
-                
+
             with gr.Column(scale=1):
                 self.tasks_display = gr.Markdown(
                     label="Generated Tasks",
                     value="Tasks will appear here...",
                 )
-        
+
         # Task state for storing generated task data
         self.task_state = gr.State({})
-        
+
         # Export option
         with gr.Row():
             self.export_filename = gr.Textbox(
@@ -124,15 +124,17 @@ class TasksStep(BaseWorkflowStep):
                 value="tasks.json",
             )
             self.export_btn = gr.Button("Export", variant="secondary")
-        
+
         # Navigation buttons
         with gr.Row():
             self.prev_btn = gr.Button("Back", variant="secondary")
-            self.next_btn = gr.Button("Next: GitHub Integration", variant="secondary", interactive=False)
-            
+            self.next_btn = gr.Button(
+                "Next: GitHub Integration", variant="secondary", interactive=False
+            )
+
         # Register event handlers
         self.register_event_handlers()
-    
+
     def register_event_handlers(self) -> None:
         """Register event handlers for this step's UI elements."""
         # Generate tasks
@@ -144,9 +146,9 @@ class TasksStep(BaseWorkflowStep):
         ).then(
             fn=lambda tasks: gr.Button(interactive=bool(tasks)),
             inputs=[self.task_state],
-            outputs=[self.next_btn]
+            outputs=[self.next_btn],
         )
-        
+
         # Export tasks
         self.export_btn.click(
             fn=self._export_tasks_to_json,

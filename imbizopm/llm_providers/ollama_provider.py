@@ -2,8 +2,10 @@
 Ollama provider implementation for local LLMs.
 """
 
-from typing import Iterator, Optional
+from typing import Iterator
+
 import ollama
+
 from .base_provider import LLMProvider
 
 
@@ -50,13 +52,15 @@ class OllamaProvider(LLMProvider):
                 prompt=prompt,
                 options={"temperature": temperature},
                 stream=False,
-                **kwargs
+                **kwargs,
             )
             return response["response"]
         except Exception as e:
             raise RuntimeError(f"Failed to generate text: {str(e)}")
 
-    def generate_text_stream(self, prompt: str, temperature: float = 0.7, **kwargs) -> Iterator[str]:
+    def generate_text_stream(
+        self, prompt: str, temperature: float = 0.7, **kwargs
+    ) -> Iterator[str]:
         """
         Stream text generation using Ollama API.
 
@@ -81,7 +85,7 @@ class OllamaProvider(LLMProvider):
                 prompt=prompt,
                 options={"temperature": temperature},
                 stream=True,
-                **kwargs
+                **kwargs,
             )
             for chunk in stream:
                 if "response" in chunk:

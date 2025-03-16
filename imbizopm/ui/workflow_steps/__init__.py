@@ -7,9 +7,4 @@ from .github_step import GitHubStep
 from .refinement_step import RefinementStep
 from .tasks_step import TasksStep
 
-__all__ = [
-    "DescriptionStep",
-    "RefinementStep",
-    "TasksStep", 
-    "GitHubStep"
-]
+__all__ = ["DescriptionStep", "RefinementStep", "TasksStep", "GitHubStep"]

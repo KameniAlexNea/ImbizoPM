@@ -43,7 +43,7 @@ class MultiProviderProjectGenerator(ProjectGenerator):
             raise ValueError("providers and provider_kwargs must have the same length")
 
         # Initialize all providers
-        self.llm_providers = []
+        self.llm_providers: list[LLMProvider] = []
         for i, provider in enumerate(providers):
             kwargs = provider_kwargs[i] if provider_kwargs else {}
             if isinstance(provider, str):

@@ -2,19 +2,21 @@
 Project description generation step for the workflow UI.
 """
 
-import json
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Tuple
 
 import gradio as gr
 
 from ...config import config
-from ...project_generator import MultiProviderProjectGenerator, ProjectGenerator
+from ...project_generator import (
+    MultiProviderProjectGenerator,
+    ProjectGenerator,
+)
 from .base_step import BaseWorkflowStep
 
 
 class DescriptionStep(BaseWorkflowStep):
     """Project description generation step."""
-    
+
     def __init__(self):
         """Initialize the description step."""
         super().__init__()
@@ -31,7 +33,7 @@ class DescriptionStep(BaseWorkflowStep):
         self.generate_btn = None
         self.project_description = None
         self.next_btn = None
-    
+
     def _generate_project_description(
         self, project_idea: str, provider: str, model: str = None
     ) -> str:
@@ -108,39 +110,48 @@ class DescriptionStep(BaseWorkflowStep):
 
         except Exception as e:
             return f"Error generating project description: {str(e)}"
-            
+
     def generate_description(
-        self, idea: str, use_single: bool, prov: str, mod: str,
-        use_oa: bool, use_an: bool, use_ol: bool, master_prov: str
+        self,
+        idea: str,
+        use_single: bool,
+        prov: str,
+        mod: str,
+        use_oa: bool,
+        use_an: bool,
+        use_ol: bool,
+        master_prov: str,
     ) -> str:
         """Generate project description using either single or multiple providers."""
         if use_single:
             return self._generate_project_description(idea, prov, mod)
         else:
-            return self._multi_provider_generate(idea, use_oa, use_an, use_ol, master_prov)
-    
+            return self._multi_provider_generate(
+                idea, use_oa, use_an, use_ol, master_prov
+            )
+
     def enable_next_button(self, description: str) -> gr.Button:
         """Enable or disable the next button based on description content."""
         # Check if description is not empty and not an error message
         valid = (
-            description 
+            description
             and description != "Project description will appear here..."
             and not description.startswith("Error")
             and not description.startswith("Please select")
         )
         return gr.Button(interactive=valid)
-    
+
     def toggle_provider_options(self, use_single: bool) -> Tuple[gr.Group, gr.Group]:
         """Toggle visibility of single vs. multi-provider options."""
         return (
             gr.Group(visible=use_single),  # Single provider options
             gr.Group(visible=not use_single),  # Multi-provider options
         )
-            
+
     def build_step(self, visible: bool = False) -> None:
         """Build the UI for the description step."""
         gr.Markdown("## Step 1: Project Idea")
-        
+
         with gr.Row():
             with gr.Column(scale=1):
                 self.project_idea = gr.Textbox(
@@ -148,7 +159,7 @@ class DescriptionStep(BaseWorkflowStep):
                     placeholder="Enter a brief description of your project idea",
                     lines=5,
                 )
-                
+
                 with gr.Accordion("Configuration", open=False):
                     # Single provider options
                     with gr.Group() as single_provider_group:
@@ -170,7 +181,7 @@ class DescriptionStep(BaseWorkflowStep):
                             placeholder="Leave blank for default model",
                             visible=True,
                         )
-                    
+
                     # Multi-provider options
                     with gr.Group(visible=False) as self.multi_provider_options:
                         gr.Markdown("#### Providers to Use")
@@ -192,7 +203,9 @@ class DescriptionStep(BaseWorkflowStep):
                             )
 
                         self.master_provider = gr.Dropdown(
-                            choices=[p for p in self.available_providers if p != "none"],
+                            choices=[
+                                p for p in self.available_providers if p != "none"
+                            ],
                             label="Master Provider (for aggregation)",
                             value=(
                                 self.available_providers[0]
@@ -201,22 +214,26 @@ class DescriptionStep(BaseWorkflowStep):
                                 else None
                             ),
                         )
-                
-                self.generate_btn = gr.Button("Generate Project Description", variant="primary")
+
+                self.generate_btn = gr.Button(
+                    "Generate Project Description", variant="primary"
+                )
 
             with gr.Column(scale=1):
                 self.project_description = gr.Markdown(
                     label="Generated Description",
                     value="Project description will appear here...",
                 )
-        
+
         # Navigation buttons
         with gr.Row():
-            self.next_btn = gr.Button("Next: Review & Refine", variant="secondary", interactive=False)
-        
+            self.next_btn = gr.Button(
+                "Next: Review & Refine", variant="secondary", interactive=False
+            )
+
         # Register event handlers
         self.register_event_handlers(single_provider_group)
-    
+
     def register_event_handlers(self, single_provider_group) -> None:
         """Register event handlers for this step's UI elements."""
         # Toggle between single and multi provider options
@@ -225,19 +242,19 @@ class DescriptionStep(BaseWorkflowStep):
             inputs=[self.use_single_provider],
             outputs=[single_provider_group, self.multi_provider_options],
         )
-        
+
         # Generate description
         self.generate_btn.click(
             fn=self.generate_description,
             inputs=[
-                self.project_idea, 
-                self.use_single_provider, 
-                self.provider, 
-                self.model, 
-                self.use_openai, 
-                self.use_anthropic, 
-                self.use_ollama, 
-                self.master_provider
+                self.project_idea,
+                self.use_single_provider,
+                self.provider,
+                self.model,
+                self.use_openai,
+                self.use_anthropic,
+                self.use_ollama,
+                self.master_provider,
             ],
             outputs=[self.project_description],
             queue=True,
