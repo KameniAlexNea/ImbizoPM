@@ -63,6 +63,20 @@ class GitHubManager:
             Dictionary with repository details
         """
         try:
+            # check if repository already exists
+            repo = self.github.get_repo(f"{self.user.login}/{name}")
+            return {
+                "success": True,
+                "repository": {
+                    "name": repo.name,
+                    "full_name": repo.full_name,
+                    "url": repo.html_url,
+                    "clone_url": repo.clone_url,
+                },
+            }
+        except Exception as e:
+            pass
+        try:
             repo = self.user.create_repo(
                 name=name,
                 description=description,
@@ -123,8 +137,8 @@ class GitHubManager:
         title: str,
         body: Optional[str] = None,
         labels: Optional[List[str]] = None,
-        milestone: Optional[int] = None,
-        assignees: Optional[List[str]] = None,
+        # milestone: Optional[int] = None,
+        # assignees: Optional[List[str]] = None,
     ) -> Dict:
         """
         Create a new issue in a repository.
@@ -146,8 +160,8 @@ class GitHubManager:
                 title=title,
                 body=body,
                 labels=labels,
-                milestone=milestone,
-                assignees=assignees,
+                # milestone=milestone,
+                # assignees=assignees,
             )
 
             return {
@@ -159,6 +173,8 @@ class GitHubManager:
                 },
             }
         except GithubException as e:
+            return {"success": False, "error": f"GHE - Failed to create issue: {str(e)}"}
+        except Exception as e:
             return {"success": False, "error": f"Failed to create issue: {str(e)}"}
 
     def create_project_with_issues(
