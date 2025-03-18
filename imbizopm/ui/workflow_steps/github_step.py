@@ -137,13 +137,32 @@ class GitHubStep(BaseWorkflowStep):
                 body=tasks_data.get("project_description", ""),
             )
 
-            # Generate GitHub issues
+            # Generate GitHub issues with the enhanced linking approach
             generator = ProjectGenerator("ollama")  # Provider doesn't matter here
             issues = generator.generate_github_issues(tasks_data)
 
-            # Create issues
+            # Track parent-child relationship between issues
+            issue_relationships = []
+            parent_issues_map = {}  # Map parent titles to issue numbers
+            subtask_issues_map = (
+                {}
+            )  # Map subtask titles to issue numbers and their parent titles
+
+            # First pass: Create all issues and track their relationships
             created_issues = []
             for issue in issues:
+                # Extract parent-child relationship from the body
+                is_subtask = "Parent task:" in issue["body"]
+                parent_title = None
+
+                if is_subtask:
+                    # Extract parent task title from body
+                    for line in issue["body"].split("\n"):
+                        if line.startswith("Parent task:"):
+                            parent_title = line.replace("Parent task:", "").strip()
+                            break
+
+                # Create issue
                 issue_result = manager.create_issue(
                     repo_name=repo_name,
                     title=issue["title"],
@@ -152,7 +171,51 @@ class GitHubStep(BaseWorkflowStep):
                 )
 
                 if issue_result["success"]:
-                    created_issues.append(issue_result["issue"])
+                    created_issue = issue_result["issue"]
+                    created_issues.append(created_issue)
+
+                    # Track this issue
+                    if is_subtask and parent_title:
+                        subtask_issues_map[issue["title"]] = {
+                            "number": created_issue["number"],
+                            "parent_title": parent_title,
+                        }
+                    else:
+                        parent_issues_map[issue["title"]] = created_issue["number"]
+
+            # Second pass: Create sub-issue relationships
+            for subtask_title, subtask_info in subtask_issues_map.items():
+                parent_title = subtask_info["parent_title"]
+
+                if parent_title in parent_issues_map:
+                    parent_number = parent_issues_map[parent_title]
+                    child_number = subtask_info["number"]
+
+                    # Create the sub-issue relationship
+                    sub_issue_result = manager.create_sub_issue_relationship(
+                        repo_name=repo_name,
+                        parent_issue_number=parent_number,
+                        child_issue_number=child_number,
+                    )
+
+                    if sub_issue_result["success"]:
+                        issue_relationships.append(
+                            {
+                                "parent": parent_number,
+                                "child": child_number,
+                                "status": "linked",
+                            }
+                        )
+                    else:
+                        print(sub_issue_result.get("error"))
+                        issue_relationships.append(
+                            {
+                                "parent": parent_number,
+                                "child": child_number,
+                                "status": "error",
+                                "error": sub_issue_result.get("error"),
+                            }
+                        )
 
             return {
                 "success": True,
@@ -160,6 +223,7 @@ class GitHubStep(BaseWorkflowStep):
                 "project": project_result,
                 "issues_count": len(created_issues),
                 "issues": created_issues,
+                "relationships": issue_relationships,
             }
 
         except Exception as e:

@@ -7,6 +7,7 @@ This module provides functionality to create repositories, projects, and issues 
 import os
 from typing import Dict, List, Optional
 
+import requests
 from dotenv import load_dotenv
 from github import Github, GithubException
 
@@ -74,7 +75,7 @@ class GitHubManager:
                     "clone_url": repo.clone_url,
                 },
             }
-        except Exception as e:
+        except Exception:
             pass
         try:
             repo = self.user.create_repo(
@@ -167,9 +168,55 @@ class GitHubManager:
                 },
             }
         except GithubException as e:
-            return {"success": False, "error": f"GHE - Failed to create issue: {str(e)}"}
+            return {
+                "success": False,
+                "error": f"GHE - Failed to create issue: {str(e)}",
+            }
         except Exception as e:
             return {"success": False, "error": f"Failed to create issue: {str(e)}"}
+
+    def update_issue(
+        self, repo_name: str, issue_number: int, body: str = None, title: str = None
+    ) -> Dict:
+        """
+        Update an existing issue in the repository.
+
+        Args:
+            repo_name: Name of the repository
+            issue_number: The issue number to update
+            body: New body text for the issue (optional)
+            title: New title for the issue (optional)
+
+        Returns:
+            Dict containing success status and issue data or error message
+        """
+        try:
+            repo = self.github.get_repo(repo_name)
+            issue = repo.get_issue(issue_number)
+
+            # Update only provided fields
+            update_kwargs = {}
+            if body is not None:
+                update_kwargs["body"] = body
+            if title is not None:
+                update_kwargs["title"] = title
+
+            if update_kwargs:
+                issue.edit(**update_kwargs)
+
+            # Return updated issue data
+            return {
+                "success": True,
+                "issue": {
+                    "number": issue.number,
+                    "title": issue.title,
+                    "body": issue.body,
+                    "url": issue.html_url,
+                    "state": issue.state,
+                },
+            }
+        except Exception as e:
+            return {"success": False, "error": f"Failed to update issue: {str(e)}"}
 
     def create_project_with_issues(
         self,
@@ -304,3 +351,64 @@ class GitHubManager:
 
         except GithubException as e:
             return {"success": False, "error": f"Failed to list issues: {str(e)}"}
+
+    def create_sub_issue_relationship(
+        self, repo_name: str, parent_issue_number: int, child_issue_number: int
+    ) -> Dict:
+        """
+        Create a sub-issue relationship between two issues using GitHub's API.
+
+        Args:
+            repo_name: Name of the repository
+            parent_issue_number: The parent issue number
+            child_issue_number: The child issue number to link as sub-issue
+
+        Returns:
+            Dict containing success status and response data or error message
+        """
+        try:
+            # Format the repository name to include owner if necessary
+            full_repo_name = repo_name
+            if "/" not in repo_name:
+                full_repo_name = f"{self.user.login}/{repo_name}"
+
+            # Build the API URL for creating sub-issue relationship
+            api_url = f"https://api.github.com/repos/{full_repo_name}/issues/{parent_issue_number}/sub_issues"
+
+            # Prepare headers with authentication and API version
+            headers = {
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {self.token}",
+                "X-GitHub-Api-Version": "2022-11-28",
+            }
+
+            # Prepare the payload data
+            data = {"sub_issue_id": child_issue_number}
+
+            # Make the API request
+            response = requests.post(api_url, headers=headers, json=data)
+
+            # Check if the request was successful
+            response.raise_for_status()
+
+            print(response.json() if response.text else {})
+
+            return {
+                "success": True,
+                "parent_issue": parent_issue_number,
+                "sub_issue": child_issue_number,
+                "response": response.json() if response.text else {},
+            }
+
+        except requests.exceptions.RequestException as e:
+            return {
+                "success": False,
+                "error": f"Failed to create sub-issue relationship: {str(e)}",
+                "status_code": (
+                    getattr(e.response, "status_code", None)
+                    if hasattr(e, "response")
+                    else None
+                ),
+            }
+        except Exception as e:
+            return {"success": False, "error": f"Error: {str(e)}"}
