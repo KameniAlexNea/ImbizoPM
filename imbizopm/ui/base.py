@@ -101,8 +101,8 @@ class BaseUI:
             lines.append("\n")
 
         # Project info
-        if "project" in result:
-            project = result["project"]
+        if "project" in result and result["project"]["success"]:
+            project = result["project"]["project"]
             lines.append("### Project\n")
             lines.append(f"- Name: {project.get('name')}\n")
             if "url" in project:

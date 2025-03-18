@@ -137,8 +137,6 @@ class GitHubManager:
         title: str,
         body: Optional[str] = None,
         labels: Optional[List[str]] = None,
-        # milestone: Optional[int] = None,
-        # assignees: Optional[List[str]] = None,
     ) -> Dict:
         """
         Create a new issue in a repository.
@@ -148,8 +146,6 @@ class GitHubManager:
             title: Issue title
             body: Issue description
             labels: List of labels to apply
-            milestone: Milestone ID
-            assignees: List of usernames to assign
 
         Returns:
             Dictionary with issue details
@@ -160,8 +156,6 @@ class GitHubManager:
                 title=title,
                 body=body,
                 labels=labels,
-                # milestone=milestone,
-                # assignees=assignees,
             )
 
             return {

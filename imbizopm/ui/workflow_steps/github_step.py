@@ -129,22 +129,13 @@ class GitHubStep(BaseWorkflowStep):
 
             if not repo_result["success"]:
                 return repo_result
-            
-            print("Repo result:", repo_result)
 
-            # try:
-            #     # Create project board
-            #     project_result = manager.create_project(
-            #         repo_name=repo_name,
-            #         project_name=tasks_data.get("project_title", "Project"),
-            #         body=tasks_data.get("project_description", ""),
-            #     )
-
-            #     if not project_result["success"]:
-            #         # ignore the error message
-            #         print(project_result["error"])
-            # except Exception as e:
-            #     project_result = {"success": False, "error": str(e)}
+            # Create project and ignore when it fails
+            project_result = manager.create_project(
+                repo_name=repo_name,
+                project_name=tasks_data.get("project_title", "Project"),
+                body=tasks_data.get("project_description", ""),
+            )
 
             # Generate GitHub issues
             generator = ProjectGenerator("ollama")  # Provider doesn't matter here
@@ -153,14 +144,12 @@ class GitHubStep(BaseWorkflowStep):
             # Create issues
             created_issues = []
             for issue in issues:
-                print("Creating issue:", issue)
                 issue_result = manager.create_issue(
                     repo_name=repo_name,
                     title=issue["title"],
                     body=issue["body"],
                     labels=issue.get("labels", []),
                 )
-                print("Issue created:", issue_result)
 
                 if issue_result["success"]:
                     created_issues.append(issue_result["issue"])
@@ -168,13 +157,12 @@ class GitHubStep(BaseWorkflowStep):
             return {
                 "success": True,
                 "repository": repo_result["repository"],
-                # "project": project_result["project"] if project_result["success"] else None,
+                "project": project_result,
                 "issues_count": len(created_issues),
                 "issues": created_issues,
             }
 
         except Exception as e:
-            print("Final error:", e)
             return {"success": False, "error": f"Error creating project: {str(e)}"}
 
     def build_step(self, visible: bool = False) -> None:
