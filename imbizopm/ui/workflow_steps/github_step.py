@@ -10,6 +10,7 @@ import gradio as gr
 from ...github_manager import GitHubManager
 from ...project_generator import ProjectGenerator
 from .base_step import BaseWorkflowStep
+from ...utilities.sub_issue import MyIssue  # Import the custom MyIssue class
 
 
 class GitHubStep(BaseWorkflowStep):
@@ -137,85 +138,98 @@ class GitHubStep(BaseWorkflowStep):
                 body=tasks_data.get("project_description", ""),
             )
 
-            # Generate GitHub issues with the enhanced linking approach
-            generator = ProjectGenerator("ollama")  # Provider doesn't matter here
-            issues = generator.generate_github_issues(tasks_data)
-
-            # Track parent-child relationship between issues
-            issue_relationships = []
-            parent_issues_map = {}  # Map parent titles to issue numbers
-            subtask_issues_map = (
-                {}
-            )  # Map subtask titles to issue numbers and their parent titles
-
-            # First pass: Create all issues and track their relationships
+            # Prepare to create issues
             created_issues = []
-            for issue in issues:
-                # Extract parent-child relationship from the body
-                is_subtask = "Parent task:" in issue["body"]
-                parent_title = None
+            issue_relationships = []
+            repo = manager.github.get_repo(f"{manager.user.login}/{repo_name}")
 
-                if is_subtask:
-                    # Extract parent task title from body
-                    for line in issue["body"].split("\n"):
-                        if line.startswith("Parent task:"):
-                            parent_title = line.replace("Parent task:", "").strip()
-                            break
+            # Create a mapping of tasks to their created issues for linking
+            task_to_issue_map = {}  # Maps task index to GitHub issue object
 
-                # Create issue
-                issue_result = manager.create_issue(
-                    repo_name=repo_name,
-                    title=issue["title"],
-                    body=issue["body"],
-                    labels=issue.get("labels", []),
+            # Process the tasks directly from the JSON data
+            for task_idx, task in enumerate(tasks_data.get("tasks", [])):
+                # Create parent task issue
+                issue_title = task["title"]
+                issue_body = (
+                    f"{task['description']}\n\nComplexity: {task['complexity']}"
+                )
+                issue_labels = task.get("labels", [])
+
+                parent_issue = repo.create_issue(
+                    title=issue_title, body=issue_body, labels=issue_labels
                 )
 
-                if issue_result["success"]:
-                    created_issue = issue_result["issue"]
-                    created_issues.append(created_issue)
+                # Store the created issue
+                created_issues.append(
+                    {
+                        "number": parent_issue.number,
+                        "title": parent_issue.title,
+                        "url": parent_issue.html_url,
+                    }
+                )
 
-                    # Track this issue
-                    if is_subtask and parent_title:
-                        subtask_issues_map[issue["title"]] = {
-                            "number": created_issue["number"],
-                            "parent_title": parent_title,
-                        }
-                    else:
-                        parent_issues_map[issue["title"]] = created_issue["number"]
+                # Save in map for linking subtasks later
+                task_to_issue_map[task_idx] = parent_issue
 
-            # Second pass: Create sub-issue relationships
-            for subtask_title, subtask_info in subtask_issues_map.items():
-                parent_title = subtask_info["parent_title"]
+                # Process subtasks
+                if task.get("subtasks"):
+                    for subtask in task.get("subtasks", []):
+                        # Create subtask issue
+                        subtask_title = f"{task['title']} - {subtask['title']}"
+                        subtask_body = f"{subtask['description']}\n\nComplexity: {subtask['complexity']}"
+                        subtask_labels = subtask.get("labels", [])
 
-                if parent_title in parent_issues_map:
-                    parent_number = parent_issues_map[parent_title]
-                    child_number = subtask_info["number"]
+                        # Create child issue
+                        child_issue = repo.create_issue(
+                            title=subtask_title,
+                            body=subtask_body,
+                            labels=subtask_labels,
+                        )
 
-                    # Create the sub-issue relationship
-                    sub_issue_result = manager.create_sub_issue_relationship(
-                        repo_name=repo_name,
-                        parent_issue_number=parent_number,
-                        child_issue_number=child_number,
-                    )
-
-                    if sub_issue_result["success"]:
-                        issue_relationships.append(
+                        # Store the created issue
+                        created_issues.append(
                             {
-                                "parent": parent_number,
-                                "child": child_number,
-                                "status": "linked",
+                                "number": child_issue.number,
+                                "title": child_issue.title,
+                                "url": child_issue.html_url,
                             }
                         )
-                    else:
-                        print(sub_issue_result.get("error"))
-                        issue_relationships.append(
-                            {
-                                "parent": parent_number,
-                                "child": child_number,
-                                "status": "error",
-                                "error": sub_issue_result.get("error"),
-                            }
-                        )
+
+                        # Link as sub-issue using MyIssue
+                        try:
+                            # Initialize MyIssue with the parent issue object
+                            my_issue = MyIssue(issue=parent_issue)
+
+                            # Add the child issue as a sub-issue
+                            success = my_issue.add_sub_issue(child_issue.id)
+
+                            if success:
+                                issue_relationships.append(
+                                    {
+                                        "parent": parent_issue.number,
+                                        "child": child_issue.number,
+                                        "status": "linked",
+                                    }
+                                )
+                            else:
+                                issue_relationships.append(
+                                    {
+                                        "parent": parent_issue.number,
+                                        "child": child_issue.number,
+                                        "status": "error",
+                                        "error": "Failed to create sub-issue relationship",
+                                    }
+                                )
+                        except Exception as e:
+                            print(f"Error creating sub-issue relationship: {str(e)}")
+                            issue_relationships.append(
+                                {
+                                    "parent": parent_issue.number,
+                                    "child": child_issue.number,
+                                    "status": "error",
+                                    "error": str(e),
+                                }
+                            )
 
             return {
                 "success": True,

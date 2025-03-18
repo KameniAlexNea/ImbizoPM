@@ -165,6 +165,7 @@ class GitHubManager:
                     "number": issue.number,
                     "title": issue.title,
                     "url": issue.html_url,
+                    "state": issue
                 },
             }
         except GithubException as e:
@@ -356,59 +357,87 @@ class GitHubManager:
         self, repo_name: str, parent_issue_number: int, child_issue_number: int
     ) -> Dict:
         """
-        Create a sub-issue relationship between two issues using GitHub's API.
-
+        Create a relationship between two issues by updating their descriptions.
+        
+        Since the sub-issues API might not be available, this method uses GitHub's
+        built-in issue reference syntax to create a parent-child relationship.
+        
         Args:
             repo_name: Name of the repository
             parent_issue_number: The parent issue number
             child_issue_number: The child issue number to link as sub-issue
-
+            
         Returns:
-            Dict containing success status and response data or error message
+            Dict containing success status and response data
         """
         try:
             # Format the repository name to include owner if necessary
             full_repo_name = repo_name
             if "/" not in repo_name:
                 full_repo_name = f"{self.user.login}/{repo_name}"
-
-            # Build the API URL for creating sub-issue relationship
-            api_url = f"https://api.github.com/repos/{full_repo_name}/issues/{parent_issue_number}/sub_issues"
-
-            # Prepare headers with authentication and API version
-            headers = {
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {self.token}",
-                "X-GitHub-Api-Version": "2022-11-28",
-            }
-
-            # Prepare the payload data
-            data = {"sub_issue_id": child_issue_number}
-
-            # Make the API request
-            response = requests.post(api_url, headers=headers, json=data)
-
-            # Check if the request was successful
-            response.raise_for_status()
-
-            print(response.json() if response.text else {})
-
+            
+            # Get the repository
+            repo = self.github.get_repo(full_repo_name)
+            
+            # Get both issues
+            try:
+                parent_issue = repo.get_issue(parent_issue_number)
+                child_issue = repo.get_issue(child_issue_number)
+            except Exception as e:
+                return {
+                    "success": False,
+                    "error": f"Failed to find issues: {str(e)}"
+                }
+            
+            # Update parent issue to reference child issue
+            parent_body = parent_issue.body or ""
+            if f"#{child_issue_number}" not in parent_body:
+                subtasks_section = "\n\n### Linked Subtasks\n"
+                if "### Linked Subtasks" not in parent_body:
+                    parent_body += subtasks_section
+                
+                # Add the child issue reference - location depends on whether section exists
+                if subtasks_section in parent_body:
+                    parent_body += f"- #{child_issue_number} - {child_issue.title}\n"
+                else:
+                    # Find the section and add to it
+                    lines = parent_body.split('\n')
+                    for i, line in enumerate(lines):
+                        if line.strip() == "### Linked Subtasks":
+                            lines.insert(i+1, f"- #{child_issue_number} - {child_issue.title}")
+                            break
+                    parent_body = '\n'.join(lines)
+                
+                # Update the parent issue
+                parent_issue.edit(body=parent_body)
+            
+            # Update child issue to reference parent issue
+            child_body = child_issue.body or ""
+            if f"#{parent_issue_number}" not in child_body:
+                if "### Parent Issue" not in child_body:
+                    child_body += f"\n\n### Parent Issue\n#{parent_issue_number} - {parent_issue.title}"
+                else:
+                    # Replace the existing parent reference
+                    lines = child_body.split('\n')
+                    for i, line in enumerate(lines):
+                        if line.strip() == "### Parent Issue":
+                            # Insert after this line, or replace next line if it exists
+                            if i+1 < len(lines):
+                                lines[i+1] = f"#{parent_issue_number} - {parent_issue.title}"
+                            else:
+                                lines.append(f"#{parent_issue_number} - {parent_issue.title}")
+                            break
+                    child_body = '\n'.join(lines)
+                
+                # Update the child issue
+                child_issue.edit(body=child_body)
+            
             return {
                 "success": True,
                 "parent_issue": parent_issue_number,
                 "sub_issue": child_issue_number,
-                "response": response.json() if response.text else {},
+                "message": f"Successfully linked issue #{child_issue_number} as a subtask of #{parent_issue_number}"
             }
-
-        except requests.exceptions.RequestException as e:
-            return {
-                "success": False,
-                "error": f"Failed to create sub-issue relationship: {str(e)}",
-                "status_code": (
-                    getattr(e.response, "status_code", None)
-                    if hasattr(e, "response")
-                    else None
-                ),
-            }
+            
         except Exception as e:
-            return {"success": False, "error": f"Error: {str(e)}"}
+            return {"success": False, "error": f"Error creating issue relationship: {str(e)}"}
