@@ -8,9 +8,8 @@ from typing import Dict
 import gradio as gr
 
 from ...github_manager import GitHubManager
-from ...project_generator import ProjectGenerator
-from .base_step import BaseWorkflowStep
 from ...utilities.sub_issue import MyIssue  # Import the custom MyIssue class
+from .base_step import BaseWorkflowStep
 
 
 class GitHubStep(BaseWorkflowStep):

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from github import Consts
 from github.GithubObject import Attribute, NotSet
 from github.PaginatedList import PaginatedList
 

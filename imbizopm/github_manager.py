@@ -7,7 +7,6 @@ This module provides functionality to create repositories, projects, and issues 
 import os
 from typing import Dict, List, Optional
 
-import requests
 from dotenv import load_dotenv
 from github import Github, GithubException
 
@@ -165,7 +164,7 @@ class GitHubManager:
                     "number": issue.number,
                     "title": issue.title,
                     "url": issue.html_url,
-                    "state": issue
+                    "state": issue,
                 },
             }
         except GithubException as e:
@@ -358,15 +357,15 @@ class GitHubManager:
     ) -> Dict:
         """
         Create a relationship between two issues by updating their descriptions.
-        
+
         Since the sub-issues API might not be available, this method uses GitHub's
         built-in issue reference syntax to create a parent-child relationship.
-        
+
         Args:
             repo_name: Name of the repository
             parent_issue_number: The parent issue number
             child_issue_number: The child issue number to link as sub-issue
-            
+
         Returns:
             Dict containing success status and response data
         """
@@ -375,42 +374,41 @@ class GitHubManager:
             full_repo_name = repo_name
             if "/" not in repo_name:
                 full_repo_name = f"{self.user.login}/{repo_name}"
-            
+
             # Get the repository
             repo = self.github.get_repo(full_repo_name)
-            
+
             # Get both issues
             try:
                 parent_issue = repo.get_issue(parent_issue_number)
                 child_issue = repo.get_issue(child_issue_number)
             except Exception as e:
-                return {
-                    "success": False,
-                    "error": f"Failed to find issues: {str(e)}"
-                }
-            
+                return {"success": False, "error": f"Failed to find issues: {str(e)}"}
+
             # Update parent issue to reference child issue
             parent_body = parent_issue.body or ""
             if f"#{child_issue_number}" not in parent_body:
                 subtasks_section = "\n\n### Linked Subtasks\n"
                 if "### Linked Subtasks" not in parent_body:
                     parent_body += subtasks_section
-                
+
                 # Add the child issue reference - location depends on whether section exists
                 if subtasks_section in parent_body:
                     parent_body += f"- #{child_issue_number} - {child_issue.title}\n"
                 else:
                     # Find the section and add to it
-                    lines = parent_body.split('\n')
+                    lines = parent_body.split("\n")
                     for i, line in enumerate(lines):
                         if line.strip() == "### Linked Subtasks":
-                            lines.insert(i+1, f"- #{child_issue_number} - {child_issue.title}")
+                            lines.insert(
+                                i + 1, f"- #{child_issue_number} - {child_issue.title}"
+                            )
                             break
-                    parent_body = '\n'.join(lines)
-                
+                    parent_body = "\n".join(lines)
+
                 # Update the parent issue
                 parent_issue.edit(body=parent_body)
-            
+
             # Update child issue to reference parent issue
             child_body = child_issue.body or ""
             if f"#{parent_issue_number}" not in child_body:
@@ -418,26 +416,33 @@ class GitHubManager:
                     child_body += f"\n\n### Parent Issue\n#{parent_issue_number} - {parent_issue.title}"
                 else:
                     # Replace the existing parent reference
-                    lines = child_body.split('\n')
+                    lines = child_body.split("\n")
                     for i, line in enumerate(lines):
                         if line.strip() == "### Parent Issue":
                             # Insert after this line, or replace next line if it exists
-                            if i+1 < len(lines):
-                                lines[i+1] = f"#{parent_issue_number} - {parent_issue.title}"
+                            if i + 1 < len(lines):
+                                lines[i + 1] = (
+                                    f"#{parent_issue_number} - {parent_issue.title}"
+                                )
                             else:
-                                lines.append(f"#{parent_issue_number} - {parent_issue.title}")
+                                lines.append(
+                                    f"#{parent_issue_number} - {parent_issue.title}"
+                                )
                             break
-                    child_body = '\n'.join(lines)
-                
+                    child_body = "\n".join(lines)
+
                 # Update the child issue
                 child_issue.edit(body=child_body)
-            
+
             return {
                 "success": True,
                 "parent_issue": parent_issue_number,
                 "sub_issue": child_issue_number,
-                "message": f"Successfully linked issue #{child_issue_number} as a subtask of #{parent_issue_number}"
+                "message": f"Successfully linked issue #{child_issue_number} as a subtask of #{parent_issue_number}",
             }
-            
+
         except Exception as e:
-            return {"success": False, "error": f"Error creating issue relationship: {str(e)}"}
+            return {
+                "success": False,
+                "error": f"Error creating issue relationship: {str(e)}",
+            }
