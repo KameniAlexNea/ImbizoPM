@@ -1,11 +1,6 @@
 import gradio as gr
 
-
-class APIKeys:
-    ollama_url = "http://localhost:11434"
-    openai_key = ""
-    anthropic_key = ""
-    github_token = ""
+from ...config import APIKeys
 
 
 class APIKeyManager:
