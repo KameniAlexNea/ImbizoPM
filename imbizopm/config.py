@@ -12,6 +12,7 @@ from typing import Dict, Optional
 from dotenv import load_dotenv
 
 from .model_config import ModelConfigManager
+from .ui.workflow_steps.api_key import APIKeys
 
 
 class Config:
@@ -39,22 +40,22 @@ class Config:
     @property
     def github_token(self) -> Optional[str]:
         """Get the GitHub token from environment."""
-        return os.environ.get("GITHUB_TOKEN")
+        return os.environ.get("GITHUB_TOKEN", APIKeys.github_token)
 
     @property
     def openai_api_key(self) -> Optional[str]:
         """Get the OpenAI API key from environment."""
-        return os.environ.get("OPENAI_API_KEY")
+        return os.environ.get("OPENAI_API_KEY", APIKeys.openai_key)
 
     @property
     def anthropic_api_key(self) -> Optional[str]:
         """Get the Anthropic API key from environment."""
-        return os.environ.get("ANTHROPIC_API_KEY")
+        return os.environ.get("ANTHROPIC_API_KEY", APIKeys.anthropic_key)
 
     @property
     def ollama_base_url(self) -> str:
         """Get the Ollama base URL from environment."""
-        return os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+        return os.environ.get("OLLAMA_BASE_URL", APIKeys.ollama_url)
 
     @property
     def ollama_model(self) -> str:

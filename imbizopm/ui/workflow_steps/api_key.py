@@ -5,6 +5,7 @@ class APIKeys:
     ollama_url = "http://localhost:11434"
     openai_key = ""
     anthropic_key = ""
+    github_token = ""
 
 
 class APIKeyManager:
@@ -19,16 +20,17 @@ class APIKeyManager:
         self.openai_key_textbox = None
         self.anthropic_key_textbox = None
         self.ollama_url_textbox = None
+        self.github_token = None
 
         # Initialize interface attribute
         self.interface = None
 
-
-    def save_all_api_keys(self, openai_key, anthropic_key, ollama_url):
+    def save_all_api_keys(self, openai_key, anthropic_key, ollama_url, github_token):
         """Save all API keys at once in memory."""
         APIKeys.openai_key = openai_key
         APIKeys.openai_key = anthropic_key
         APIKeys.ollama_url = ollama_url or "http://localhost:11434"
+        APIKeys.github_token = github_token
 
         return "All API keys saved successfully!"
 
@@ -61,6 +63,14 @@ class APIKeyManager:
                     value=APIKeys.ollama_url,
                 )
 
+            with gr.Tab("Github"):
+                self.github_token = gr.Textbox(
+                    label="Github Token",
+                    placeholder="gh...",
+                    type="password",
+                    value=APIKeys.github_token,
+                )
+
             # Single save button for all keys
             save_all = gr.Button("Save All Keys", variant="primary")
             status_output = gr.Textbox(label="Status")
@@ -71,6 +81,7 @@ class APIKeyManager:
                     self.openai_key_textbox,
                     self.anthropic_key_textbox,
                     self.ollama_url_textbox,
+                    self.github_token,
                 ],
                 outputs=status_output,
             )

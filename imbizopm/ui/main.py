@@ -6,6 +6,7 @@ import gradio as gr
 
 from ..config import config
 from .base import BaseUI
+from .workflow_steps.api_key import APIKeyManager
 from .workflow_steps.github_step import GitHubStep
 from .workflow_ui import WorkflowUI
 
@@ -66,6 +67,10 @@ def launch_ui(
             )
 
         with gr.Tabs() as tabs:
+            # API Key Tab
+            with gr.Tab("API Keys"):
+                APIKeyManager().create_interface()
+
             # Workflow Tab (New)
             with gr.Tab("Project Workflow"):
                 workflow_ui.build_ui()
