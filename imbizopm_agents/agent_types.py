@@ -8,6 +8,15 @@ from .base_agent import AgentState, BaseAgent
 from .prompts import *
 
 
+
+def format_list(items: list[str]) -> str:
+    return '\n'.join(f"- {item}" for item in items)
+
+
+def format_named_list(items: list[Dict[str, str]]) -> str:
+    return '\n'.join(f"- {i.get('name')}: {i.get('description')}" for i in items)
+
+
 class ClarifierAgent(BaseAgent):
     """Agent that refines the idea, extracts goals, scope, and constraints."""
 
@@ -20,13 +29,9 @@ class ClarifierAgent(BaseAgent):
         return state["input"]
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        # Extract refined idea, goals and constraints from the agent's response
-        # This is a simplified implementation - would need parsing logic
         state["idea"] = {"refined": result.get("refined_idea", "")}
         state["goals"] = result.get("goals", [])
         state["constraints"] = result.get("constraints", [])
-
-        # Default next agent is OutcomeAgent
         state["next"] = "OutcomeAgent"
         return state
 
@@ -38,23 +43,19 @@ class OutcomeAgent(BaseAgent):
         super().__init__(llm, "Outcome", OUTCOME_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-Refined idea: {state['idea'].get('refined', '')}
-Goals: {', '.join(state['goals'])}
-Constraints: {', '.join(state['constraints'])}
+        return f"""Refined idea:
+{state['idea'].get('refined', '')}
+Goals:
+{format_list(state.get('goals', []))}
+Constraints:
+{format_list(state.get('constraints', []))}
 
-Define the success metrics and deliverables for this project."""
+Define success metrics and deliverables."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["outcomes"] = result.get("success_metrics", [])
         state["deliverables"] = result.get("deliverables", [])
-
-        # Check if outcomes are clear
-        if not state["outcomes"]:
-            # No Clear Outcome path
-            state["next"] = "ClarifierAgent"
-        else:
-            state["next"] = "PlannerAgent"
+        state["next"] = "PlannerAgent" if state["outcomes"] else "ClarifierAgent"
         return state
 
 
@@ -65,28 +66,26 @@ class PlannerAgent(BaseAgent):
         super().__init__(llm, "Planner", PLANNER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-Refined idea: {state['idea'].get('refined', '')}
-Goals: {', '.join(state['goals'])}
-Constraints: {', '.join(state['constraints'])}
-Outcomes: {', '.join(state['outcomes'])}
-Deliverables: {', '.join([d.get('name', '') for d in state['deliverables']])}
+        deliverables = [d.get("name", "") for d in state.get("deliverables", [])]
+        return f"""Refined idea: {state['idea'].get('refined', '')}
+Goals:
+{format_list(state.get('goals', []))}
+Constraints:
+{format_list(state.get('constraints', []))}
+Outcomes:
+{format_list(state.get('outcomes', []))}
+Deliverables:
+{format_list(deliverables)}
 
-Create a high-level plan with phases, epics, and strategies."""
+Break into phases, epics, and strategies."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["plan"] = {
             "phases": result.get("phases", []),
             "epics": result.get("epics", []),
-            "strategies": result.get("strategies", []),
+            "strategies": result.get("strategies", [])
         }
-
-        # Check if plan is too vague
-        if result.get("too_vague", False):
-            # Too Vague path
-            state["next"] = "ClarifierAgent"
-        else:
-            state["next"] = "ScoperAgent"
+        state["next"] = "ClarifierAgent" if result.get("too_vague", False) else "ScoperAgent"
         return state
 
 
@@ -97,25 +96,20 @@ class ScoperAgent(BaseAgent):
         super().__init__(llm, "Scoper", SCOPER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-Plan Phases: {state['plan'].get('phases', [])}
-Plan Epics: {state['plan'].get('epics', [])}
-Constraints: {', '.join(state['constraints'])}
+        return f"""Phases: {state['plan'].get('phases', [])}
+Epics: {state['plan'].get('epics', [])}
+Constraints:
+{format_list(state.get('constraints', []))}
 
-Define a realistic MVP scope and resolve any scope overload issues."""
+Define MVP scope and resolve overload."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["scope"] = {
             "mvp": result.get("mvp_scope", {}),
             "exclusions": result.get("scope_exclusions", []),
-            "phased_approach": result.get("phased_approach", []),
+            "phased_approach": result.get("phased_approach", [])
         }
-
-        # Check if there's scope overload
-        if result.get("overload", False):
-            state["next"] = "NegotiatorAgent"
-        else:
-            state["next"] = "TaskifierAgent"
+        state["next"] = "NegotiatorAgent" if result.get("overload", False) else "TaskifierAgent"
         return state
 
 
@@ -126,21 +120,15 @@ class TaskifierAgent(BaseAgent):
         super().__init__(llm, "Taskifier", TASKIFIER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-MVP Scope: {state['scope'].get('mvp', {})}
-Plan Phases: {state['plan'].get('phases', [])}
-Plan Epics: {state['plan'].get('epics', [])}
+        return f"""MVP: {state['scope'].get('mvp', {})}
+Phases: {state['plan'].get('phases', [])}
+Epics: {state['plan'].get('epics', [])}
 
-Break down the plan into detailed tasks with owners and dependencies."""
+Break into detailed tasks with effort, roles, and dependencies."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["tasks"] = result.get("tasks", [])
-
-        # Check if there's missing information
-        if result.get("missing_info", False):
-            state["next"] = "ClarifierAgent"
-        else:
-            state["next"] = "TimelineAgent"
+        state["next"] = "ClarifierAgent" if result.get("missing_info", False) else "TimelineAgent"
         return state
 
 
@@ -151,19 +139,17 @@ class TimelineAgent(BaseAgent):
         super().__init__(llm, "Timeline", TIMELINE_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-        Tasks: {state['tasks']}
-        
-        Create a project timeline with task durations and milestones.
-        """
+        return f"""Tasks:
+{state.get("tasks", [])}
+
+Estimate timeline with milestones and critical path."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["timeline"] = {
             "task_durations": result.get("task_durations", {}),
             "milestones": result.get("milestones", []),
-            "critical_path": result.get("critical_path", []),
+            "critical_path": result.get("critical_path", [])
         }
-
         state["next"] = "RiskAgent"
         return state
 
@@ -175,23 +161,17 @@ class RiskAgent(BaseAgent):
         super().__init__(llm, "Risk", RISK_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-Plan: {state['plan']}
-Scope: {state['scope']}
-Tasks: {state['tasks']}
-Timeline: {state['timeline']}
+        return f"""Plan: {state.get("plan", {})}
+Scope: {state.get("scope", {})}
+Tasks: {state.get("tasks", [])}
+Timeline: {state.get("timeline", {})}
 
-Assess the risks and feasibility of this project plan."""
+Assess risks and overall feasibility."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["risks"] = result.get("risks", [])
-
-        # Check if plan is feasible
-        if result.get("feasible", True):
-            state["next"] = "ValidatorAgent"
-        else:
-            # Unfeasible path
-            state["next"] = "PlannerAgent"
+        state["feasibility"] = result.get("feasible", True)
+        state["next"] = END if result.get("feasible", True) else "ClarifierAgent"
         return state
 
 
@@ -203,8 +183,7 @@ class NegotiatorAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         # Identify which aspect has conflicts
-        return f"""
-Plan: {state['plan']}
+        return f"""Plan: {state['plan']}
 Scope: {state['scope']}
 Tasks: {state['tasks']}
 Risks: {state['risks']}
