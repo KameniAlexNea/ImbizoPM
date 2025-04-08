@@ -6,6 +6,10 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph.graph import CompiledGraph
 from langgraph.prebuilt import create_react_agent
 from imbizopm_agents.utils import extract_structured_data
+from typing import Annotated, Optional
+
+from langgraph.graph.message import add_messages
+from typing_extensions import TypedDict
 
 
 class AgentState(TypedDict):
@@ -21,7 +25,7 @@ class AgentState(TypedDict):
     timeline: Dict[str, Any]
     risks: List[Dict[str, Any]]
     validation: Dict[str, bool]
-    messages: list[BaseMessage]
+    messages: Annotated[list, add_messages]
     next: Optional[str]
 
 
@@ -54,11 +58,7 @@ class BaseAgent:
 
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
-        if "messages" in raw_output:
-            state["messages"].extend(raw_output["messages"])
-        parsed_content = {}
-        if raw_output.get("messages"):
-            parsed_content = extract_structured_data(raw_output["messages"][-1].content)
+        parsed_content = extract_structured_data(raw_output.content)
         return self._process_result(state, parsed_content)
 
     def _prepare_input(self, state: AgentState) -> str:
