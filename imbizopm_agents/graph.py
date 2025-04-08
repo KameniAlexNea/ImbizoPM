@@ -1,13 +1,13 @@
 from typing import Dict, Optional, Type
 
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages.ai import AIMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 from langgraph.graph.graph import CompiledGraph
 
 from .base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG
-from langchain_core.messages.ai import AIMessage
 
 
 def create_project_planning_graph(
@@ -86,7 +86,10 @@ def run_project_planning_graph(
     Returns:
         The final state of the graph after processing
     """
-    config = {"configurable": {"thread_id": thread_id}, "recursion_limit": recursion_limit}
+    config = {
+        "configurable": {"thread_id": thread_id},
+        "recursion_limit": recursion_limit,
+    }
 
     # Initialize the state with the user input
     initial_state = {

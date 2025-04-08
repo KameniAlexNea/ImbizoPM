@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
 from imbizopm_agents.utils import format_project_plan_for_export
+from langgraph.graph import END
 
 from .base_agent import AgentState, BaseAgent
 
@@ -473,7 +474,6 @@ Output format:
 - Summary report of the project plan
 - Next steps for the project manager
 
-
 Your output should be structured as follows:
 {{
   "executive_summary": "...",  // A short paragraph summarizing the project
@@ -507,5 +507,5 @@ Format this project plan for export to project management tools."""
         }
 
         # This is the final agent, no next state needed
-        state["next"] = "__end__"
+        state["next"] = END
         return state
