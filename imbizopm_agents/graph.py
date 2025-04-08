@@ -96,25 +96,58 @@ def create_project_planning_graph(
     workflow.set_entry_point("ClarifierAgent")
 
     # Connect all agents with conditional routing
-    workflow.add_conditional_edges("ClarifierAgent", route_next)
+    workflow.add_conditional_edges("ClarifierAgent", route_next, {
+        "OutcomeAgent": "OutcomeAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("OutcomeAgent", route_next)
+    workflow.add_conditional_edges("OutcomeAgent", route_next, {
+        "ClarifierAgent": "ClarifierAgent",
+        "PlannerAgent": "PlannerAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("PlannerAgent", route_next)
+    workflow.add_conditional_edges("PlannerAgent", route_next, {
+        "ScoperAgent": "ScoperAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("ScoperAgent", route_next)
+    workflow.add_conditional_edges("ScoperAgent", route_next, {
+        "NegotiatorAgent": "NegotiatorAgent",
+        "TaskifierAgent": "TaskifierAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("TaskifierAgent", route_next)
+    workflow.add_conditional_edges("TaskifierAgent", route_next, {
+        "ClarifierAgent": "ClarifierAgent",
+        "TimelineAgent": "TimelineAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("TimelineAgent", route_next)
+    workflow.add_conditional_edges("TimelineAgent", route_next, {
+        "RiskAgent": "RiskAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("RiskAgent", route_next)
+    workflow.add_conditional_edges("RiskAgent", route_next, {
+        "ValidatorAgent": "ValidatorAgent",
+        "PlannerAgent": "PlannerAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("NegotiatorAgent", route_next)
+    workflow.add_conditional_edges("NegotiatorAgent", route_next, {
+        "PlannerAgent": "PlannerAgent",
+        "ScoperAgent": "ScoperAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("ValidatorAgent", route_next)
+    workflow.add_conditional_edges("ValidatorAgent", route_next, {
+        "PMAdapterAgent": "PMAdapterAgent",
+        "PlannerAgent": "PlannerAgent",
+        END: END,
+    })
 
-    workflow.add_conditional_edges("PMAdapterAgent", route_next)
+    workflow.add_conditional_edges("PMAdapterAgent", route_next, {END: END})
 
     # Connect human assistance node back to the workflow
     workflow.add_conditional_edges("HumanAssistance", route_next)
