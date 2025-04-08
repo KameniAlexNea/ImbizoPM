@@ -1,26 +1,24 @@
-from typing import Dict, Any, TypedDict, List, Optional, Union, Annotated
 from langchain_core.language_models import BaseChatModel
-from langgraph.graph import StateGraph, END
-from langgraph.prebuilt import ToolNode
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import START, StateGraph, END
-from langgraph.types import Command, interrupt
 from langchain_core.tools import tool
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, StateGraph
 from langgraph.graph.graph import CompiledGraph
+from langgraph.types import Command, interrupt
 
 from .agent_types import (
     ClarifierAgent,
+    NegotiatorAgent,
     OutcomeAgent,
     PlannerAgent,
+    PMAdapterAgent,
+    RiskAgent,
     ScoperAgent,
     TaskifierAgent,
-    RiskAgent,
     TimelineAgent,
-    NegotiatorAgent,
     ValidatorAgent,
-    PMAdapterAgent
 )
 from .base_agent import AgentState
+
 
 @tool
 def human_assistance(query: str) -> str:
@@ -28,14 +26,17 @@ def human_assistance(query: str) -> str:
     human_response = interrupt({"query": query})
     return human_response["data"]
 
-def create_project_planning_graph(llm: BaseChatModel, use_checkpointing: bool = True) -> StateGraph:
+
+def create_project_planning_graph(
+    llm: BaseChatModel, use_checkpointing: bool = True
+) -> StateGraph:
     """
     Create the project planning graph with all agents and their connections.
-    
+
     Args:
         llm: The language model to use for all agents
         use_checkpointing: Whether to use memory checkpointing for the graph
-        
+
     Returns:
         StateGraph: The configured graph ready to process user requests
     """
@@ -50,10 +51,10 @@ def create_project_planning_graph(llm: BaseChatModel, use_checkpointing: bool = 
     negotiator = NegotiatorAgent(llm)
     validator = ValidatorAgent(llm)
     pm_adapter = PMAdapterAgent(llm)
-    
+
     # Create the graph
     workflow = StateGraph(AgentState)
-    
+
     # Add all agents to the graph
     workflow.add_node("ClarifierAgent", clarifier.run)
     workflow.add_node("OutcomeAgent", outcome.run)
@@ -65,85 +66,59 @@ def create_project_planning_graph(llm: BaseChatModel, use_checkpointing: bool = 
     workflow.add_node("NegotiatorAgent", negotiator.run)
     workflow.add_node("ValidatorAgent", validator.run)
     workflow.add_node("PMAdapterAgent", pm_adapter.run)
-    
+
     # Add human assistance tool node
-    workflow.add_node("HumanAssistance", lambda state: {
-        **state,
-        "human_response": human_assistance(state.get("human_query", "Need human assistance with project planning")),
-        "next": state.get("pending_next", "ClarifierAgent")  # Return to the agent that requested help
-    })
-    
+    workflow.add_node(
+        "HumanAssistance",
+        lambda state: {
+            **state,
+            "human_response": human_assistance(
+                state.get("human_query", "Need human assistance with project planning")
+            ),
+            "next": state.get(
+                "pending_next", "ClarifierAgent"
+            ),  # Return to the agent that requested help
+        },
+    )
+
     # Define the conditional routing logic
     def route_next(state: AgentState) -> str:
         """Route to the next agent based on the 'next' field in state."""
         # Check if human assistance is needed
         if state.get("needs_human", False):
             return "HumanAssistance"
-        
+
         if state.get("next") is None:
             return END
         return state["next"]
-    
+
     # Set entry point
     workflow.set_entry_point("ClarifierAgent")
-    
+
     # Connect all agents with conditional routing
-    workflow.add_conditional_edges(
-        "ClarifierAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "OutcomeAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "PlannerAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "ScoperAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "TaskifierAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "TimelineAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "RiskAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "NegotiatorAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "ValidatorAgent",
-        route_next
-    )
-    
-    workflow.add_conditional_edges(
-        "PMAdapterAgent",
-        route_next
-    )
-    
+    workflow.add_conditional_edges("ClarifierAgent", route_next)
+
+    workflow.add_conditional_edges("OutcomeAgent", route_next)
+
+    workflow.add_conditional_edges("PlannerAgent", route_next)
+
+    workflow.add_conditional_edges("ScoperAgent", route_next)
+
+    workflow.add_conditional_edges("TaskifierAgent", route_next)
+
+    workflow.add_conditional_edges("TimelineAgent", route_next)
+
+    workflow.add_conditional_edges("RiskAgent", route_next)
+
+    workflow.add_conditional_edges("NegotiatorAgent", route_next)
+
+    workflow.add_conditional_edges("ValidatorAgent", route_next)
+
+    workflow.add_conditional_edges("PMAdapterAgent", route_next)
+
     # Connect human assistance node back to the workflow
-    workflow.add_conditional_edges(
-        "HumanAssistance",
-        route_next
-    )
-    
+    workflow.add_conditional_edges("HumanAssistance", route_next)
+
     # Apply checkpointing if requested
     if use_checkpointing:
         memory = MemorySaver()
@@ -151,20 +126,21 @@ def create_project_planning_graph(llm: BaseChatModel, use_checkpointing: bool = 
     else:
         return workflow.compile()
 
+
 def run_project_planning_graph(graph: CompiledGraph, user_input, thread_id="default"):
     """
     Run the project planning graph with the given user input.
-    
+
     Args:
         graph: The compiled project planning graph
         user_input: The user's project idea or request
         thread_id: A unique identifier for this conversation thread
-        
+
     Returns:
         The final state of the graph after processing
     """
     config = {"configurable": {"thread_id": thread_id}}
-    
+
     # Initialize the state with the user input
     initial_state = {
         "input": user_input,
@@ -180,35 +156,39 @@ def run_project_planning_graph(graph: CompiledGraph, user_input, thread_id="defa
         "risks": [],
         "validation": {},
         "messages": [],
-        "next": "ClarifierAgent"
+        "next": "ClarifierAgent",
     }
-    
+
     # Stream the events
     events = graph.stream(
         initial_state,
         config,
         stream_mode="values",
     )
-    
+
     results = []
     for event in events:
         # Store each state update
         results.append(event)
-        
+
         # Check if we need human intervention
         snapshot = graph.get_state(config)
         if snapshot.next and snapshot.next[0] == "HumanAssistance":
             print("Human assistance required!")
-            # In a real application, you would wait for human input here
-            # For demonstration, we automatically provide a response
-            human_response = "This is automated human assistance. Proceed with the plan."
-            
+            query = snapshot.state.get(
+                "human_query", "Need human assistance with project planning"
+            )
+            print(f"Query: {query}")
+
+            # Get actual human input using input()
+            human_response = input("Please provide your response: ")
+
             # Resume the graph with the human response
             human_command = Command(resume={"data": human_response})
-            
+
             # Continue processing with human input
             continuation = graph.stream(human_command, config, stream_mode="values")
             for cont_event in continuation:
                 results.append(cont_event)
-    
+
     return results

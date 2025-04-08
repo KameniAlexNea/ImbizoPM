@@ -1,25 +1,28 @@
-from typing import Dict, Any
+from typing import Any, Dict
+
 from llm_output_parser import parse_json
+
 
 def extract_structured_data(text: str) -> Dict[str, Any]:
     """
     Extract structured data from agent response text.
-    
+
     Args:
         text: The text output from an agent
-        
+
     Returns:
         Dict with extracted structured data
     """
     return parse_json(text)
 
+
 def format_project_plan_for_export(state: Dict[str, Any]) -> Dict[str, Any]:
     """
     Format the entire project plan for export to external tools.
-    
+
     Args:
         state: Complete state with all project planning data
-        
+
     Returns:
         Formatted project plan ready for export
     """
@@ -53,8 +56,10 @@ def format_project_plan_for_export(state: Dict[str, Any]) -> Dict[str, Any]:
         },
         "risk_management": {
             "risks": state.get("risks", []),
-            "mitigations": [risk.get("mitigation", "") for risk in state.get("risks", [])],
-        }
+            "mitigations": [
+                risk.get("mitigation", "") for risk in state.get("risks", [])
+            ],
+        },
     }
-    
+
     return export
