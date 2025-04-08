@@ -247,6 +247,7 @@ class DescriptionStep(BaseWorkflowStep):
                 self.project_description = gr.Markdown(
                     label="Generated Description",
                     value="Project description will appear here...",
+                    show_copy_button=True,
                 )
 
         # Navigation buttons

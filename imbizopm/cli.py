@@ -228,7 +228,6 @@ def main():
                 title=args.title,
                 body=args.body,
                 labels=args.labels,
-                assignees=args.assignees,
             )
 
         elif args.command == "create-full-project":

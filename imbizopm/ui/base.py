@@ -101,8 +101,8 @@ class BaseUI:
             lines.append("\n")
 
         # Project info
-        if "project" in result:
-            project = result["project"]
+        if "project" in result and result["project"]["success"]:
+            project = result["project"]["project"]
             lines.append("### Project\n")
             lines.append(f"- Name: {project.get('name')}\n")
             if "url" in project:
@@ -122,5 +122,21 @@ class BaseUI:
 
             if len(issues) > 10:
                 lines.append(f"\n... and {len(issues) - 10} more issues.\n")
+
+        # Relationship info
+        if "relationships" in result and result["relationships"]:
+            relationships = result["relationships"]
+            lines.append(f"\n### Issue Relationships ({len(relationships)})\n")
+            success_count = sum(
+                1 for rel in relationships if rel.get("status") == "linked"
+            )
+            lines.append(
+                f"- Successfully linked: {success_count}/{len(relationships)}\n"
+            )
+
+            if success_count < len(relationships):
+                lines.append(
+                    "\nSome relationships could not be created. Check the GitHub interface.\n"
+                )
 
         return "".join(lines)

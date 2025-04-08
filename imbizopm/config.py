@@ -14,6 +14,13 @@ from dotenv import load_dotenv
 from .model_config import ModelConfigManager
 
 
+class APIKeys:
+    ollama_url = "http://localhost:11434"
+    openai_key = ""
+    anthropic_key = ""
+    github_token = ""
+
+
 class Config:
     """
     Configuration class for ImbizoPM.
@@ -39,22 +46,30 @@ class Config:
     @property
     def github_token(self) -> Optional[str]:
         """Get the GitHub token from environment."""
-        return os.environ.get("GITHUB_TOKEN")
+        return APIKeys.github_token or os.environ.get(
+            "GITHUB_TOKEN",
+        )
 
     @property
     def openai_api_key(self) -> Optional[str]:
         """Get the OpenAI API key from environment."""
-        return os.environ.get("OPENAI_API_KEY")
+        return APIKeys.openai_key or os.environ.get(
+            "OPENAI_API_KEY",
+        )
 
     @property
     def anthropic_api_key(self) -> Optional[str]:
         """Get the Anthropic API key from environment."""
-        return os.environ.get("ANTHROPIC_API_KEY")
+        return APIKeys.anthropic_key or os.environ.get(
+            "ANTHROPIC_API_KEY",
+        )
 
     @property
     def ollama_base_url(self) -> str:
         """Get the Ollama base URL from environment."""
-        return os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+        return APIKeys.ollama_url or os.environ.get(
+            "OLLAMA_BASE_URL",
+        )
 
     @property
     def ollama_model(self) -> str:

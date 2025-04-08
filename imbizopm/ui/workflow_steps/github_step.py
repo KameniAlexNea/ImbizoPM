@@ -8,7 +8,7 @@ from typing import Dict
 import gradio as gr
 
 from ...github_manager import GitHubManager
-from ...project_generator import ProjectGenerator
+from ...utilities.sub_issue import MyIssue  # Import the custom MyIssue class
 from .base_step import BaseWorkflowStep
 
 
@@ -130,39 +130,113 @@ class GitHubStep(BaseWorkflowStep):
             if not repo_result["success"]:
                 return repo_result
 
-            # Create project board
+            # Create project and ignore when it fails
             project_result = manager.create_project(
                 repo_name=repo_name,
                 project_name=tasks_data.get("project_title", "Project"),
                 body=tasks_data.get("project_description", ""),
             )
 
-            if not project_result["success"]:
-                return project_result
-
-            # Generate GitHub issues
-            generator = ProjectGenerator("ollama")  # Provider doesn't matter here
-            issues = generator.generate_github_issues(tasks_data)
-
-            # Create issues
+            # Prepare to create issues
             created_issues = []
-            for issue in issues:
-                issue_result = manager.create_issue(
-                    repo_name=repo_name,
-                    title=issue["title"],
-                    body=issue["body"],
-                    labels=issue.get("labels", []),
+            issue_relationships = []
+            repo = manager.github.get_repo(f"{manager.user.login}/{repo_name}")
+
+            # Create a mapping of tasks to their created issues for linking
+            task_to_issue_map = {}  # Maps task index to GitHub issue object
+
+            # Process the tasks directly from the JSON data
+            for task_idx, task in enumerate(tasks_data.get("tasks", [])):
+                # Create parent task issue
+                issue_title = task["title"]
+                issue_body = (
+                    f"{task['description']}\n\nComplexity: {task['complexity']}"
+                )
+                issue_labels = task.get("labels", [])
+
+                parent_issue = repo.create_issue(
+                    title=issue_title, body=issue_body, labels=issue_labels
                 )
 
-                if issue_result["success"]:
-                    created_issues.append(issue_result["issue"])
+                # Store the created issue
+                created_issues.append(
+                    {
+                        "number": parent_issue.number,
+                        "title": parent_issue.title,
+                        "url": parent_issue.html_url,
+                    }
+                )
+
+                # Save in map for linking subtasks later
+                task_to_issue_map[task_idx] = parent_issue
+
+                # Process subtasks
+                if task.get("subtasks"):
+                    for subtask in task.get("subtasks", []):
+                        # Create subtask issue
+                        subtask_title = f"{task['title']} - {subtask['title']}"
+                        subtask_body = f"{subtask['description']}\n\nComplexity: {subtask['complexity']}"
+                        subtask_labels = subtask.get("labels", [])
+
+                        # Create child issue
+                        child_issue = repo.create_issue(
+                            title=subtask_title,
+                            body=subtask_body,
+                            labels=subtask_labels,
+                        )
+
+                        # Store the created issue
+                        created_issues.append(
+                            {
+                                "number": child_issue.number,
+                                "title": child_issue.title,
+                                "url": child_issue.html_url,
+                            }
+                        )
+
+                        # Link as sub-issue using MyIssue
+                        try:
+                            # Initialize MyIssue with the parent issue object
+                            my_issue = MyIssue(issue=parent_issue)
+
+                            # Add the child issue as a sub-issue
+                            success = my_issue.add_sub_issue(child_issue.id)
+
+                            if success:
+                                issue_relationships.append(
+                                    {
+                                        "parent": parent_issue.number,
+                                        "child": child_issue.number,
+                                        "status": "linked",
+                                    }
+                                )
+                            else:
+                                issue_relationships.append(
+                                    {
+                                        "parent": parent_issue.number,
+                                        "child": child_issue.number,
+                                        "status": "error",
+                                        "error": "Failed to create sub-issue relationship",
+                                    }
+                                )
+                        except Exception as e:
+                            print(f"Error creating sub-issue relationship: {str(e)}")
+                            issue_relationships.append(
+                                {
+                                    "parent": parent_issue.number,
+                                    "child": child_issue.number,
+                                    "status": "error",
+                                    "error": str(e),
+                                }
+                            )
 
             return {
                 "success": True,
                 "repository": repo_result["repository"],
-                "project": project_result["project"],
+                "project": project_result,
                 "issues_count": len(created_issues),
                 "issues": created_issues,
+                "relationships": issue_relationships,
             }
 
         except Exception as e:

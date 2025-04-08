@@ -63,6 +63,20 @@ class GitHubManager:
             Dictionary with repository details
         """
         try:
+            # check if repository already exists
+            repo = self.github.get_repo(f"{self.user.login}/{name}")
+            return {
+                "success": True,
+                "repository": {
+                    "name": repo.name,
+                    "full_name": repo.full_name,
+                    "url": repo.html_url,
+                    "clone_url": repo.clone_url,
+                },
+            }
+        except Exception:
+            pass
+        try:
             repo = self.user.create_repo(
                 name=name,
                 description=description,
@@ -123,8 +137,6 @@ class GitHubManager:
         title: str,
         body: Optional[str] = None,
         labels: Optional[List[str]] = None,
-        milestone: Optional[int] = None,
-        assignees: Optional[List[str]] = None,
     ) -> Dict:
         """
         Create a new issue in a repository.
@@ -134,8 +146,6 @@ class GitHubManager:
             title: Issue title
             body: Issue description
             labels: List of labels to apply
-            milestone: Milestone ID
-            assignees: List of usernames to assign
 
         Returns:
             Dictionary with issue details
@@ -146,8 +156,6 @@ class GitHubManager:
                 title=title,
                 body=body,
                 labels=labels,
-                milestone=milestone,
-                assignees=assignees,
             )
 
             return {
@@ -156,10 +164,59 @@ class GitHubManager:
                     "number": issue.number,
                     "title": issue.title,
                     "url": issue.html_url,
+                    "state": issue,
                 },
             }
         except GithubException as e:
+            return {
+                "success": False,
+                "error": f"GHE - Failed to create issue: {str(e)}",
+            }
+        except Exception as e:
             return {"success": False, "error": f"Failed to create issue: {str(e)}"}
+
+    def update_issue(
+        self, repo_name: str, issue_number: int, body: str = None, title: str = None
+    ) -> Dict:
+        """
+        Update an existing issue in the repository.
+
+        Args:
+            repo_name: Name of the repository
+            issue_number: The issue number to update
+            body: New body text for the issue (optional)
+            title: New title for the issue (optional)
+
+        Returns:
+            Dict containing success status and issue data or error message
+        """
+        try:
+            repo = self.github.get_repo(repo_name)
+            issue = repo.get_issue(issue_number)
+
+            # Update only provided fields
+            update_kwargs = {}
+            if body is not None:
+                update_kwargs["body"] = body
+            if title is not None:
+                update_kwargs["title"] = title
+
+            if update_kwargs:
+                issue.edit(**update_kwargs)
+
+            # Return updated issue data
+            return {
+                "success": True,
+                "issue": {
+                    "number": issue.number,
+                    "title": issue.title,
+                    "body": issue.body,
+                    "url": issue.html_url,
+                    "state": issue.state,
+                },
+            }
+        except Exception as e:
+            return {"success": False, "error": f"Failed to update issue: {str(e)}"}
 
     def create_project_with_issues(
         self,
@@ -294,3 +351,98 @@ class GitHubManager:
 
         except GithubException as e:
             return {"success": False, "error": f"Failed to list issues: {str(e)}"}
+
+    def create_sub_issue_relationship(
+        self, repo_name: str, parent_issue_number: int, child_issue_number: int
+    ) -> Dict:
+        """
+        Create a relationship between two issues by updating their descriptions.
+
+        Since the sub-issues API might not be available, this method uses GitHub's
+        built-in issue reference syntax to create a parent-child relationship.
+
+        Args:
+            repo_name: Name of the repository
+            parent_issue_number: The parent issue number
+            child_issue_number: The child issue number to link as sub-issue
+
+        Returns:
+            Dict containing success status and response data
+        """
+        try:
+            # Format the repository name to include owner if necessary
+            full_repo_name = repo_name
+            if "/" not in repo_name:
+                full_repo_name = f"{self.user.login}/{repo_name}"
+
+            # Get the repository
+            repo = self.github.get_repo(full_repo_name)
+
+            # Get both issues
+            try:
+                parent_issue = repo.get_issue(parent_issue_number)
+                child_issue = repo.get_issue(child_issue_number)
+            except Exception as e:
+                return {"success": False, "error": f"Failed to find issues: {str(e)}"}
+
+            # Update parent issue to reference child issue
+            parent_body = parent_issue.body or ""
+            if f"#{child_issue_number}" not in parent_body:
+                subtasks_section = "\n\n### Linked Subtasks\n"
+                if "### Linked Subtasks" not in parent_body:
+                    parent_body += subtasks_section
+
+                # Add the child issue reference - location depends on whether section exists
+                if subtasks_section in parent_body:
+                    parent_body += f"- #{child_issue_number} - {child_issue.title}\n"
+                else:
+                    # Find the section and add to it
+                    lines = parent_body.split("\n")
+                    for i, line in enumerate(lines):
+                        if line.strip() == "### Linked Subtasks":
+                            lines.insert(
+                                i + 1, f"- #{child_issue_number} - {child_issue.title}"
+                            )
+                            break
+                    parent_body = "\n".join(lines)
+
+                # Update the parent issue
+                parent_issue.edit(body=parent_body)
+
+            # Update child issue to reference parent issue
+            child_body = child_issue.body or ""
+            if f"#{parent_issue_number}" not in child_body:
+                if "### Parent Issue" not in child_body:
+                    child_body += f"\n\n### Parent Issue\n#{parent_issue_number} - {parent_issue.title}"
+                else:
+                    # Replace the existing parent reference
+                    lines = child_body.split("\n")
+                    for i, line in enumerate(lines):
+                        if line.strip() == "### Parent Issue":
+                            # Insert after this line, or replace next line if it exists
+                            if i + 1 < len(lines):
+                                lines[i + 1] = (
+                                    f"#{parent_issue_number} - {parent_issue.title}"
+                                )
+                            else:
+                                lines.append(
+                                    f"#{parent_issue_number} - {parent_issue.title}"
+                                )
+                            break
+                    child_body = "\n".join(lines)
+
+                # Update the child issue
+                child_issue.edit(body=child_body)
+
+            return {
+                "success": True,
+                "parent_issue": parent_issue_number,
+                "sub_issue": child_issue_number,
+                "message": f"Successfully linked issue #{child_issue_number} as a subtask of #{parent_issue_number}",
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Error creating issue relationship: {str(e)}",
+            }
