@@ -29,7 +29,7 @@ def human_assistance(query: str) -> str:
 
 def create_project_planning_graph(
     llm: BaseChatModel, use_checkpointing: bool = True
-) -> StateGraph:
+) -> CompiledGraph:
     """
     Create the project planning graph with all agents and their connections.
 
@@ -168,6 +168,8 @@ def run_project_planning_graph(graph: CompiledGraph, user_input, thread_id="defa
 
     results = []
     for event in events:
+        for value in event.values():
+            print("Assistant:", value["messages"][-1].pretty_print())
         # Store each state update
         results.append(event)
 

@@ -14,3 +14,9 @@ twine
 build
 pickleshare
 coverage
+
+# agents
+langchain-openai
+langgraph
+langchain
+pygraphviz
