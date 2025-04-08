@@ -1,22 +1,12 @@
 from typing import Dict, Optional, Type
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.tools import tool
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 from langgraph.graph.graph import CompiledGraph
-from langgraph.types import Command, interrupt
 
 from .base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG
-
-
-@tool
-def human_assistance(query: str) -> str:
-    """Request assistance from a human."""
-    human_response = interrupt({"query": query})
-    return human_response["data"]
-
 
 def create_project_planning_graph(
     llm: BaseChatModel,
@@ -45,24 +35,8 @@ def create_project_planning_graph(
 
     # Add all nodes to the graph
     for node_name, node_config in config["nodes"].items():
-        if node_name == "HumanAssistance":
-            # Add human assistance tool node
-            workflow.add_node(
-                "HumanAssistance",
-                lambda state: {
-                    **state,
-                    "human_response": human_assistance(
-                        state.get(
-                            "human_query", "Need human assistance with project planning"
-                        )
-                    ),
-                    "next": state.get(
-                        "pending_next", config["entry_point"]
-                    ),  # Return to the agent that requested help
-                },
-            )
-        elif node_config.get("is_tool", False):
-            # Handle other tools if needed
+        if node_config.get("is_tool", False):
+            # Handle tools if needed
             pass
         else:
             # Create and add agent nodes
@@ -74,11 +48,6 @@ def create_project_planning_graph(
     # Define the conditional routing logic
     def route_next(state: AgentState) -> str:
         """Route to the next agent based on the 'next' field in state."""
-        # Check if human assistance is needed
-        if state.get("needs_human", False):
-            state["pending_next"] = state.get("next")
-            return "HumanAssistance"
-
         if state.get("next") is None:
             return END
         return state["next"]
@@ -88,11 +57,7 @@ def create_project_planning_graph(
 
     # Connect all nodes with conditional routing
     for node_name, edges in config["edges"].items():
-        if node_name == "HumanAssistance":
-            # Human assistance routes back based on the pending_next field
-            workflow.add_conditional_edges(node_name, route_next)
-        else:
-            workflow.add_conditional_edges(node_name, route_next, edges)
+        workflow.add_conditional_edges(node_name, route_next, edges)
 
     # Apply checkpointing if requested
     if use_checkpointing:
@@ -155,25 +120,5 @@ def run_project_planning_graph(
             print(event)
         # Store each state update
         results.append(event)
-
-        # Check if we need human intervention
-        snapshot = graph.get_state(config)
-        if snapshot.next and snapshot.next[0] == "HumanAssistance":
-            print("Human assistance required!")
-            query = snapshot.state.get(
-                "human_query", "Need human assistance with project planning"
-            )
-            print(f"Query: {query}")
-
-            # Get actual human input using input()
-            human_response = input("Please provide your response: ")
-
-            # Resume the graph with the human response
-            human_command = Command(resume={"data": human_response})
-
-            # Continue processing with human input
-            continuation = graph.stream(human_command, config, stream_mode="values")
-            for cont_event in continuation:
-                results.append(cont_event)
 
     return results

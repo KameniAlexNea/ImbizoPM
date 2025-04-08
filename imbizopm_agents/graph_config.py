@@ -56,33 +56,33 @@ DEFAULT_GRAPH_CONFIG = {
             "agent_class": PMAdapterAgent,
             "description": "Formats and exports the project plan for external tools",
         },
-        "HumanAssistance": {
-            "is_tool": True,
-            "description": "Requests assistance from a human",
-        },
     },
     "edges": {
         "ClarifierAgent": {"OutcomeAgent": "OutcomeAgent", END: END},
         "OutcomeAgent": {
-            "ClarifierAgent": "ClarifierAgent",
+            "ClarifierAgent": "ClarifierAgent",  # No Clear Outcome path
             "PlannerAgent": "PlannerAgent",
             END: END,
         },
-        "PlannerAgent": {"ScoperAgent": "ScoperAgent", END: END},
+        "PlannerAgent": {
+            "ClarifierAgent": "ClarifierAgent",  # Too Vague path
+            "ScoperAgent": "ScoperAgent", 
+            END: END
+        },
         "ScoperAgent": {
-            "NegotiatorAgent": "NegotiatorAgent",
+            "NegotiatorAgent": "NegotiatorAgent",  # Overload path
             "TaskifierAgent": "TaskifierAgent",
             END: END,
         },
         "TaskifierAgent": {
-            "ClarifierAgent": "ClarifierAgent",
+            "ClarifierAgent": "ClarifierAgent",  # Missing Info path
             "TimelineAgent": "TimelineAgent",
             END: END,
         },
         "TimelineAgent": {"RiskAgent": "RiskAgent", END: END},
         "RiskAgent": {
             "ValidatorAgent": "ValidatorAgent",
-            "PlannerAgent": "PlannerAgent",
+            "PlannerAgent": "PlannerAgent",  # Unfeasible path
             END: END,
         },
         "NegotiatorAgent": {
@@ -91,12 +91,11 @@ DEFAULT_GRAPH_CONFIG = {
             END: END,
         },
         "ValidatorAgent": {
-            "PMAdapterAgent": "PMAdapterAgent",
-            "PlannerAgent": "PlannerAgent",
+            "PMAdapterAgent": "PMAdapterAgent",  # Valid path
+            "PlannerAgent": "PlannerAgent",  # Mismatch path
             END: END,
         },
         "PMAdapterAgent": {END: END},
-        "HumanAssistance": {},  # Will be handled by route_next function
     },
     "entry_point": "ClarifierAgent",
 }

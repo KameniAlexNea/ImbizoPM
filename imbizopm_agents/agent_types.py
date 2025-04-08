@@ -56,6 +56,7 @@ class OutcomeAgent(BaseAgent):
 
         # Check if outcomes are clear
         if not state["outcomes"]:
+            # No Clear Outcome path
             state["next"] = "ClarifierAgent"
         else:
             state["next"] = "PlannerAgent"
@@ -93,8 +94,12 @@ class PlannerAgent(BaseAgent):
             "strategies": result.get("strategies", []),
         }
 
-        # Default next agent is ScoperAgent
-        state["next"] = "ScoperAgent"
+        # Check if plan is too vague
+        if result.get("too_vague", False):
+            # Too Vague path
+            state["next"] = "ClarifierAgent"
+        else:
+            state["next"] = "ScoperAgent"
         return state
 
 
@@ -236,7 +241,8 @@ class RiskAgent(BaseAgent):
         if result.get("feasible", True):
             state["next"] = "ValidatorAgent"
         else:
-            state["next"] = "PlannerAgent"  # Rework the plan
+            # Unfeasible path
+            state["next"] = "PlannerAgent"
         return state
 
 
@@ -318,9 +324,11 @@ class ValidatorAgent(BaseAgent):
 
         # Check validation result
         if state["validation"]["overall"]:
+            # Valid path
             state["next"] = "PMAdapterAgent"
         else:
-            state["next"] = "PlannerAgent"  # Rework the plan
+            # Mismatch path
+            state["next"] = "PlannerAgent"
         return state
 
 
