@@ -1,4 +1,5 @@
 from typing import Any, Dict
+from imbizopm_agents.utils import format_project_plan_for_export
 
 from .base_agent import AgentState, BaseAgent
 
@@ -363,7 +364,7 @@ class PMAdapterAgent(BaseAgent):
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["final_output"] = {
-            "json_export": result.get("json_export", {}),
+            "json_export": format_project_plan_for_export(state),
             "summary_report": result.get("summary_report", ""),
             "next_steps": result.get("next_steps", []),
         }

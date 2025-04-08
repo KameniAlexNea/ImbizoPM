@@ -13,7 +13,10 @@ def extract_structured_data(text: str) -> Dict[str, Any]:
     Returns:
         Dict with extracted structured data
     """
-    return parse_json(text)
+    try:
+        return parse_json(text)
+    except:
+        return text
 
 
 def format_project_plan_for_export(state: Dict[str, Any]) -> Dict[str, Any]:

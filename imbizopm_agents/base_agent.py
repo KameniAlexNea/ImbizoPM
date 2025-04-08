@@ -5,6 +5,7 @@ from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph.graph import CompiledGraph
 from langgraph.prebuilt import create_react_agent
+from imbizopm_agents.utils import extract_structured_data
 
 
 class AgentState(TypedDict):
@@ -52,20 +53,18 @@ class BaseAgent:
         )
 
     def run(self, state: AgentState) -> AgentState:
-        """Run the agent on the current state."""
-        # Default implementation that can be overridden
-        result = self.agent.invoke({"input": self._prepare_input(state)})
-
-        # Update messages
-        if "messages" in result:
-            state["messages"] = result["messages"]
-
-        return self._process_result(state, result)
+        raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
+        if "messages" in raw_output:
+            state["messages"].extend(raw_output["messages"])
+        parsed_content = {}
+        if raw_output.get("messages"):
+            parsed_content = extract_structured_data(raw_output["messages"][-1].content)
+        return self._process_result(state, parsed_content)
 
     def _prepare_input(self, state: AgentState) -> str:
         """Prepare input for the agent."""
         # Default implementation that can be overridden
-        return state["input"]
+        return state["messages"]
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         """Process the agent result and update the state."""
