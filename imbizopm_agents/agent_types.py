@@ -66,6 +66,9 @@ class PlannerAgent(BaseAgent):
         super().__init__(llm, "Planner", PLANNER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
+        negotiation_details = state.get("negotiation_details", {})
+
+        negotiation_details = "" if not negotiation_details else f"Negotiation details: \n{negotiation_details}"
         deliverables = [d.get("name", "") for d in state.get("deliverables", [])]
         return f"""Refined idea: {state['idea'].get('refined', '')}
 Goals:
@@ -76,6 +79,7 @@ Outcomes:
 {format_list(state.get('outcomes', []))}
 Deliverables:
 {format_list(deliverables)}
+{negotiation_details}
 
 Break into phases, epics, and strategies."""
 
@@ -96,10 +100,13 @@ class ScoperAgent(BaseAgent):
         super().__init__(llm, "Scoper", SCOPER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
+        negotiation_details = state.get("negotiation_details", {})
+        negotiation_details = "" if not negotiation_details else f"Negotiation details: \n{negotiation_details}"
         return f"""Phases: {state['plan'].get('phases', [])}
 Epics: {state['plan'].get('epics', [])}
 Constraints:
 {format_list(state.get('constraints', []))}
+{negotiation_details}
 
 Define MVP scope and resolve overload."""
 
@@ -193,15 +200,13 @@ Resolve conflicts in the current project state."""
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         # Update state with negotiation results
 
+        # Store negotiation details in state for PlannerAgent or ScoperAgent
+        state["negotiation_details"] = result.get("negotiation_details", {})
+
         # Based on which aspect was negotiated, return to the appropriate agent
         conflict_area = result.get("conflict_area", "")
 
-        if conflict_area == "plan":
-            state["next"] = "PlannerAgent"
-        elif conflict_area == "scope":
-            state["next"] = "ScoperAgent"
-        else:
-            state["next"] = "PlannerAgent"  # Default
+        state["next"] = "ScoperAgent" if conflict_area == "scope" else "PlannerAgent"
 
         return state
 
