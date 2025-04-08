@@ -2,6 +2,11 @@ from typing import Dict, Any, TypedDict, List, Optional, Union, Annotated
 from langchain_core.language_models import BaseChatModel
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import START, StateGraph, END
+from langgraph.types import Command, interrupt
+from langchain_core.tools import tool
+from langgraph.graph.graph import CompiledGraph
 
 from .agent_types import (
     ClarifierAgent,
@@ -17,12 +22,19 @@ from .agent_types import (
 )
 from .base_agent import AgentState
 
-def create_project_planning_graph(llm: BaseChatModel) -> StateGraph:
+@tool
+def human_assistance(query: str) -> str:
+    """Request assistance from a human."""
+    human_response = interrupt({"query": query})
+    return human_response["data"]
+
+def create_project_planning_graph(llm: BaseChatModel, use_checkpointing: bool = True) -> StateGraph:
     """
     Create the project planning graph with all agents and their connections.
     
     Args:
         llm: The language model to use for all agents
+        use_checkpointing: Whether to use memory checkpointing for the graph
         
     Returns:
         StateGraph: The configured graph ready to process user requests
@@ -54,9 +66,20 @@ def create_project_planning_graph(llm: BaseChatModel) -> StateGraph:
     workflow.add_node("ValidatorAgent", validator.run)
     workflow.add_node("PMAdapterAgent", pm_adapter.run)
     
+    # Add human assistance tool node
+    workflow.add_node("HumanAssistance", lambda state: {
+        **state,
+        "human_response": human_assistance(state.get("human_query", "Need human assistance with project planning")),
+        "next": state.get("pending_next", "ClarifierAgent")  # Return to the agent that requested help
+    })
+    
     # Define the conditional routing logic
     def route_next(state: AgentState) -> str:
         """Route to the next agent based on the 'next' field in state."""
+        # Check if human assistance is needed
+        if state.get("needs_human", False):
+            return "HumanAssistance"
+        
         if state.get("next") is None:
             return END
         return state["next"]
@@ -115,4 +138,77 @@ def create_project_planning_graph(llm: BaseChatModel) -> StateGraph:
         route_next
     )
     
-    return workflow.compile()
+    # Connect human assistance node back to the workflow
+    workflow.add_conditional_edges(
+        "HumanAssistance",
+        route_next
+    )
+    
+    # Apply checkpointing if requested
+    if use_checkpointing:
+        memory = MemorySaver()
+        return workflow.compile(checkpointer=memory)
+    else:
+        return workflow.compile()
+
+def run_project_planning_graph(graph: CompiledGraph, user_input, thread_id="default"):
+    """
+    Run the project planning graph with the given user input.
+    
+    Args:
+        graph: The compiled project planning graph
+        user_input: The user's project idea or request
+        thread_id: A unique identifier for this conversation thread
+        
+    Returns:
+        The final state of the graph after processing
+    """
+    config = {"configurable": {"thread_id": thread_id}}
+    
+    # Initialize the state with the user input
+    initial_state = {
+        "input": user_input,
+        "idea": {"original": user_input},
+        "goals": [],
+        "constraints": [],
+        "outcomes": [],
+        "deliverables": [],
+        "plan": {},
+        "scope": {},
+        "tasks": [],
+        "timeline": {},
+        "risks": [],
+        "validation": {},
+        "messages": [],
+        "next": "ClarifierAgent"
+    }
+    
+    # Stream the events
+    events = graph.stream(
+        initial_state,
+        config,
+        stream_mode="values",
+    )
+    
+    results = []
+    for event in events:
+        # Store each state update
+        results.append(event)
+        
+        # Check if we need human intervention
+        snapshot = graph.get_state(config)
+        if snapshot.next and snapshot.next[0] == "HumanAssistance":
+            print("Human assistance required!")
+            # In a real application, you would wait for human input here
+            # For demonstration, we automatically provide a response
+            human_response = "This is automated human assistance. Proceed with the plan."
+            
+            # Resume the graph with the human response
+            human_command = Command(resume={"data": human_response})
+            
+            # Continue processing with human input
+            continuation = graph.stream(human_command, config, stream_mode="values")
+            for cont_event in continuation:
+                results.append(cont_event)
+    
+    return results
