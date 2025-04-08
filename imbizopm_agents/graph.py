@@ -168,8 +168,7 @@ def run_project_planning_graph(graph: CompiledGraph, user_input, thread_id="defa
 
     results = []
     for event in events:
-        for value in event.values():
-            print("Assistant:", value["messages"][-1].pretty_print())
+        print(event)
         # Store each state update
         results.append(event)
 

@@ -20,7 +20,7 @@ class AgentState(TypedDict):
     timeline: Dict[str, Any]
     risks: List[Dict[str, Any]]
     validation: Dict[str, bool]
-    messages: List[BaseMessage]
+    messages: list[BaseMessage]
     next: Optional[str]
 
 
