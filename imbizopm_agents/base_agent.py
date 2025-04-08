@@ -1,15 +1,13 @@
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Annotated, Any, Dict, List, Optional, TypedDict
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph.graph import CompiledGraph
-from langgraph.prebuilt import create_react_agent
-from imbizopm_agents.utils import extract_structured_data
-from typing import Annotated, Optional
-
 from langgraph.graph.message import add_messages
+from langgraph.prebuilt import create_react_agent
 from typing_extensions import TypedDict
+
+from imbizopm_agents.utils import extract_structured_data
 
 
 class AgentState(TypedDict):

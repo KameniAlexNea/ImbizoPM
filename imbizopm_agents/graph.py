@@ -8,6 +8,7 @@ from langgraph.graph.graph import CompiledGraph
 from .base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG
 
+
 def create_project_planning_graph(
     llm: BaseChatModel,
     graph_config: Optional[Dict[str, Dict]] = DEFAULT_GRAPH_CONFIG,

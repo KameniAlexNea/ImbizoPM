@@ -1,4 +1,5 @@
 from typing import Any, Dict
+
 from imbizopm_agents.utils import format_project_plan_for_export
 
 from .base_agent import AgentState, BaseAgent
@@ -33,10 +34,7 @@ Your output should be structured as follows:
 
         # Default next agent is OutcomeAgent
         state["next"] = "OutcomeAgent"
-        return {
-            **state,
-            "messages": [result]
-        }
+        return {**state, "messages": [result]}
 
 
 class OutcomeAgent(BaseAgent):
@@ -505,4 +503,4 @@ Format this project plan for export to project management tools."""
 
         # This is the final agent, no next state needed
         state["next"] = "__end__"
-        return state
+        return {**state, "messages": [result]}
