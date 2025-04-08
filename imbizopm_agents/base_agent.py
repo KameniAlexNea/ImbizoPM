@@ -56,7 +56,8 @@ class BaseAgent:
 
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
-        parsed_content = extract_structured_data(raw_output.content)
+        parsed_content = extract_structured_data(raw_output["messages"][-1].content)
+        state["messages"] = raw_output["messages"]
         return self._process_result(state, parsed_content)
 
     def _prepare_input(self, state: AgentState) -> str:

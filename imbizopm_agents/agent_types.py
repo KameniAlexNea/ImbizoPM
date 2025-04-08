@@ -25,6 +25,11 @@ Your output should be structured as follows:
 }}"""
         super().__init__(llm, "Clarifier", system_prompt)
 
+    def _prepare_input(self, state: AgentState) -> str:
+        """Prepare input for the agent."""
+        # Default implementation that can be overridden
+        return state["input"]
+
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         # Extract refined idea, goals and constraints from the agent's response
         # This is a simplified implementation - would need parsing logic
@@ -34,7 +39,7 @@ Your output should be structured as follows:
 
         # Default next agent is OutcomeAgent
         state["next"] = "OutcomeAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class OutcomeAgent(BaseAgent):
@@ -78,7 +83,7 @@ Define the success metrics and deliverables for this project."""
             state["next"] = "ClarifierAgent"
         else:
             state["next"] = "PlannerAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class PlannerAgent(BaseAgent):
@@ -147,7 +152,7 @@ Create a high-level plan with phases, epics, and strategies."""
             state["next"] = "ClarifierAgent"
         else:
             state["next"] = "ScoperAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class ScoperAgent(BaseAgent):
@@ -200,7 +205,7 @@ Define a realistic MVP scope and resolve any scope overload issues."""
             state["next"] = "NegotiatorAgent"
         else:
             state["next"] = "TaskifierAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class TaskifierAgent(BaseAgent):
@@ -251,7 +256,7 @@ Break down the plan into detailed tasks with owners and dependencies."""
             state["next"] = "ClarifierAgent"
         else:
             state["next"] = "TimelineAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class TimelineAgent(BaseAgent):
@@ -291,7 +296,7 @@ Your output should be structured as follows:
         }
 
         state["next"] = "RiskAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class RiskAgent(BaseAgent):
@@ -340,7 +345,7 @@ Assess the risks and feasibility of this project plan."""
         else:
             # Unfeasible path
             state["next"] = "PlannerAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class NegotiatorAgent(BaseAgent):
@@ -392,7 +397,7 @@ Resolve conflicts in the current project state."""
         else:
             state["next"] = "PlannerAgent"  # Default
 
-        return {**state, "messages": [result]}
+        return state
 
 
 class ValidatorAgent(BaseAgent):
@@ -454,7 +459,7 @@ Validate alignment between the idea, goals, and the resulting plan."""
         else:
             # Mismatch path
             state["next"] = "PlannerAgent"
-        return {**state, "messages": [result]}
+        return state
 
 
 class PMAdapterAgent(BaseAgent):
@@ -503,4 +508,4 @@ Format this project plan for export to project management tools."""
 
         # This is the final agent, no next state needed
         state["next"] = "__end__"
-        return {**state, "messages": [result]}
+        return state

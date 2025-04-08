@@ -7,6 +7,7 @@ from langgraph.graph.graph import CompiledGraph
 
 from .base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG
+from langchain_core.messages.ai import AIMessage
 
 
 def create_project_planning_graph(
@@ -72,6 +73,7 @@ def run_project_planning_graph(
     graph: CompiledGraph,
     user_input: str,
     thread_id: str = "default",
+    recursion_limit: int = 5,
 ):
     """
     Run the project planning graph with the given user input.
@@ -84,7 +86,7 @@ def run_project_planning_graph(
     Returns:
         The final state of the graph after processing
     """
-    config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 5}
+    config = {"configurable": {"thread_id": thread_id}, "recursion_limit": recursion_limit}
 
     # Initialize the state with the user input
     initial_state = {
@@ -116,7 +118,8 @@ def run_project_planning_graph(
         print(event["next"])
         messages = event["messages"]
         if messages:
-            messages[-1].pretty_print()
+            message: AIMessage = messages[-1]
+            message.pretty_print()
         else:
             print(event)
         # Store each state update
