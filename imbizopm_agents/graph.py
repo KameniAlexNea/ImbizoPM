@@ -118,7 +118,7 @@ def run_project_planning_graph(
     Returns:
         The final state of the graph after processing
     """
-    config = {"configurable": {"thread_id": thread_id}}
+    config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 5}
 
     # Initialize the state with the user input
     initial_state = {
@@ -147,7 +147,12 @@ def run_project_planning_graph(
 
     results = []
     for event in events:
-        print(event)
+        print(event["next"])
+        messages = event["messages"]
+        if messages:
+            messages[-1].pretty_print()
+        else:
+            print(event)
         # Store each state update
         results.append(event)
 
