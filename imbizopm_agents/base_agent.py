@@ -47,7 +47,9 @@ class BaseAgent:
             [("system", self.system_prompt), ("human", "{input}")]
         )
 
-        self.agent: CompiledGraph = create_react_agent(self.llm, tools=[], prompt=prompt)
+        self.agent: CompiledGraph = create_react_agent(
+            self.llm, tools=[], prompt=prompt
+        )
 
     def run(self, state: AgentState) -> AgentState:
         """Run the agent on the current state."""

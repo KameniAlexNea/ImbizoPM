@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Type, Union
+from typing import Dict, Optional, Type
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.tools import tool
@@ -7,18 +7,6 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.graph import CompiledGraph
 from langgraph.types import Command, interrupt
 
-from .agent_types import (
-    ClarifierAgent,
-    NegotiatorAgent,
-    OutcomeAgent,
-    PlannerAgent,
-    PMAdapterAgent,
-    RiskAgent,
-    ScoperAgent,
-    TaskifierAgent,
-    TimelineAgent,
-    ValidatorAgent,
-)
 from .base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG
 
@@ -31,9 +19,9 @@ def human_assistance(query: str) -> str:
 
 
 def create_project_planning_graph(
-    llm: BaseChatModel, 
+    llm: BaseChatModel,
     graph_config: Optional[Dict[str, Dict]] = DEFAULT_GRAPH_CONFIG,
-    use_checkpointing: bool = True
+    use_checkpointing: bool = True,
 ) -> CompiledGraph:
     """
     Create the project planning graph with all agents and their connections.
@@ -48,13 +36,13 @@ def create_project_planning_graph(
     """
     # Use default config if none provided
     config = graph_config
-    
+
     # Create the graph
     workflow = StateGraph(AgentState)
-    
+
     # Initialize agents dictionary to store references
     agents = {}
-    
+
     # Add all nodes to the graph
     for node_name, node_config in config["nodes"].items():
         if node_name == "HumanAssistance":
@@ -64,7 +52,9 @@ def create_project_planning_graph(
                 lambda state: {
                     **state,
                     "human_response": human_assistance(
-                        state.get("human_query", "Need human assistance with project planning")
+                        state.get(
+                            "human_query", "Need human assistance with project planning"
+                        )
                     ),
                     "next": state.get(
                         "pending_next", config["entry_point"]
@@ -80,7 +70,7 @@ def create_project_planning_graph(
             agent = agent_class(llm)
             agents[node_name] = agent
             workflow.add_node(node_name, agent.run)
-    
+
     # Define the conditional routing logic
     def route_next(state: AgentState) -> str:
         """Route to the next agent based on the 'next' field in state."""
@@ -92,10 +82,10 @@ def create_project_planning_graph(
         if state.get("next") is None:
             return END
         return state["next"]
-    
+
     # Set entry point
     workflow.set_entry_point(config["entry_point"])
-    
+
     # Connect all nodes with conditional routing
     for node_name, edges in config["edges"].items():
         if node_name == "HumanAssistance":
@@ -103,7 +93,7 @@ def create_project_planning_graph(
             workflow.add_conditional_edges(node_name, route_next)
         else:
             workflow.add_conditional_edges(node_name, route_next, edges)
-    
+
     # Apply checkpointing if requested
     if use_checkpointing:
         memory = MemorySaver()
@@ -113,8 +103,8 @@ def create_project_planning_graph(
 
 
 def run_project_planning_graph(
-    graph: CompiledGraph, 
-    user_input: str, 
+    graph: CompiledGraph,
+    user_input: str,
     thread_id: str = "default",
 ):
     """

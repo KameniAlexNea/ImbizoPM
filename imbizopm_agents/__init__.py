@@ -10,7 +10,11 @@ from imbizopm_agents.agent_types import (
     TimelineAgent,
     ValidatorAgent,
 )
-from imbizopm_agents.graph import create_project_planning_graph, DEFAULT_GRAPH_CONFIG, run_project_planning_graph
+from imbizopm_agents.graph import (
+    DEFAULT_GRAPH_CONFIG,
+    create_project_planning_graph,
+    run_project_planning_graph,
+)
 
 __all__ = [
     "create_project_planning_graph",
