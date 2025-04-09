@@ -64,7 +64,7 @@ class BaseAgent:
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
         parsed_content = extract_structured_data(raw_output["messages"][-1].content)
-        if "errors" in parsed_content:
+        if "error" in parsed_content:
             logger.warning(f"Errors found in output: {self.name}")
             retry_text = self.llm.invoke(
                 [

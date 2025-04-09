@@ -69,14 +69,16 @@ class ValidatorAgent(BaseAgent):
         super().__init__(llm, "Validator", VALIDATOR_PROMPT, VALIDATOR_OUTPUT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-Original idea: {state['idea'].get('refined', '')}
-Goals: {', '.join(state['goals'])}
-Constraints: {', '.join(state['constraints'])}
-Outcomes: {', '.join(state['outcomes'])}
-Plan: {state['plan']}
-Scope: {state['scope']}
-Tasks: {state['tasks']}
+        return f"""# Idea and Goals
+Refined idea:\n {state['idea'].get('refined', '')}
+Goals:\n {state['goals']}
+Constraints:\n {state['constraints']}
+Outcomes:\n {state['outcomes']}
+
+# Plan and Task
+Plan:\n {state['plan']}
+Scope:\n {state['scope']}
+Tasks:\n {state['tasks']}
 
 Validate alignment between the idea, goals, and the resulting plan."""
 
