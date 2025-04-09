@@ -15,8 +15,8 @@ def extract_structured_data(text: str) -> Dict[str, Any]:
     """
     try:
         return parse_json(text)
-    except:
-        return text
+    except Exception as e:
+        return {"text": text, "error": str(e)}
 
 
 def format_project_plan_for_export(state: Dict[str, Any]) -> Dict[str, Any]:

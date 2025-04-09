@@ -9,11 +9,11 @@ from .prompts import *
 
 
 def format_list(items: list[str]) -> str:
-    return '\n'.join(f"- {item}" for item in items)
+    return "\n".join(f"- {item}" for item in items)
 
 
 def format_named_list(items: list[Dict[str, str]]) -> str:
-    return '\n'.join(f"- {i.get('name')}: {i.get('description')}" for i in items)
+    return "\n".join(f"- {i.get('name')}: {i.get('description')}" for i in items)
 
 
 class ClarifierAgent(BaseAgent):
@@ -25,17 +25,28 @@ class ClarifierAgent(BaseAgent):
     def _prepare_input(self, state: AgentState) -> str:
         """Prepare input for the agent."""
         prompt_parts = [state["input"]]
-        
+
         # Check for TaskifierAgent feedback
-        if state.get("tasks") and state["tasks"] and isinstance(state["tasks"], list) and len(state["tasks"]) > 0:
+        if (
+            state.get("tasks")
+            and state["tasks"]
+            and isinstance(state["tasks"], list)
+            and len(state["tasks"]) > 0
+        ):
             if any(task.get("missing_info_feedback") for task in state["tasks"]):
-                missing_info = [task.get("missing_info_feedback") for task in state["tasks"] if task.get("missing_info_feedback")]
+                missing_info = [
+                    task.get("missing_info_feedback")
+                    for task in state["tasks"]
+                    if task.get("missing_info_feedback")
+                ]
                 prompt_parts.append(f"Taskifier feedback: {missing_info}")
-        
+
         # Check for PlannerAgent feedback
         if state.get("plan") and state["plan"] and state["plan"].get("vague_feedback"):
-            prompt_parts.append(f"Planner feedback: {state['plan'].get('vague_feedback')}")
-        
+            prompt_parts.append(
+                f"Planner feedback: {state['plan'].get('vague_feedback')}"
+            )
+
         return "\n".join(prompt_parts)
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
@@ -77,40 +88,46 @@ class PlannerAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = [f"Refined idea: {state['idea'].get('refined', '')}"]
-        
+
         if state.get("goals"):
             prompt_parts.append(f"Goals:\n{format_list(state.get('goals', []))}")
-            
+
         if state.get("constraints"):
-            prompt_parts.append(f"Constraints:\n{format_list(state.get('constraints', []))}")
-            
+            prompt_parts.append(
+                f"Constraints:\n{format_list(state.get('constraints', []))}"
+            )
+
         if state.get("outcomes"):
             prompt_parts.append(f"Outcomes:\n{format_list(state.get('outcomes', []))}")
-            
+
         deliverables = [d.get("name", "") for d in state.get("deliverables", [])]
         if deliverables:
             prompt_parts.append(f"Deliverables:\n{format_list(deliverables)}")
-        
+
         # Check for negotiation details from NegotiatorAgent
         if state.get("scope") and state["scope"].get("negotiation_details"):
-            prompt_parts.append(f"Negotiation details:\n{state['scope'].get('negotiation_details')}")
-        
+            prompt_parts.append(
+                f"Negotiation details:\n{state['scope'].get('negotiation_details')}"
+            )
+
         prompt_parts.append("Break into phases, epics, and strategies.")
-        
+
         return "\n".join(prompt_parts)
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["plan"] = {
             "phases": result.get("phases", []),
             "epics": result.get("epics", []),
-            "strategies": result.get("strategies", [])
+            "strategies": result.get("strategies", []),
         }
-        
+
         # Store feedback in plan dictionary if too vague
         if result.get("too_vague", False):
             state["plan"]["vague_feedback"] = result.get("vague_details", {})
-            
-        state["next"] = "ClarifierAgent" if result.get("too_vague", False) else "ScoperAgent"
+
+        state["next"] = (
+            "ClarifierAgent" if result.get("too_vague", False) else "ScoperAgent"
+        )
         return state
 
 
@@ -122,31 +139,37 @@ class ScoperAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = []
-        
+
         if state["plan"].get("phases"):
             prompt_parts.append(f"Phases: {state['plan'].get('phases', [])}")
-            
+
         if state["plan"].get("epics"):
             prompt_parts.append(f"Epics: {state['plan'].get('epics', [])}")
-            
+
         if state.get("constraints"):
-            prompt_parts.append(f"Constraints:\n{format_list(state.get('constraints', []))}")
-            
+            prompt_parts.append(
+                f"Constraints:\n{format_list(state.get('constraints', []))}"
+            )
+
         # Check for negotiation details from NegotiatorAgent
         if state.get("scope") and state["scope"].get("negotiation_details"):
-            prompt_parts.append(f"Negotiation details:\n{state['scope'].get('negotiation_details')}")
-            
+            prompt_parts.append(
+                f"Negotiation details:\n{state['scope'].get('negotiation_details')}"
+            )
+
         prompt_parts.append("Define MVP scope and resolve overload.")
-        
+
         return "\n".join(prompt_parts)
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["scope"] = {
             "mvp": result.get("mvp_scope", {}),
             "exclusions": result.get("scope_exclusions", []),
-            "phased_approach": result.get("phased_approach", [])
+            "phased_approach": result.get("phased_approach", []),
         }
-        state["next"] = "NegotiatorAgent" if result.get("overload", False) else "TaskifierAgent"
+        state["next"] = (
+            "NegotiatorAgent" if result.get("overload", False) else "TaskifierAgent"
+        )
         return state
 
 
@@ -165,15 +188,19 @@ Break into detailed tasks with effort, roles, and dependencies."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         tasks = result.get("tasks", [])
-        
+
         # If missing info, store feedback in the tasks structure
         if result.get("missing_info", False) and result.get("missing_info_details"):
             # Create a special task to carry the feedback
-            feedback_task = {"missing_info_feedback": result.get("missing_info_details")}
+            feedback_task = {
+                "missing_info_feedback": result.get("missing_info_details")
+            }
             tasks.append(feedback_task)
-            
+
         state["tasks"] = tasks
-        state["next"] = "ClarifierAgent" if result.get("missing_info", False) else "TimelineAgent"
+        state["next"] = (
+            "ClarifierAgent" if result.get("missing_info", False) else "TimelineAgent"
+        )
         return state
 
 
@@ -193,7 +220,7 @@ Estimate timeline with milestones and critical path."""
         state["timeline"] = {
             "task_durations": result.get("task_durations", {}),
             "milestones": result.get("milestones", []),
-            "critical_path": result.get("critical_path", [])
+            "critical_path": result.get("critical_path", []),
         }
         state["next"] = "RiskAgent"
         return state
