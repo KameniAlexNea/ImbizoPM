@@ -8,7 +8,6 @@ from .base_agent import AgentState, BaseAgent
 from .prompts import *
 
 
-
 def format_list(items: list[str]) -> str:
     return '\n'.join(f"- {item}" for item in items)
 
@@ -25,8 +24,19 @@ class ClarifierAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         """Prepare input for the agent."""
-        # Default implementation that can be overridden
-        return state["input"]
+        prompt_parts = [state["input"]]
+        
+        # Check for TaskifierAgent feedback
+        if state.get("tasks") and state["tasks"] and isinstance(state["tasks"], list) and len(state["tasks"]) > 0:
+            if any(task.get("missing_info_feedback") for task in state["tasks"]):
+                missing_info = [task.get("missing_info_feedback") for task in state["tasks"] if task.get("missing_info_feedback")]
+                prompt_parts.append(f"Taskifier feedback: {missing_info}")
+        
+        # Check for PlannerAgent feedback
+        if state.get("plan") and state["plan"] and state["plan"].get("vague_feedback"):
+            prompt_parts.append(f"Planner feedback: {state['plan'].get('vague_feedback')}")
+        
+        return "\n".join(prompt_parts)
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["idea"] = {"refined": result.get("refined_idea", "")}
@@ -66,22 +76,28 @@ class PlannerAgent(BaseAgent):
         super().__init__(llm, "Planner", PLANNER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        negotiation_details = state.get("negotiation_details", {})
-
-        negotiation_details = "" if not negotiation_details else f"Negotiation details: \n{negotiation_details}"
+        prompt_parts = [f"Refined idea: {state['idea'].get('refined', '')}"]
+        
+        if state.get("goals"):
+            prompt_parts.append(f"Goals:\n{format_list(state.get('goals', []))}")
+            
+        if state.get("constraints"):
+            prompt_parts.append(f"Constraints:\n{format_list(state.get('constraints', []))}")
+            
+        if state.get("outcomes"):
+            prompt_parts.append(f"Outcomes:\n{format_list(state.get('outcomes', []))}")
+            
         deliverables = [d.get("name", "") for d in state.get("deliverables", [])]
-        return f"""Refined idea: {state['idea'].get('refined', '')}
-Goals:
-{format_list(state.get('goals', []))}
-Constraints:
-{format_list(state.get('constraints', []))}
-Outcomes:
-{format_list(state.get('outcomes', []))}
-Deliverables:
-{format_list(deliverables)}
-{negotiation_details}
-
-Break into phases, epics, and strategies."""
+        if deliverables:
+            prompt_parts.append(f"Deliverables:\n{format_list(deliverables)}")
+        
+        # Check for negotiation details from NegotiatorAgent
+        if state.get("scope") and state["scope"].get("negotiation_details"):
+            prompt_parts.append(f"Negotiation details:\n{state['scope'].get('negotiation_details')}")
+        
+        prompt_parts.append("Break into phases, epics, and strategies.")
+        
+        return "\n".join(prompt_parts)
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["plan"] = {
@@ -89,6 +105,11 @@ Break into phases, epics, and strategies."""
             "epics": result.get("epics", []),
             "strategies": result.get("strategies", [])
         }
+        
+        # Store feedback in plan dictionary if too vague
+        if result.get("too_vague", False):
+            state["plan"]["vague_feedback"] = result.get("vague_details", {})
+            
         state["next"] = "ClarifierAgent" if result.get("too_vague", False) else "ScoperAgent"
         return state
 
@@ -100,15 +121,24 @@ class ScoperAgent(BaseAgent):
         super().__init__(llm, "Scoper", SCOPER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        negotiation_details = state.get("negotiation_details", {})
-        negotiation_details = "" if not negotiation_details else f"Negotiation details: \n{negotiation_details}"
-        return f"""Phases: {state['plan'].get('phases', [])}
-Epics: {state['plan'].get('epics', [])}
-Constraints:
-{format_list(state.get('constraints', []))}
-{negotiation_details}
-
-Define MVP scope and resolve overload."""
+        prompt_parts = []
+        
+        if state["plan"].get("phases"):
+            prompt_parts.append(f"Phases: {state['plan'].get('phases', [])}")
+            
+        if state["plan"].get("epics"):
+            prompt_parts.append(f"Epics: {state['plan'].get('epics', [])}")
+            
+        if state.get("constraints"):
+            prompt_parts.append(f"Constraints:\n{format_list(state.get('constraints', []))}")
+            
+        # Check for negotiation details from NegotiatorAgent
+        if state.get("scope") and state["scope"].get("negotiation_details"):
+            prompt_parts.append(f"Negotiation details:\n{state['scope'].get('negotiation_details')}")
+            
+        prompt_parts.append("Define MVP scope and resolve overload.")
+        
+        return "\n".join(prompt_parts)
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["scope"] = {
@@ -134,7 +164,15 @@ Epics: {state['plan'].get('epics', [])}
 Break into detailed tasks with effort, roles, and dependencies."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["tasks"] = result.get("tasks", [])
+        tasks = result.get("tasks", [])
+        
+        # If missing info, store feedback in the tasks structure
+        if result.get("missing_info", False) and result.get("missing_info_details"):
+            # Create a special task to carry the feedback
+            feedback_task = {"missing_info_feedback": result.get("missing_info_details")}
+            tasks.append(feedback_task)
+            
+        state["tasks"] = tasks
         state["next"] = "ClarifierAgent" if result.get("missing_info", False) else "TimelineAgent"
         return state
 
@@ -198,16 +236,15 @@ Risks: {state['risks']}
 Resolve conflicts in the current project state."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        # Update state with negotiation results
-
-        # Store negotiation details in state for PlannerAgent or ScoperAgent
-        state["negotiation_details"] = result.get("negotiation_details", {})
+        # Store negotiation details in scope dictionary
+        if result.get("negotiation_details"):
+            if "scope" not in state:
+                state["scope"] = {}
+            state["scope"]["negotiation_details"] = result.get("negotiation_details")
 
         # Based on which aspect was negotiated, return to the appropriate agent
         conflict_area = result.get("conflict_area", "")
-
         state["next"] = "ScoperAgent" if conflict_area == "scope" else "PlannerAgent"
-
         return state
 
 

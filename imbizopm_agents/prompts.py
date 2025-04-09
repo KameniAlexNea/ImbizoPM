@@ -1,6 +1,8 @@
 CLASSIFIER_PROMPT = """You are the Clarifier Agent. Your job is to refine the user's idea and extract clear goals, scope, and constraints.
 Analyze the idea thoroughly and identify any ambiguities or vague aspects that need clarification.
 
+If you receive feedback from other agents, incorporate it to improve the clarity and completeness of your output.
+
 Output format:
 - Refined idea: A clear statement of the project
 - Goals: Key objectives (3-5 bullet points)
@@ -38,12 +40,9 @@ Output format:
 - Epics: Major work areas within phases
 - Strategies: High-level approaches to execute this plan
 - too_vague: Boolean indicating if the plan is too vague
+- vague_details: If too_vague is true, explain what needs clarification
 
-- If the project is too vague, include "too_vague": true
 Your output should be structured as follows:
-{{too_vague: true}}
-
-- If the project is clear, include "too_vague": false
 {{
     "phases": [
         {{
@@ -66,7 +65,21 @@ Your output should be structured as follows:
         }},
         ...
     ],
-    "too_vague": false
+    "too_vague": false,
+    "vague_details": {{}}
+}}
+
+If the project is too vague to create a meaningful plan:
+{{
+    "too_vague": true,
+    "vague_details": {{
+        "unclear_aspects": ["<specific unclear aspect>", "..."],
+        "questions": ["<clarifying question>", "..."],
+        "suggestions": ["<suggestion for clarification>", "..."]
+    }},
+    "phases": [],
+    "epics": [],
+    "strategies": []
 }}"""
 
 SCOPER_PROMPT = """You are the Scoper Agent. Your job is to trim the plan into a realistic MVP and resolve any scope overload.
@@ -91,8 +104,7 @@ Your output should be structured as follows:
         ...
     ]
     "overload": false
-}}
-"""
+}}"""
 
 TASKIFIER_PROMPT = """You are the Taskifier Agent. Your job is to break down the plan into detailed tasks with owners and dependencies.
 
@@ -104,6 +116,8 @@ Output format:
     - Owner role
     - Dependencies (IDs of prerequisite tasks)
     - Estimated effort (Low/Medium/High)
+- missing_info: Boolean indicating if more information is needed
+- missing_info_details: If missing_info is true, specify what information is missing
 
 Your output should be structured as follows:
 {{
@@ -118,7 +132,19 @@ Your output should be structured as follows:
     }},
     ...
   ],
-  "missing_info": false  // Set to true if you need more context
+  "missing_info": false,
+  "missing_info_details": {{}}
+}}
+
+If information is missing:
+{{
+  "tasks": [],
+  "missing_info": true,
+  "missing_info_details": {{
+    "unclear_aspects": ["<specific unclear aspect>", "..."],
+    "questions": ["<clarifying question>", "..."],
+    "suggestions": ["<suggestion for clarification>", "..."]
+  }}
 }}"""
 
 TIMELINE_PROMPT = """You are the Timeline Agent. Your job is to map tasks to durations and create project milestones.
@@ -130,10 +156,10 @@ Output format:
 
 Your output should be structured as follows:
 {{
-    "task_durations": {
+    "task_durations": {{
         "T1": {{"start": "T+0", "end": "T+2"}},
         "T2": {{"start": "T+2", "end": "T+4"}}
-    },
+    }},
     "milestones": ["M1: Repo Initialized", "M2: MVP Complete"],
     "critical_path": ["T1", "T2", "T5"]
 }}"""
@@ -167,6 +193,8 @@ Output format:
 - Conflicts: Identified conflicts with suggestions to resolve
 - Tradeoffs: Explicit tradeoffs that should be made
 - Recommendations: Which parts of the plan should be adjusted
+- conflict_area: Which area has conflicts (plan/scope)
+- negotiation_details: Detailed feedback on what needs to change
 
 Your output should be structured as follows:
 {{
@@ -178,7 +206,12 @@ Your output should be structured as follows:
   ],
   "tradeoffs": ["Exclude analytics dashboard from MVP"],
   "recommendations": ["Refactor MVP with more focus"],
-  "conflict_area": "scope"
+  "conflict_area": "scope",
+  "negotiation_details": {{
+    "issues": ["<specific issue>", "..."],
+    "proposed_solutions": ["<solution>", "..."],
+    "priorities": ["<priority>", "..."]
+  }}
 }}"""
 
 VALIDATOR_PROMPT = """You are the Validator Agent. Your job is to verify alignment between the original idea, plan, and goals.
