@@ -8,7 +8,7 @@ from langgraph.graph.graph import CompiledGraph
 
 from .base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG
-
+from loguru import logger
 
 def create_project_planning_graph(
     llm: BaseChatModel,
@@ -122,13 +122,13 @@ def run_project_planning_graph(
 
     results = []
     for event in events:
-        print(event["next"])
         messages = event["messages"]
         if messages:
             message: AIMessage = messages[-1]
-            message.pretty_print()
+            logger.info(message.pretty_repr())
         else:
-            print(event)
+            logger.info(event)
+        logger.info(f"Next Direction: {event['next']}")
         # Store each state update
         results.append(event)
 

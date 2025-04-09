@@ -114,7 +114,7 @@ DEFAULT_GRAPH_CONFIG = {
             "PlannerAgent": "PlannerAgent",  # Mismatch path
             # END: END,
         },
-        "PMAdapterAgent": {END: END},
+        "PMAdapterAgent": [END],
     },
     "entry_point": "ClarifierAgent",
 }

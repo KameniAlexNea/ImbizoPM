@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any, Dict
 
 from langgraph.graph import END
@@ -6,6 +7,19 @@ from imbizopm_agents.utils import format_project_plan_for_export
 
 from .base_agent import AgentState, BaseAgent
 from .prompts import *
+
+class AgentRoute:
+    ClarifierAgent = "ClarifierAgent"
+    OutcomeAgent = "OutcomeAgent"
+    PlannerAgent = "PlannerAgent"
+    ScoperAgent = "ScoperAgent"
+    TaskifierAgent = "TaskifierAgent"
+    TimelineAgent = "TimelineAgent"
+    RiskAgent = "RiskAgent"
+    ValidatorAgent = "ValidatorAgent"
+    PMAdapterAgent = "PMAdapterAgent"
+    NegotiatorAgent = "NegotiatorAgent"
+    END = END
 
 
 def format_list(items: list[str]) -> str:
@@ -53,7 +67,7 @@ class ClarifierAgent(BaseAgent):
         state["idea"] = {"refined": result.get("refined_idea", "")}
         state["goals"] = result.get("goals", [])
         state["constraints"] = result.get("constraints", [])
-        state["next"] = "OutcomeAgent"
+        state["next"] = AgentRoute.OutcomeAgent
         return state
 
 
@@ -76,7 +90,7 @@ Define success metrics and deliverables."""
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["outcomes"] = result.get("success_metrics", [])
         state["deliverables"] = result.get("deliverables", [])
-        state["next"] = "PlannerAgent" if state["outcomes"] else "ClarifierAgent"
+        state["next"] = AgentRoute.PlannerAgent if state["outcomes"] else AgentRoute.ClarifierAgent
         return state
 
 
@@ -126,7 +140,7 @@ class PlannerAgent(BaseAgent):
             state["plan"]["vague_feedback"] = result.get("vague_details", {})
 
         state["next"] = (
-            "ClarifierAgent" if result.get("too_vague", False) else "ScoperAgent"
+            AgentRoute.ClarifierAgent if result.get("too_vague", False) else AgentRoute.ScoperAgent
         )
         return state
 
@@ -168,7 +182,7 @@ class ScoperAgent(BaseAgent):
             "phased_approach": result.get("phased_approach", []),
         }
         state["next"] = (
-            "NegotiatorAgent" if result.get("overload", False) else "TaskifierAgent"
+            AgentRoute.NegotiatorAgent if result.get("overload", False) else AgentRoute.TaskifierAgent
         )
         return state
 
@@ -199,7 +213,7 @@ Break into detailed tasks with effort, roles, and dependencies."""
 
         state["tasks"] = tasks
         state["next"] = (
-            "ClarifierAgent" if result.get("missing_info", False) else "TimelineAgent"
+            AgentRoute.ClarifierAgent if result.get("missing_info", False) else AgentRoute.TimelineAgent
         )
         return state
 
@@ -222,7 +236,7 @@ Estimate timeline with milestones and critical path."""
             "milestones": result.get("milestones", []),
             "critical_path": result.get("critical_path", []),
         }
-        state["next"] = "RiskAgent"
+        state["next"] = AgentRoute.RiskAgent
         return state
 
 
@@ -244,7 +258,7 @@ Assess risks and overall feasibility."""
         state["risks"] = result.get("risks", [])
         state["feasibility"] = result.get("feasible", True)
         state["next"] = (
-            "ValidatorAgent" if result.get("feasible", True) else "PlannerAgent"
+            AgentRoute.ValidatorAgent if result.get("feasible", True) else AgentRoute.PlannerAgent
         )
         return state
 
@@ -274,7 +288,7 @@ Resolve conflicts in the current project state."""
 
         # Based on which aspect was negotiated, return to the appropriate agent
         conflict_area = result.get("conflict_area", "")
-        state["next"] = "ScoperAgent" if conflict_area == "scope" else "PlannerAgent"
+        state["next"] = AgentRoute.ScoperAgent if conflict_area == "scope" else AgentRoute.PlannerAgent
         return state
 
 
@@ -305,12 +319,7 @@ Validate alignment between the idea, goals, and the resulting plan."""
         }
 
         # Check validation result
-        if state["validation"]["overall"]:
-            # Valid path
-            state["next"] = "PMAdapterAgent"
-        else:
-            # Mismatch path
-            state["next"] = "PlannerAgent"
+        state["next"] = AgentRoute.PMAdapterAgent if state["validation"]["overall"] else AgentRoute.PlannerAgent
         return state
 
 
@@ -341,5 +350,5 @@ Format this project plan for export to project management tools."""
         }
 
         # This is the final agent, no next state needed
-        state["next"] = END
+        state["next"] = AgentRoute.END
         return state
