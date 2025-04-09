@@ -77,7 +77,7 @@ class PlannerAgent(BaseAgent):
     """Agent that breaks the project into phases, epics, and strategies."""
 
     def __init__(self, llm):
-        super().__init__(llm, "Planner", PLANNER_PROMPT)
+        super().__init__(llm, "Planner", PLANNER_PROMPT, PLANNER_OUTPUT)
 
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = [f"Refined idea: {state['idea'].get('refined', '')}"]

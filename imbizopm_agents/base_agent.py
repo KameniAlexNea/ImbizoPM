@@ -7,6 +7,7 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import create_react_agent
 from typing_extensions import TypedDict
 
+from loguru import logger
 from imbizopm_agents.utils import extract_structured_data
 
 
@@ -64,15 +65,17 @@ class BaseAgent:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
         parsed_content = extract_structured_data(raw_output["messages"][-1].content)
         if "errors" in parsed_content:
-            self.llm.invoke(
+            logger.warning(f"Errors found in output: {self.name}")
+            retry_text = self.llm.invoke(
                 [
                     {
                         "role": "human",
-                        "content": f"Format the following text as JSON (strictly output only the JSON):\n{raw_output['messages'][-1].content}"
-                        + self.system_prompt,
+                        "content": f"Format the following text as JSON (strictly output only the JSON, choose the appropriate format):\n{raw_output['messages'][-1].content}"
+                        + self.format_prompt,
                     }
                 ]
-            )
+            ).content
+            parsed_content = extract_structured_data(retry_text)
         state["messages"] = raw_output["messages"]
         return self._process_result(state, parsed_content)
 

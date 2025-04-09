@@ -20,7 +20,7 @@ OUTCOME_OUTPUT = """OUTPUT FORMAT:
     ]
 }}"""
 
-OUTCOME_PROMPT = """You are the Outcome Agent. Your job is to define concrete success metrics and deliverables that will satisfy the refined idea and goals.
+OUTCOME_PROMPT = f"""You are the Outcome Agent. Your job is to define concrete success metrics and deliverables that will satisfy the refined idea and goals.
 
 PROCESS:
 1. Analyze the refined idea and goals
@@ -43,7 +43,7 @@ class OutcomeAgent(BaseAgent):
     """Agent that defines success metrics and deliverables."""
 
     def __init__(self, llm):
-        super().__init__(llm, AgentRoute.OutcomeAgent, OUTCOME_PROMPT)
+        super().__init__(llm, AgentRoute.OutcomeAgent, OUTCOME_PROMPT, OUTCOME_OUTPUT)
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""Refined idea:
