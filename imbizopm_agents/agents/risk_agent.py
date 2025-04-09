@@ -91,6 +91,8 @@ Assess risks and overall feasibility. You should output a JSON format"""
         state["risks"] = result.get("risks", [])
         state["assumptions"] = result.get("assumptions", [])
         state["feasibility_concerns"] = result.get("feasibility_concerns", [])
+        if "warn_errors" not in state:
+            state["warn_errors"] = {}
         state["warn_errors"]["dealbreakers"] = result.get("dealbreakers", [])
         state["next"] = (
             AgentRoute.ValidatorAgent

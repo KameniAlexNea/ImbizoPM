@@ -94,7 +94,7 @@ class ScoperAgent(BaseAgent):
             )
 
         # Check for negotiation details from NegotiatorAgent
-        if state.get("scope") and state["warn_errors"].get("negotiation_details"):
+        if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
             prompt_parts.append(
                 f"Negotiation details:\n{state['warn_errors'].get('negotiation_details')}"
             )

@@ -73,7 +73,7 @@ If important information is missing:
     ]
   }},
   "tasks": []
-}
+}}
 ```"""
 
 
@@ -101,6 +101,8 @@ Break into detailed tasks with effort, roles, and dependencies."""
         # If missing info, store feedback in the tasks structure
         if result.get("missing_info", False) and result.get("missing_info_details"):
             # Create a special task to carry the feedback
+            if "warn_errors" not in state:
+                state["warn_errors"] = {}
             state["warn_errors"]["missing_info"] = {
                 "missing_info_feedback": result.get("missing_info_details")
             }

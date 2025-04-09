@@ -49,8 +49,8 @@ Consider the plan and scope. Identify any conflicts or inconsistencies between t
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         # Store negotiation details in scope dictionary
         if result.get("negotiation_details"):
-            if "scope" not in state:
-                state["scope"] = {}
+            if "warn_errors" not in state:
+                state["warn_errors"] = {}
             state["warn_errors"]["negotiation_details"] = result.get("negotiation_details")
 
         # Based on which aspect was negotiated, return to the appropriate agent
