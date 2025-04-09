@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict
 
 from ..base_agent import AgentState, BaseAgent
@@ -45,8 +46,13 @@ class TimelineAgent(BaseAgent):
         )
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""Tasks:
-{state.get("tasks", [])}
+        return f"""
+Refined idea: {state.get('idea', {}).get('refined', '')}
+Goals: {json.dumps(state.get('goals', []), indent=2)}
+Constraints: {json.dumps(state.get('constraints', []), indent=2)}
+        
+Tasks:
+{json.dumps(state.get("tasks", []), indent=2)}
 
 Estimate timeline with milestones and critical path."""
 

@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -53,8 +54,8 @@ idea: {state['input']}
 
 # Previous Outcome Agent
 Refined idea: {state['idea'].get('refined', '')}
-goals: {state.get('goals', [])}
-constraints: {state.get('constraints', [])}
+goals: {json.dumps(state.get('goals', []), indent=2)}
+constraints: {json.dumps(state.get('constraints', []), indent=2)}
 
 From the previous refined idea, goals, and constraints, it was not possible to extract clear success_metrics and deliverables. Please clarify the project idea, goals, and constraints.
 """
@@ -64,18 +65,18 @@ idea: {state['input']}
 
 # Previous Clarifier Agent
 Refined idea: {state['idea'].get('refined', '')}
-goals: {state.get('goals', [])}
-constraints: {state.get('constraints', [])}
+goals: {json.dumps(state.get('goals', []), indent=2)}
+constraints: {json.dumps(state.get('constraints', []), indent=2)}
 
 # Previous Outcome Agent
-outcomes: {state.get('outcomes', [])}
-deliverables: {state.get('deliverables', [])}
+outcomes: {json.dumps(state.get('outcomes', []), indent=2)}
+deliverables: {json.dumps(state.get('deliverables', []), indent=2)}
 
 # Previous Planner Agent
-phases: {state['plan'].get('phases', [])}
-epics: {state['plan'].get('epics', [])}
-strategies: {state['plan'].get('strategies', [])}
-vague_feedback: {state['plan'].get('vague_feedback', {})}
+phases: {json.dumps(state['plan'].get('phases', []), indent=2)}
+epics: {json.dumps(state['plan'].get('epics', []), indent=2)}
+strategies: {json.dumps(state['plan'].get('strategies', []), indent=2)}
+vague_feedback: {json.dumps(state['plan'].get('vague_feedback', {}), indent=2)}
 
 From the previous refined idea, goals, constraints, it was not possible to extract clear phases, epics, and strategies. Please clarify the project idea, goals, and constraints.
 """
@@ -85,21 +86,21 @@ idea: {state['input']}
 
 # Previous Clarifier Agent
 Refined idea: {state['idea'].get('refined', '')}
-goals: {state.get('goals', [])}
-constraints: {state.get('constraints', [])}
+goals: {json.dumps(state.get('goals', []), indent=2)}
+constraints: {json.dumps(state.get('constraints', []), indent=2)}
 
 # Previous Outcome Agent
-outcomes: {state.get('outcomes', [])}
-deliverables: {state.get('deliverables', [])}
+outcomes: {json.dumps(state.get('outcomes', []), indent=2)}
+deliverables: {json.dumps(state.get('deliverables', []), indent=2)}
 
 # Previous Planner Agent
-phases: {state['plan'].get('phases', [])}
-epics: {state['plan'].get('epics', [])}
-strategies: {state['plan'].get('strategies', [])}
-vague_feedback: {state['plan'].get('vague_feedback', {})}
+phases: {json.dumps(state['plan'].get('phases', []), indent=2)}
+epics: {json.dumps(state['plan'].get('epics', []), indent=2)}
+strategies: {json.dumps(state['plan'].get('strategies', []), indent=2)}
+vague_feedback: {json.dumps(state['plan'].get('vague_feedback', {}), indent=2)}
 
 # Taskifier Agent
-Missing info: {state['warn_errors'].get('missing_info', {})}
+Missing info: {json.dumps(state['warn_errors'].get('missing_info', {}), indent=2)}
 
 From the previous refined idea, goals, constraints, it was not possible to extract clear tasks. Please clarify the project idea, goals, and constraints.
 """
@@ -118,12 +119,12 @@ From the previous refined idea, goals, constraints, it was not possible to extra
                     for task in state["tasks"]
                     if task.get("missing_info_feedback")
                 ]
-                prompt_parts.append(f"Taskifier feedback: {missing_info}")
+                prompt_parts.append(f"Taskifier feedback: {json.dumps(missing_info, indent=2)}")
 
         # Check for PlannerAgent feedback
         if state.get("plan") and state["plan"] and state["plan"].get("vague_feedback"):
             prompt_parts.append(
-                f"Planner feedback: {state['plan'].get('vague_feedback')}"
+                f"Planner feedback: {json.dumps(state['plan'].get('vague_feedback'), indent=2)}"
             )
 
         return "\n".join(prompt_parts)

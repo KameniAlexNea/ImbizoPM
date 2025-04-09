@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -56,10 +57,18 @@ Constraints:
 Define success metrics and deliverables."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["outcomes"] = result.get("success_metrics", [])
-        state["deliverables"] = result.get("deliverables", [])
+        # Extract data with more robust error handling
+        success_metrics = result.get("success_metrics", [])
+        deliverables = result.get("deliverables", [])
+        
+        # Add the data to state
+        state["outcomes"] = success_metrics
+        state["deliverables"] = deliverables
+        
+        # Determine next step based on presence of outcomes
         state["next"] = (
-            AgentRoute.PlannerAgent if state["outcomes"] else AgentRoute.ClarifierAgent
+            AgentRoute.PlannerAgent if success_metrics else AgentRoute.ClarifierAgent
         )
         state["current"] = AgentRoute.OutcomeAgent
+        
         return state

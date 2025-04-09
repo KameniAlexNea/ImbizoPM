@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json
 
 from ..base_agent import AgentState, BaseAgent
 from ..utils import format_project_plan_for_export
@@ -80,21 +81,21 @@ class PMAdapterAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""" Project Description:
-- Idea: {state['idea'].get('refined', '')}
-- Goals: {', '.join(state['goals'])}
-- Outcomes: {', '.join(state['outcomes'])}
-- Deliverables: {state['deliverables']}
+- Idea: {json.dumps(state['idea'].get('refined', ''))}
+- Goals: {json.dumps(state['goals'])}
+- Outcomes: {json.dumps(state['outcomes'])}
+- Deliverables: {json.dumps(state['deliverables'])}
 
 # Project Plan:
-- Plan: {state['plan']}
-- Scope: {state['scope']}
+- Plan: {json.dumps(state['plan'])}
+- Scope: {json.dumps(state['scope'])}
 
 # Project Tasks:
-- Tasks: {state['tasks']}
+- Tasks: {json.dumps(state['tasks'])}
 
 # Project Timeline and Risks:
-- Timeline: {state['timeline']}
-- Risks: {state['risks']}
+- Timeline: {json.dumps(state['timeline'])}
+- Risks: {json.dumps(state['risks'])}
 
 Format this project plan for export to project management tools."""
 

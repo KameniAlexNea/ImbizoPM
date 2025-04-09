@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json  # Add import for json module
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -70,15 +71,15 @@ class ValidatorAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""# Idea and Goals
-Refined idea:\n {state['idea'].get('refined', '')}
-Goals:\n {state['goals']}
-Constraints:\n {state['constraints']}
-Outcomes:\n {state['outcomes']}
+Refined idea:\n {json.dumps(state['idea'].get('refined', ''), indent=2)}
+Goals:\n {json.dumps(state['goals'], indent=2)}
+Constraints:\n {json.dumps(state['constraints'], indent=2)}
+Outcomes:\n {json.dumps(state['outcomes'], indent=2)}
 
 # Plan and Task
-Plan:\n {state['plan']}
-Scope:\n {state['scope']}
-Tasks:\n {state['tasks']}
+Plan:\n {json.dumps(state['plan'], indent=2)}
+Scope:\n {json.dumps(state['scope'], indent=2)}
+Tasks:\n {json.dumps(state['tasks'], indent=2)}
 
 Validate alignment between the idea, goals, and the resulting plan."""
 

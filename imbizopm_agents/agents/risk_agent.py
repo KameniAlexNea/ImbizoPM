@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -78,13 +79,13 @@ class RiskAgent(BaseAgent):
     def _prepare_input(self, state: AgentState) -> str:
         return f"""
 Refined idea: {state.get('idea', {}).get('refined', '')}
-Goals: {state.get('goals', [])}
-Constraints: {state.get('constraints', [])}
+Goals: {json.dumps(state.get('goals', []), indent=2)}
+Constraints: {json.dumps(state.get('constraints', []), indent=2)}
 
-Plan: {state.get("plan", {})}
-Scope: {state.get("scope", {})}
-Tasks: {state.get("tasks", [])}
-Timeline: {state.get("timeline", {})}
+Plan: {json.dumps(state.get("plan", {}), indent=2)}
+Scope: {json.dumps(state.get("scope", {}), indent=2)}
+Tasks: {json.dumps(state.get("tasks", []), indent=2)}
+Timeline: {json.dumps(state.get("timeline", {}), indent=2)}
 
 Assess risks and overall feasibility. You should output a JSON format"""
 

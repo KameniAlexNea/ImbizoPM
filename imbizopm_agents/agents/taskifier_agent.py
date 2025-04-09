@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -71,8 +72,7 @@ Follow these steps carefully to generate the output:
 - **Owner roles** should match the expertise required to complete the task.
 - If **information is insufficient**, clearly indicate what's missing and provide helpful suggestions/questions.
 
-{TASKIFIER_OUTPUT}
-"""
+{TASKIFIER_OUTPUT}"""
 
 
 class TaskifierAgent(BaseAgent):
@@ -86,12 +86,12 @@ class TaskifierAgent(BaseAgent):
     def _prepare_input(self, state: AgentState) -> str:
         return f"""Refined idea: {state['idea'].get('refined', '')}
 Goals and objectives: {state['goals']}
-Constraints: {state.get('constraints', [])}
-Outcomes: {state.get('outcomes', [])}
+Constraints: {json.dumps(state.get('constraints', []), indent=2)}
+Outcomes: {json.dumps(state.get('outcomes', []), indent=2)}
 
-MVP: {state['scope'].get('mvp', {})}
-Phases: {state['plan'].get('phases', [])}
-Epics: {state['plan'].get('epics', [])}
+MVP: {json.dumps(state['scope'].get('mvp', {}), indent=2)}
+Phases: {json.dumps(state['plan'].get('phases', []), indent=2)}
+Epics: {json.dumps(state['plan'].get('epics', []), indent=2)}
 
 Break into detailed tasks with effort, roles, and dependencies."""
 

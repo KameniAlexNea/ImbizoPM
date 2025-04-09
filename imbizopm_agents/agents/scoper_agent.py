@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -84,10 +85,10 @@ class ScoperAgent(BaseAgent):
         prompt_parts = [f"Refined idea:\n {state['idea'].get('refined', '')}"]
 
         if state["plan"].get("phases"):
-            prompt_parts.append(f"Phases: {state['plan'].get('phases', [])}")
+            prompt_parts.append(f"Phases: {json.dumps(state['plan'].get('phases', []), indent=2)}")
 
         if state["plan"].get("epics"):
-            prompt_parts.append(f"Epics: {state['plan'].get('epics', [])}")
+            prompt_parts.append(f"Epics: {json.dumps(state['plan'].get('epics', []), indent=2)}")
 
         if state.get("constraints"):
             prompt_parts.append(

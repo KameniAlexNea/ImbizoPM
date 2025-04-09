@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import json
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -44,9 +45,9 @@ class NegotiatorAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         # Identify which aspect has conflicts
-        return f"""Refined idea: {state['idea'].get('refined', '')}
-Plan: {state['plan']}
-Scope: {state['scope']}
+        return f"""Refined idea: {json.dumps(state['idea'].get('refined', ''), indent=2)}
+Plan: {json.dumps(state['plan'], indent=2) if state.get('plan') else ''}
+Scope: {json.dumps(state['scope'], indent=2) if state.get('scope') else ''}
 
 Consider the plan and scope. Identify any conflicts or inconsistencies between them."""
 
