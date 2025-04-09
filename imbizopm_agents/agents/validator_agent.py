@@ -3,23 +3,7 @@ from typing import Any, Dict
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
-VALIDATOR_PROMPT = """You are the Validator Agent. Your job is to verify that the final project plan aligns with the original goals, respects all constraints, and will deliver the expected outcomes.
-
-PROCESS:
-1. Compare the original idea and refined goals with the final plan
-2. Check that all constraints are respected in the plan
-3. Verify that the planned deliverables will achieve the desired outcomes
-4. Assess the completeness and coherence of the overall plan
-5. Identify any gaps or misalignments
-
-GUIDELINES:
-- Analyze each goal individually to verify the plan addresses it
-- Check each constraint to ensure the plan respects its limitations
-- Verify that success metrics are addressed by specific elements in the plan
-- Look for logical inconsistencies or missing components
-- Consider the project from stakeholder perspectives
-
-OUTPUT FORMAT:
+VALIDATOR_OUTPUT = """OUTPUT FORMAT:
 {{
     "overall_validation": true, # or false
     "alignment_score": "0-100%",
@@ -59,12 +43,30 @@ OUTPUT FORMAT:
     }}
 }}"""
 
+VALIDATOR_PROMPT = f"""You are the Validator Agent. Your job is to verify that the final project plan aligns with the original goals, respects all constraints, and will deliver the expected outcomes.
+
+PROCESS:
+1. Compare the original idea and refined goals with the final plan
+2. Check that all constraints are respected in the plan
+3. Verify that the planned deliverables will achieve the desired outcomes
+4. Assess the completeness and coherence of the overall plan
+5. Identify any gaps or misalignments
+
+GUIDELINES:
+- Analyze each goal individually to verify the plan addresses it
+- Check each constraint to ensure the plan respects its limitations
+- Verify that success metrics are addressed by specific elements in the plan
+- Look for logical inconsistencies or missing components
+- Consider the project from stakeholder perspectives
+
+{VALIDATOR_OUTPUT}"""
+
 
 class ValidatorAgent(BaseAgent):
     """Agent that verifies alignment between idea, plan, and goals."""
 
     def __init__(self, llm):
-        super().__init__(llm, "Validator", VALIDATOR_PROMPT)
+        super().__init__(llm, "Validator", VALIDATOR_PROMPT, VALIDATOR_OUTPUT)
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""

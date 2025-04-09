@@ -39,12 +39,14 @@ class BaseAgent:
         llm: BaseChatModel,
         name: str,
         system_prompt: str,
+        format_prompt: str,
         description: str = "",
     ):
         self.name = name
         self.description = description
         self.llm = llm
         self.system_prompt = system_prompt
+        self.format_prompt = format_prompt
         self.agent: CompiledGraph = None
         self._build_agent()
 
@@ -61,6 +63,16 @@ class BaseAgent:
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
         parsed_content = extract_structured_data(raw_output["messages"][-1].content)
+        if "errors" in parsed_content:
+            self.llm.invoke(
+                [
+                    {
+                        "role": "human",
+                        "content": f"Format the following text as JSON (strictly output only the JSON):\n{raw_output['messages'][-1].content}"
+                        + self.system_prompt,
+                    }
+                ]
+            )
         state["messages"] = raw_output["messages"]
         return self._process_result(state, parsed_content)
 

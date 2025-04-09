@@ -3,7 +3,17 @@ from typing import Any, Dict
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
-NEGOCIATOR_PROMPT = """You are the Negotiator Agent. Your job is to identify and resolve conflicts between different aspects of the project plan and propose balanced solutions.
+NEGOCIATOR_OUTPUT = """OUTPUT FORMAT:
+{{
+	"conflict_area": "scope", // or "plan"
+	"negotiation_details": {{
+		"issues": ["<specific issue>", "..."],
+		"proposed_solutions": ["<solution>", "..."],
+		"priorities": ["<priority>", "..."]
+	}}
+}}"""
+
+NEGOCIATOR_PROMPT = f"""You are the Negotiator Agent. Your job is to identify and resolve conflicts between different aspects of the project plan and propose balanced solutions.
 
 PROCESS:
 1. Review all components of the project plan
@@ -21,22 +31,16 @@ GUIDELINES:
 - Be specific about what needs to change and why
 - Document tradeoffs explicitly so stakeholders understand implications
 
-OUTPUT FORMAT:
-{{
-	"conflict_area": "scope", // or "plan"
-	"negotiation_details": {{
-		"issues": ["<specific issue>", "..."],
-		"proposed_solutions": ["<solution>", "..."],
-		"priorities": ["<priority>", "..."]
-	}}
-}}"""
+{NEGOCIATOR_OUTPUT}"""
 
 
 class NegotiatorAgent(BaseAgent):
     """Agent that coordinates conflict resolution among agents."""
 
     def __init__(self, llm):
-        super().__init__(llm, AgentRoute.NegotiatorAgent, NEGOCIATOR_PROMPT)
+        super().__init__(
+            llm, AgentRoute.NegotiatorAgent, NEGOCIATOR_PROMPT, NEGOCIATOR_OUTPUT
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         # Identify which aspect has conflicts

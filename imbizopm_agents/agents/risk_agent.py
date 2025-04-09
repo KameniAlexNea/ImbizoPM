@@ -3,25 +3,7 @@ from typing import Any, Dict
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
-RISK_PROMPT = """You are the Risk Agent. Your job is to identify potential risks, assess the project's feasibility, and develop mitigation strategies.
-
-PROCESS:
-1. Review the entire project plan, timeline, and tasks
-2. Identify potential risks that could impact success
-3. Assess the impact and probability of each risk
-4. Develop specific mitigation strategies for high-priority risks
-5. Evaluate the overall feasibility of the project plan
-6. Look for contradictions or unrealistic aspects in the plan
-
-GUIDELINES:
-- Consider technical, resource, timeline, external dependency, and stakeholder risks
-- Assess impact based on effect on goals, timeline, budget, and quality
-- Probability should reflect realistic likelihood based on project context
-- Mitigation strategies should be specific and actionable
-- Feasibility assessment should consider team capabilities, resources, and constraints
-- Identify any assumptions that may impact feasibility
-
-OUTPUT FORMAT:
+RISK_OUTPUT = """OUTPUT FORMAT:
 {{
     "feasible": true,
     "risks": [
@@ -64,15 +46,34 @@ OUTPUT FORMAT:
     "risks": [...],
     "assumptions": [...],
     "feasibility_concerns": [...]
-}}
-"""
+}}"""
+
+RISK_PROMPT = f"""You are the Risk Agent. Your job is to identify potential risks, assess the project's feasibility, and develop mitigation strategies.
+
+PROCESS:
+1. Review the entire project plan, timeline, and tasks
+2. Identify potential risks that could impact success
+3. Assess the impact and probability of each risk
+4. Develop specific mitigation strategies for high-priority risks
+5. Evaluate the overall feasibility of the project plan
+6. Look for contradictions or unrealistic aspects in the plan
+
+GUIDELINES:
+- Consider technical, resource, timeline, external dependency, and stakeholder risks
+- Assess impact based on effect on goals, timeline, budget, and quality
+- Probability should reflect realistic likelihood based on project context
+- Mitigation strategies should be specific and actionable
+- Feasibility assessment should consider team capabilities, resources, and constraints
+- Identify any assumptions that may impact feasibility
+
+{RISK_OUTPUT}"""
 
 
 class RiskAgent(BaseAgent):
     """Agent that reviews feasibility and spots contradictions."""
 
     def __init__(self, llm):
-        super().__init__(llm, "Risk", RISK_PROMPT)
+        super().__init__(llm, "Risk", RISK_PROMPT, RISK_OUTPUT)
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""

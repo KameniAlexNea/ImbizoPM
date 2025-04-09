@@ -4,24 +4,7 @@ from ..base_agent import AgentState, BaseAgent
 from ..utils import format_project_plan_for_export
 from .agent_routes import AgentRoute
 
-PM_ADAPTER_PROMPT = """You are the PM Adapter Agent. Your job is to package the final project plan into a format suitable for project management tools and provide an executive summary for stakeholders.
-
-PROCESS:
-1. Consolidate all components of the project plan
-2. Format the plan for compatibility with PM tools
-3. Create a concise executive summary for stakeholders
-4. Highlight key milestones, risks, and deliverables
-5. Provide guidance on next steps for implementation
-
-GUIDELINES:
-- The executive summary should be brief but comprehensive
-- Focus on information most relevant to project sponsors and stakeholders
-- Include critical dates, resource needs, and key decision points
-- Highlight top risks and their mitigation strategies
-- Structure export format to minimize manual reformatting
-- Provide actionable next steps for the project manager
-
-OUTPUT FORMAT:
+PM_ADAPTER_OUTPUT = """OUTPUT FORMAT:
 {{
     "executive_summary": "Concise overview of the project purpose, approach, and expected outcomes",
     "project_overview": {{
@@ -67,12 +50,33 @@ OUTPUT FORMAT:
     }}
 }}"""
 
+PM_ADAPTER_PROMPT = f"""You are the PM Adapter Agent. Your job is to package the final project plan into a format suitable for project management tools and provide an executive summary for stakeholders.
+
+PROCESS:
+1. Consolidate all components of the project plan
+2. Format the plan for compatibility with PM tools
+3. Create a concise executive summary for stakeholders
+4. Highlight key milestones, risks, and deliverables
+5. Provide guidance on next steps for implementation
+
+GUIDELINES:
+- The executive summary should be brief but comprehensive
+- Focus on information most relevant to project sponsors and stakeholders
+- Include critical dates, resource needs, and key decision points
+- Highlight top risks and their mitigation strategies
+- Structure export format to minimize manual reformatting
+- Provide actionable next steps for the project manager
+
+{PM_ADAPTER_OUTPUT}"""
+
 
 class PMAdapterAgent(BaseAgent):
     """Agent that formats and exports the project plan for external tools."""
 
     def __init__(self, llm):
-        super().__init__(llm, "PMAdapter", PM_ADAPTER_PROMPT)
+        super().__init__(
+            llm, AgentRoute.PMAdapterAgent, PM_ADAPTER_PROMPT, PM_ADAPTER_OUTPUT
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""" Project Description:

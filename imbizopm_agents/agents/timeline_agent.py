@@ -3,7 +3,19 @@ from typing import Any, Dict
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
-TIMELINE_PROMPT = """You are the Timeline Agent. Your job is to create a realistic project timeline with task durations, dependencies, and key milestones.
+TIMELINE_OUTPUT = """OUTPUT FORMAT:
+{{
+    "task_durations": {{
+        "T1": {{"start": "T+0", "end": "T+2"}},
+        "T2": {{"start": "T+2", "end": "T+4"}},
+        ...
+    }},
+    "milestones": ["M1: Repo Initialized", "M2: MVP Complete"],
+    "critical_path": ["T1", "T5", "T7", "..."]
+}}
+"""
+
+TIMELINE_PROMPT = f"""You are the Timeline Agent. Your job is to create a realistic project timeline with task durations, dependencies, and key milestones.
 
 PROCESS:
 1. Review all tasks and their dependencies
@@ -21,23 +33,16 @@ GUIDELINES:
 - The critical path should identify tasks where delays directly impact the project end date
 - Consider resource constraints when scheduling parallel tasks
 
-OUTPUT FORMAT:
-{{
-    "task_durations": {{
-        "T1": {{"start": "T+0", "end": "T+2"}},
-        "T2": {{"start": "T+2", "end": "T+4"}},
-        ...
-    }},
-    "milestones": ["M1: Repo Initialized", "M2: MVP Complete"],
-    "critical_path": ["T1", "T5", "T7", "..."]
-}}"""
+{TIMELINE_OUTPUT}"""
 
 
 class TimelineAgent(BaseAgent):
     """Agent that maps tasks to durations and milestones."""
 
     def __init__(self, llm):
-        super().__init__(llm, "Timeline", TIMELINE_PROMPT)
+        super().__init__(
+            llm, AgentRoute.TimelineAgent, TIMELINE_PROMPT, TIMELINE_OUTPUT
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""Tasks:

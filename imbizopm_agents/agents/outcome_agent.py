@@ -4,6 +4,22 @@ from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
 
+OUTCOME_OUTPUT = """OUTPUT FORMAT:
+{{
+    "success_metrics": [
+        "Specific measurement that indicates goal achievement (target value, measurement method)",
+        "Another concrete metric with clear threshold for success",
+        "..."
+    ],
+    "deliverables": [
+        {{
+            "name": "Clear name of deliverable",
+            "description": "Detailed description of what this deliverable includes"
+        }},
+        ...
+    ]
+}}"""
+
 OUTCOME_PROMPT = """You are the Outcome Agent. Your job is to define concrete success metrics and deliverables that will satisfy the refined idea and goals.
 
 PROCESS:
@@ -20,21 +36,7 @@ GUIDELINES:
 - Ensure the combined deliverables will fully satisfy the project goals
 - Avoid vanity metrics that don't directly indicate success
 
-OUTPUT FORMAT:
-{{
-    "success_metrics": [
-        "Specific measurement that indicates goal achievement (target value, measurement method)",
-        "Another concrete metric with clear threshold for success",
-        "..."
-    ],
-    "deliverables": [
-        {{
-            "name": "Clear name of deliverable",
-            "description": "Detailed description of what this deliverable includes"
-        }},
-        ...
-    ]
-}}"""
+{OUTCOME_OUTPUT}"""
 
 
 class OutcomeAgent(BaseAgent):

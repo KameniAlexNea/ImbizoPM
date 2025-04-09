@@ -38,15 +38,11 @@ def create_project_planning_graph(
 
     # Add all nodes to the graph
     for node_name, node_config in config["nodes"].items():
-        if node_config.get("is_tool", False):
-            # Handle tools if needed
-            pass
-        else:
-            # Create and add agent nodes
-            agent_class: Type[BaseAgent] = node_config["agent_class"]
-            agent = agent_class(llm)
-            agents[node_name] = agent
-            workflow.add_node(node_name, agent.run)
+        # Create and add agent nodes
+        agent_class: Type[BaseAgent] = node_config["agent_class"]
+        agent = agent_class(llm)
+        agents[node_name] = agent
+        workflow.add_node(node_name, agent.run)
 
     # Define the conditional routing logic
     def route_next(state: AgentState) -> str:
