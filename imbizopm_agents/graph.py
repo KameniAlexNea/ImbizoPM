@@ -59,7 +59,11 @@ def create_project_planning_graph(
 
     # Connect all nodes with conditional routing
     for node_name, edges in config["edges"].items():
-        workflow.add_conditional_edges(node_name, route_next, edges)
+        if len(edges) == 1:
+            # Direct connection to the next node
+            workflow.add_edge(node_name, edges[0])
+        else:
+            workflow.add_conditional_edges(node_name, route_next, edges)
 
     # Apply checkpointing if requested
     if use_checkpointing:

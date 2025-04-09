@@ -13,6 +13,25 @@ from .agent_types import (
     ValidatorAgent,
 )
 
+"""
+flowchart TD
+    A[User Idea] --> B[ClarifierAgent]
+    B --> C[OutcomeAgent]
+    C --> D[PlannerAgent]
+    D --> E[ScoperAgent]
+    E --> F[TaskifierAgent]
+    F --> G[TimelineAgent]
+    G --> H[RiskAgent]
+    H --> I[ValidatorAgent]
+    I -->|Valid| J[PMAdapterAgent]
+    I -->|Mismatch| D
+    H -->|Unfeasible| D
+    E -->|Overload| Negotiator[NegotiatorAgent]
+    D -->|Too Vague| B
+    F -->|Missing Info| B
+    C -->|No Clear Outcome| B
+"""
+
 # Default graph configuration
 DEFAULT_GRAPH_CONFIG = {
     "nodes": {
@@ -58,42 +77,42 @@ DEFAULT_GRAPH_CONFIG = {
         },
     },
     "edges": {
-        "ClarifierAgent": {"OutcomeAgent": "OutcomeAgent", END: END},
+        "ClarifierAgent": ["OutcomeAgent"],
         "OutcomeAgent": {
             "ClarifierAgent": "ClarifierAgent",  # No Clear Outcome path
             "PlannerAgent": "PlannerAgent",
-            END: END,
+            # END: END,
         },
         "PlannerAgent": {
             "ClarifierAgent": "ClarifierAgent",  # Too Vague path
             "ScoperAgent": "ScoperAgent",
-            END: END,
+            # END: END,
         },
         "ScoperAgent": {
             "NegotiatorAgent": "NegotiatorAgent",  # Overload path
             "TaskifierAgent": "TaskifierAgent",
-            END: END,
+            # END: END,
         },
         "TaskifierAgent": {
             "ClarifierAgent": "ClarifierAgent",  # Missing Info path
             "TimelineAgent": "TimelineAgent",
-            END: END,
+            # END: END,
         },
-        "TimelineAgent": {"RiskAgent": "RiskAgent", END: END},
+        "TimelineAgent": ["RiskAgent"],
         "RiskAgent": {
             "ValidatorAgent": "ValidatorAgent",
             "PlannerAgent": "PlannerAgent",  # Unfeasible path
-            END: END,
+            # END: END,
         },
         "NegotiatorAgent": {
             "PlannerAgent": "PlannerAgent",
             "ScoperAgent": "ScoperAgent",
-            END: END,
+            # END: END,
         },
         "ValidatorAgent": {
             "PMAdapterAgent": "PMAdapterAgent",  # Valid path
             "PlannerAgent": "PlannerAgent",  # Mismatch path
-            END: END,
+            # END: END,
         },
         "PMAdapterAgent": {END: END},
     },

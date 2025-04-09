@@ -243,7 +243,9 @@ Assess risks and overall feasibility."""
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["risks"] = result.get("risks", [])
         state["feasibility"] = result.get("feasible", True)
-        state["next"] = END if result.get("feasible", True) else "ClarifierAgent"
+        state["next"] = (
+            "ValidatorAgent" if result.get("feasible", True) else "PlannerAgent"
+        )
         return state
 
 
