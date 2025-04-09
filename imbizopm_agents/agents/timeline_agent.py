@@ -32,6 +32,7 @@ OUTPUT FORMAT:
     "critical_path": ["T1", "T5", "T7", "..."]
 }}"""
 
+
 class TimelineAgent(BaseAgent):
     """Agent that maps tasks to durations and milestones."""
 

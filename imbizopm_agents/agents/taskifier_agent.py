@@ -61,6 +61,7 @@ If information is missing:
     "tasks": []
 }}"""
 
+
 class TaskifierAgent(BaseAgent):
     """Agent that produces detailed tasks with owners and dependencies."""
 
@@ -87,6 +88,8 @@ Break into detailed tasks with effort, roles, and dependencies."""
 
         state["tasks"] = tasks
         state["next"] = (
-            AgentRoute.ClarifierAgent if result.get("missing_info", False) else AgentRoute.TimelineAgent
+            AgentRoute.ClarifierAgent
+            if result.get("missing_info", False)
+            else AgentRoute.TimelineAgent
         )
         return state

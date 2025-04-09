@@ -36,6 +36,7 @@ OUTPUT FORMAT:
     ]
 }}"""
 
+
 class OutcomeAgent(BaseAgent):
     """Agent that defines success metrics and deliverables."""
 
@@ -55,5 +56,7 @@ Define success metrics and deliverables."""
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["outcomes"] = result.get("success_metrics", [])
         state["deliverables"] = result.get("deliverables", [])
-        state["next"] = AgentRoute.PlannerAgent if state["outcomes"] else AgentRoute.ClarifierAgent
+        state["next"] = (
+            AgentRoute.PlannerAgent if state["outcomes"] else AgentRoute.ClarifierAgent
+        )
         return state

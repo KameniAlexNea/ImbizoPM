@@ -68,6 +68,7 @@ OUTPUT FORMAT:
 	}}
 }}"""
 
+
 class NegotiatorAgent(BaseAgent):
     """Agent that coordinates conflict resolution among agents."""
 
@@ -93,5 +94,9 @@ Resolve conflicts in the current project state."""
 
         # Based on which aspect was negotiated, return to the appropriate agent
         conflict_area = result.get("conflict_area", "")
-        state["next"] = AgentRoute.ScoperAgent if conflict_area == "scope" else AgentRoute.PlannerAgent
+        state["next"] = (
+            AgentRoute.ScoperAgent
+            if conflict_area == "scope"
+            else AgentRoute.PlannerAgent
+        )
         return state

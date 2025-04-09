@@ -33,6 +33,7 @@ Your output should be structured as follows:
     ]
 }}"""
 
+
 class ClarifierAgent(BaseAgent):
     """Agent that refines the idea, extracts goals, scope, and constraints."""
 

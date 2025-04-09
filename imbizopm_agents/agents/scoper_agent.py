@@ -72,6 +72,7 @@ OUTPUT FORMAT:
 }}
 """
 
+
 class ScoperAgent(BaseAgent):
     """Agent that trims the plan into an MVP and resolves overload."""
 
@@ -109,6 +110,8 @@ class ScoperAgent(BaseAgent):
             "phased_approach": result.get("phased_approach", []),
         }
         state["next"] = (
-            AgentRoute.NegotiatorAgent if result.get("overload", False) else AgentRoute.TaskifierAgent
+            AgentRoute.NegotiatorAgent
+            if result.get("overload", False)
+            else AgentRoute.TaskifierAgent
         )
         return state

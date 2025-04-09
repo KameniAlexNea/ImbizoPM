@@ -70,6 +70,7 @@ If the project is too vague to create a meaningful plan:
     "strategies": []
 }}"""
 
+
 class PlannerAgent(BaseAgent):
     """Agent that breaks the project into phases, epics, and strategies."""
 
@@ -116,6 +117,8 @@ class PlannerAgent(BaseAgent):
             state["plan"]["vague_feedback"] = result.get("vague_details", {})
 
         state["next"] = (
-            AgentRoute.ClarifierAgent if result.get("too_vague", False) else AgentRoute.ScoperAgent
+            AgentRoute.ClarifierAgent
+            if result.get("too_vague", False)
+            else AgentRoute.ScoperAgent
         )
         return state

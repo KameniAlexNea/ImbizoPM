@@ -67,6 +67,7 @@ OUTPUT FORMAT:
 }}
 """
 
+
 class RiskAgent(BaseAgent):
     """Agent that reviews feasibility and spots contradictions."""
 
@@ -85,6 +86,8 @@ Assess risks and overall feasibility."""
         state["risks"] = result.get("risks", [])
         state["feasibility"] = result.get("feasible", True)
         state["next"] = (
-            AgentRoute.ValidatorAgent if result.get("feasible", True) else AgentRoute.PlannerAgent
+            AgentRoute.ValidatorAgent
+            if result.get("feasible", True)
+            else AgentRoute.PlannerAgent
         )
         return state

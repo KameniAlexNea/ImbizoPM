@@ -87,5 +87,9 @@ Validate alignment between the idea, goals, and the resulting plan."""
         }
 
         # Check validation result
-        state["next"] = AgentRoute.PMAdapterAgent if state["validation"]["overall"] else AgentRoute.PlannerAgent
+        state["next"] = (
+            AgentRoute.PMAdapterAgent
+            if state["validation"]["overall"]
+            else AgentRoute.PlannerAgent
+        )
         return state
