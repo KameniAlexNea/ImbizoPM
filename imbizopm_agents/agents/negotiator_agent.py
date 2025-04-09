@@ -51,7 +51,9 @@ Consider the plan and scope. Identify any conflicts or inconsistencies between t
         if result.get("negotiation_details"):
             if "warn_errors" not in state:
                 state["warn_errors"] = {}
-            state["warn_errors"]["negotiation_details"] = result.get("negotiation_details")
+            state["warn_errors"]["negotiation_details"] = result.get(
+                "negotiation_details"
+            )
 
         # Based on which aspect was negotiated, return to the appropriate agent
         conflict_area = result.get("conflict_area", "")

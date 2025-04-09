@@ -108,11 +108,9 @@ class PlannerAgent(BaseAgent):
         # Check for validation details from ValidatorAgent
         if state.get("current") == AgentRoute.ValidatorAgent:
             prompt_parts.append(f"Some issues were raised during validation.")
-            prompt_parts.append(
-                f"Validation details:\n{state['validation']}"
-            )
+            prompt_parts.append(f"Validation details:\n{state['validation']}")
             prompt_parts.append(f"Previous plan:\n {state['plan']}")
-            state['validation'] = dict()
+            state["validation"] = dict()
 
         prompt_parts.append("Break into phases, epics, and strategies.")
 

@@ -42,7 +42,7 @@ class ClarifierAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         """Prepare input for the agent."""
-        if state.get("current") == AgentRoute.OutcomeAgent: # From outcome agent
+        if state.get("current") == AgentRoute.OutcomeAgent:  # From outcome agent
             return f"""
 idea: {state['input']}
 
@@ -53,7 +53,7 @@ constraints: {state.get('constraints', [])}
 
 From the previous refined idea, goals, and constraints, it was not possible to extract clear success_metrics and deliverables. Please clarify the project idea, goals, and constraints.
 """
-        elif state.get("current") == AgentRoute.PlannerAgent: # From planner agent
+        elif state.get("current") == AgentRoute.PlannerAgent:  # From planner agent
             return f"""
 idea: {state['input']}
 

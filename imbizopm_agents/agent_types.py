@@ -1,7 +1,7 @@
+from .agents import NegotiatorAgent  # noqa: F401
 from .agents import (
     AgentRoute,
     ClarifierAgent,
-    NegotiatorAgent,  # noqa: F401
     OutcomeAgent,
     PlannerAgent,
     PMAdapterAgent,
