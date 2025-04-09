@@ -75,19 +75,27 @@ class RiskAgent(BaseAgent):
         super().__init__(llm, "Risk", RISK_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""Plan: {state.get("plan", {})}
+        return f"""
+Refined idea: {state.get('idea', {}).get('refined', '')}
+Goals: {state.get('goals', [])}
+Constraints: {state.get('constraints', [])}
+
+Plan: {state.get("plan", {})}
 Scope: {state.get("scope", {})}
 Tasks: {state.get("tasks", [])}
 Timeline: {state.get("timeline", {})}
 
-Assess risks and overall feasibility."""
+Assess risks and overall feasibility. You should output a JSON format"""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["risks"] = result.get("risks", [])
-        state["feasibility"] = result.get("feasible", True)
+        state["assumptions"] = result.get("assumptions", [])
+        state["feasibility_concerns"] = result.get("feasibility_concerns", [])
+        state["warn_errors"]["dealbreakers"] = result.get("dealbreakers", [])
         state["next"] = (
             AgentRoute.ValidatorAgent
-            if result.get("feasible", True)
+            if result.get("feasible", True) or not state["dealbreakers"]
             else AgentRoute.PlannerAgent
         )
+        state["current"] = AgentRoute.RiskAgent
         return state

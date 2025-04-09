@@ -25,6 +25,10 @@ class AgentState(TypedDict):
     validation: Dict[str, bool]
     messages: Annotated[list, add_messages]
     next: Optional[str]
+    current: Optional[str]
+    warn_errors: dict[str, Any]
+    assumptions: list[str]
+    feasibility_concerns: list[Dict[str, Any]]
 
 
 class BaseAgent:
@@ -63,7 +67,7 @@ class BaseAgent:
     def _prepare_input(self, state: AgentState) -> str:
         """Prepare input for the agent."""
         # Default implementation that can be overridden
-        return state["messages"]
+        return state["messages"] if state["messages"] else state["input"]
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         """Process the agent result and update the state."""

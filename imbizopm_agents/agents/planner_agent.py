@@ -79,27 +79,40 @@ class PlannerAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = [f"Refined idea: {state['idea'].get('refined', '')}"]
-
-        if state.get("goals"):
-            prompt_parts.append(f"Goals:\n{format_list(state.get('goals', []))}")
-
-        if state.get("constraints"):
-            prompt_parts.append(
-                f"Constraints:\n{format_list(state.get('constraints', []))}"
-            )
-
-        if state.get("outcomes"):
-            prompt_parts.append(f"Outcomes:\n{format_list(state.get('outcomes', []))}")
-
+        prompt_parts.append(f"Goals:\n{format_list(state.get('goals', []))}")
+        prompt_parts.append(
+            f"Constraints:\n{format_list(state.get('constraints', []))}"
+        )
+        prompt_parts.append(f"Outcomes:\n{format_list(state.get('outcomes', []))}")
         deliverables = [d.get("name", "") for d in state.get("deliverables", [])]
-        if deliverables:
-            prompt_parts.append(f"Deliverables:\n{format_list(deliverables)}")
+        prompt_parts.append(f"Deliverables:\n{format_list(deliverables)}")
 
         # Check for negotiation details from NegotiatorAgent
-        if state.get("scope") and state["scope"].get("negotiation_details"):
+        if state["warn_errors"].get("negotiation_details"):
+            prompt_parts.append(f"Some issues were raised during negotiation.")
             prompt_parts.append(
-                f"Negotiation details:\n{state['scope'].get('negotiation_details')}"
+                f"Negotiation details:\n{state['warn_errors'].get('negotiation_details')}"
             )
+            prompt_parts.append(f"Previous plan:\n {state['plan']}")
+            state["warn_errors"].pop("negotiation_details")
+
+        # Check for risk details from RiskAgent
+        if state["warn_errors"].get("dealbreakers"):
+            prompt_parts.append(f"Some issues were raised during risk assessment.")
+            prompt_parts.append(
+                f"Risks details:\n{state['warn_errors'].get('dealbreakers')}"
+            )
+            prompt_parts.append(f"Previous plan:\n {state['plan']}")
+            state["warn_errors"].pop("dealbreakers")
+
+        # Check for validation details from ValidatorAgent
+        if state["current"] == AgentRoute.ValidatorAgent:
+            prompt_parts.append(f"Some issues were raised during validation.")
+            prompt_parts.append(
+                f"Validation details:\n{state['validation']}"
+            )
+            prompt_parts.append(f"Previous plan:\n {state['plan']}")
+            state['validation'] = dict()
 
         prompt_parts.append("Break into phases, epics, and strategies.")
 
@@ -118,7 +131,12 @@ class PlannerAgent(BaseAgent):
 
         state["next"] = (
             AgentRoute.ClarifierAgent
-            if result.get("too_vague", False)
-            else AgentRoute.ScoperAgent
+            if result.get("too_vague", False) and result.get("vague_details", {})
+            else (
+                AgentRoute.ScoperAgent
+                if state["current"] != AgentRoute.NegotiatorAgent
+                else AgentRoute.NegotiatorAgent
+            )
         )
+        state["current"] = AgentRoute.PlannerAgent
         return state

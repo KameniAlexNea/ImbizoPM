@@ -38,10 +38,66 @@ class ClarifierAgent(BaseAgent):
     """Agent that refines the idea, extracts goals, scope, and constraints."""
 
     def __init__(self, llm):
-        super().__init__(llm, "Clarifier", CLASSIFIER_PROMPT)
+        super().__init__(llm, AgentRoute.ClarifierAgent, CLASSIFIER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
         """Prepare input for the agent."""
+        if state["current"] == AgentRoute.OutcomeAgent: # From outcome agent
+            return f"""
+idea: {state['input']}
+
+# Previous Outcome Agent
+Refined idea: {state['idea'].get('refined', '')}
+goals: {state.get('goals', [])}
+constraints: {state.get('constraints', [])}
+
+From the previous refined idea, goals, and constraints, it was not possible to extract clear success_metrics and deliverables. Please clarify the project idea, goals, and constraints.
+"""
+        elif state["current"] == AgentRoute.PlannerAgent: # From planner agent
+            return f"""
+idea: {state['input']}
+
+# Previous Clarifier Agent
+Refined idea: {state['idea'].get('refined', '')}
+goals: {state.get('goals', [])}
+constraints: {state.get('constraints', [])}
+
+# Previous Outcome Agent
+outcomes: {state.get('outcomes', [])}
+deliverables: {state.get('deliverables', [])}
+
+# Previous Planner Agent
+phases: {state['plan'].get('phases', [])}
+epics: {state['plan'].get('epics', [])}
+strategies: {state['plan'].get('strategies', [])}
+vague_feedback: {state['plan'].get('vague_feedback', {})}
+
+From the previous refined idea, goals, constraints, it was not possible to extract clear phases, epics, and strategies. Please clarify the project idea, goals, and constraints.
+"""
+        elif state["current"] == AgentRoute.TaskifierAgent:
+            return f"""
+idea: {state['input']}
+
+# Previous Clarifier Agent
+Refined idea: {state['idea'].get('refined', '')}
+goals: {state.get('goals', [])}
+constraints: {state.get('constraints', [])}
+
+# Previous Outcome Agent
+outcomes: {state.get('outcomes', [])}
+deliverables: {state.get('deliverables', [])}
+
+# Previous Planner Agent
+phases: {state['plan'].get('phases', [])}
+epics: {state['plan'].get('epics', [])}
+strategies: {state['plan'].get('strategies', [])}
+vague_feedback: {state['plan'].get('vague_feedback', {})}
+
+# Taskifier Agent
+Missing info: {state['warn_errors'].get('missing_info', {})}
+
+From the previous refined idea, goals, constraints, it was not possible to extract clear tasks. Please clarify the project idea, goals, and constraints.
+"""
         prompt_parts = [state["input"]]
 
         # Check for TaskifierAgent feedback
@@ -72,4 +128,5 @@ class ClarifierAgent(BaseAgent):
         state["goals"] = result.get("goals", [])
         state["constraints"] = result.get("constraints", [])
         state["next"] = AgentRoute.OutcomeAgent
+        state["current"] = AgentRoute.ClarifierAgent
         return state

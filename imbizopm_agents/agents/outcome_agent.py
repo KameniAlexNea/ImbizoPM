@@ -41,7 +41,7 @@ class OutcomeAgent(BaseAgent):
     """Agent that defines success metrics and deliverables."""
 
     def __init__(self, llm):
-        super().__init__(llm, "Outcome", OUTCOME_PROMPT)
+        super().__init__(llm, AgentRoute.OutcomeAgent, OUTCOME_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""Refined idea:
@@ -59,4 +59,5 @@ Define success metrics and deliverables."""
         state["next"] = (
             AgentRoute.PlannerAgent if state["outcomes"] else AgentRoute.ClarifierAgent
         )
+        state["current"] = AgentRoute.OutcomeAgent
         return state

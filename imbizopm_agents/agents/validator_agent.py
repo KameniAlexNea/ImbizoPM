@@ -21,7 +21,7 @@ GUIDELINES:
 
 OUTPUT FORMAT:
 {{
-    "overall_validation": "Pass/Fail",
+    "overall_validation": true, # or false
     "alignment_score": "0-100%",
     "goals_alignment": {{
         "Goal 1": {{
@@ -83,7 +83,8 @@ Validate alignment between the idea, goals, and the resulting plan."""
             "goals_alignment": result.get("goals_alignment", {}),
             "constraints_respected": result.get("constraints_respected", {}),
             "outcomes_achievable": result.get("outcomes_achievable", {}),
-            "overall": result.get("overall_validation", False),
+            "completeness_assessment": result.get("completeness_assessment", {}),
+            "overall": result.get("overall_validation", True),
         }
 
         # Check validation result
@@ -92,4 +93,5 @@ Validate alignment between the idea, goals, and the resulting plan."""
             if state["validation"]["overall"]
             else AgentRoute.PlannerAgent
         )
+        state["current"] = AgentRoute.ValidatorAgent
         return state

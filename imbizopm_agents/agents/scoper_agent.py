@@ -77,10 +77,10 @@ class ScoperAgent(BaseAgent):
     """Agent that trims the plan into an MVP and resolves overload."""
 
     def __init__(self, llm):
-        super().__init__(llm, "Scoper", SCOPER_PROMPT)
+        super().__init__(llm, AgentRoute.ScoperAgent, SCOPER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        prompt_parts = []
+        prompt_parts = [f"Refined idea:\n {state['idea'].get('refined', '')}"]
 
         if state["plan"].get("phases"):
             prompt_parts.append(f"Phases: {state['plan'].get('phases', [])}")
@@ -94,10 +94,11 @@ class ScoperAgent(BaseAgent):
             )
 
         # Check for negotiation details from NegotiatorAgent
-        if state.get("scope") and state["scope"].get("negotiation_details"):
+        if state.get("scope") and state["warn_errors"].get("negotiation_details"):
             prompt_parts.append(
-                f"Negotiation details:\n{state['scope'].get('negotiation_details')}"
+                f"Negotiation details:\n{state['warn_errors'].get('negotiation_details')}"
             )
+            state["warn_errors"].pop("negotiation_details")
 
         prompt_parts.append("Define MVP scope and resolve overload.")
 
@@ -109,9 +110,12 @@ class ScoperAgent(BaseAgent):
             "exclusions": result.get("scope_exclusions", []),
             "phased_approach": result.get("phased_approach", []),
         }
+        if result.get("overload", False):
+            state["scope"]["overload"] = result.get("overload_details", {})
         state["next"] = (
             AgentRoute.NegotiatorAgent
-            if result.get("overload", False)
+            if result.get("overload", False) and result.get("overload_details", {})
             else AgentRoute.TaskifierAgent
         )
+        state["current"] = AgentRoute.ScoperAgent
         return state

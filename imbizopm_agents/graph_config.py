@@ -86,6 +86,7 @@ DEFAULT_GRAPH_CONFIG = {
         "PlannerAgent": {
             "ClarifierAgent": "ClarifierAgent",  # Too Vague path
             "ScoperAgent": "ScoperAgent",
+            "NegotiatorAgent": "NegotiatorAgent", # If previous plan is negotiated
             # END: END,
         },
         "ScoperAgent": {

@@ -52,4 +52,5 @@ Estimate timeline with milestones and critical path."""
             "critical_path": result.get("critical_path", []),
         }
         state["next"] = AgentRoute.RiskAgent
+        state["current"] = AgentRoute.TimelineAgent
         return state

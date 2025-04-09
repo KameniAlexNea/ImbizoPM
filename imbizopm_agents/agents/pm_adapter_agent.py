@@ -75,14 +75,20 @@ class PMAdapterAgent(BaseAgent):
         super().__init__(llm, "PMAdapter", PM_ADAPTER_PROMPT)
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""Project Plan:
+        return f"""" Project Description:
 - Idea: {state['idea'].get('refined', '')}
 - Goals: {', '.join(state['goals'])}
 - Outcomes: {', '.join(state['outcomes'])}
 - Deliverables: {state['deliverables']}
+
+# Project Plan:
 - Plan: {state['plan']}
 - Scope: {state['scope']}
+
+# Project Tasks:
 - Tasks: {state['tasks']}
+
+# Project Timeline and Risks:
 - Timeline: {state['timeline']}
 - Risks: {state['risks']}
 
@@ -96,4 +102,5 @@ Format this project plan for export to project management tools."""
 
         # This is the final agent, no next state needed
         state["next"] = AgentRoute.END
+        state["current"] = AgentRoute.PMAdapterAgent
         return state
