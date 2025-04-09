@@ -259,6 +259,7 @@ class NegotiatorAgent(BaseAgent):
 Scope: {state['scope']}
 Tasks: {state['tasks']}
 Risks: {state['risks']}
+Overload Details: {state['overload_details']}
 
 Resolve conflicts in the current project state."""
 
