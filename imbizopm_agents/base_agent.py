@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Dict, List, Optional, TypedDict
+from typing import Annotated, Any, Callable, Dict, List, Optional, TypedDict
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
@@ -41,11 +41,13 @@ class BaseAgent:
         name: str,
         system_prompt: str,
         format_prompt: str,
+        model_class: Optional[Callable] = None,
         description: str = "",
     ):
         self.name = name
         self.description = description
-        self.llm = llm
+        self.llm = llm if model_class is None else llm.with_structured_output(llm)
+        self.structured_output = model_class is not None
         self.system_prompt = system_prompt
         self.format_prompt = format_prompt
         self.agent: CompiledGraph = None

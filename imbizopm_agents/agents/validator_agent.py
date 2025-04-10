@@ -1,8 +1,51 @@
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 import json  # Add import for json module
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
+
+from dataclasses import dataclass, field
+from typing import Dict, List
+
+
+@dataclass
+class GoalAlignment:
+    aligned: Literal["Yes", "Partial", "No"]  # "Yes", "Partial", "No"
+    evidence: str
+    gaps: str
+
+
+@dataclass
+class ConstraintRespect:
+    respected: Literal["Yes", "Partial", "No"]  # "Yes", "Partial", "No"
+    evidence: str
+    concerns: str
+
+
+@dataclass
+class OutcomeAchievability:
+    achievable: Literal["Yes", "Partial", "No"]  # "Yes", "Partial", "No"
+    evidence: str
+    risks: str
+
+
+@dataclass
+class CompletenessAssessment:
+    missing_elements: List[str] = field(default_factory=list)
+    improvement_suggestions: List[str] = field(default_factory=list)
+
+
+@dataclass
+class PlanValidation:
+    overall_validation: bool
+    alignment_score: str  # e.g., "87%"
+    goals_alignment: Dict[str, GoalAlignment] = field(default_factory=dict)
+    constraints_respected: Dict[str, ConstraintRespect] = field(default_factory=dict)
+    outcomes_achievable: Dict[str, OutcomeAchievability] = field(default_factory=dict)
+    completeness_assessment: CompletenessAssessment = field(
+        default_factory=CompletenessAssessment
+    )
+
 
 VALIDATOR_OUTPUT = """OUTPUT FORMAT:
 {{
@@ -66,8 +109,14 @@ GUIDELINES:
 class ValidatorAgent(BaseAgent):
     """Agent that verifies alignment between idea, plan, and goals."""
 
-    def __init__(self, llm):
-        super().__init__(llm, "Validator", VALIDATOR_PROMPT, VALIDATOR_OUTPUT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            "Validator",
+            VALIDATOR_PROMPT,
+            VALIDATOR_OUTPUT,
+            PlanValidation if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""# Idea and Goals

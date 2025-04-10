@@ -3,6 +3,17 @@ import json
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
+from langchain_core.language_models import BaseChatModel
+from dataclasses import dataclass, field
+from typing import List
+
+
+@dataclass
+class ProjectPlan:
+    refined_idea: str
+    goals: List[str] = field(default_factory=list)
+    constraints: List[str] = field(default_factory=list)
+
 
 CLASSIFIER_OUTPUT = """Your output should be structured as follows:
 {{
@@ -41,9 +52,13 @@ GUIDELINES:
 class ClarifierAgent(BaseAgent):
     """Agent that refines the idea, extracts goals, scope, and constraints."""
 
-    def __init__(self, llm):
+    def __init__(self, llm: BaseChatModel, use_structured_output: bool = False):
         super().__init__(
-            llm, AgentRoute.ClarifierAgent, CLASSIFIER_PROMPT, CLASSIFIER_OUTPUT
+            llm,
+            AgentRoute.ClarifierAgent,
+            CLASSIFIER_PROMPT,
+            CLASSIFIER_OUTPUT,
+            ProjectPlan if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:
@@ -119,7 +134,9 @@ From the previous refined idea, goals, constraints, it was not possible to extra
                     for task in state["tasks"]
                     if task.get("missing_info_feedback")
                 ]
-                prompt_parts.append(f"Taskifier feedback: {json.dumps(missing_info, indent=2)}")
+                prompt_parts.append(
+                    f"Taskifier feedback: {json.dumps(missing_info, indent=2)}"
+                )
 
         # Check for PlannerAgent feedback
         if state.get("plan") and state["plan"] and state["plan"].get("vague_feedback"):

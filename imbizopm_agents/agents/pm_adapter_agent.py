@@ -1,9 +1,64 @@
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 import json
 
 from ..base_agent import AgentState, BaseAgent
 from ..utils import format_project_plan_for_export
 from .agent_routes import AgentRoute
+
+from dataclasses import dataclass, field
+from typing import List, Dict, Any
+
+
+@dataclass
+class ProjectOverview:
+    name: str
+    description: str
+    objectives: List[str] = field(default_factory=list)
+    key_stakeholders: List[str] = field(default_factory=list)
+    timeline: str
+
+
+@dataclass
+class Milestone:
+    name: str
+    date: str
+    deliverables: List[str] = field(default_factory=list)
+
+
+@dataclass
+class ResourceRequirement:
+    role: str
+    skills: List[str] = field(default_factory=list)
+    allocation: str
+
+
+@dataclass
+class Risk:
+    description: str
+    impact: Literal[
+        "High", "Medium", "Low"
+    ]  # Consider Literal["High", "Medium", "Low"] for stricter typing
+    mitigation: str
+
+
+@dataclass
+class PMToolExport:
+    tasks: List[Any] = field(default_factory=list)
+    milestones: List[Any] = field(default_factory=list)
+    dependencies: List[Any] = field(default_factory=list)
+    resources: List[Any] = field(default_factory=list)
+
+
+@dataclass
+class ProjectSummary:
+    executive_summary: str
+    project_overview: ProjectOverview
+    key_milestones: List[Milestone] = field(default_factory=list)
+    resource_requirements: List[ResourceRequirement] = field(default_factory=list)
+    top_risks: List[Risk] = field(default_factory=list)
+    next_steps: List[str] = field(default_factory=list)
+    pm_tool_export: PMToolExport = field(default_factory=PMToolExport)
+
 
 PM_ADAPTER_OUTPUT = """OUTPUT FORMAT:
 {{
@@ -74,9 +129,13 @@ GUIDELINES:
 class PMAdapterAgent(BaseAgent):
     """Agent that formats and exports the project plan for external tools."""
 
-    def __init__(self, llm):
+    def __init__(self, llm, use_structured_output: bool = False):
         super().__init__(
-            llm, AgentRoute.PMAdapterAgent, PM_ADAPTER_PROMPT, PM_ADAPTER_OUTPUT
+            llm,
+            AgentRoute.PMAdapterAgent,
+            PM_ADAPTER_PROMPT,
+            PM_ADAPTER_OUTPUT,
+            ProjectSummary if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:

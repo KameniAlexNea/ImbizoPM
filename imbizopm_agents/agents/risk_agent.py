@@ -4,6 +4,62 @@ import json
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
+from dataclasses import dataclass, field
+from typing import List, Literal, Union
+
+# Risk and feasibility-related dataclasses
+
+
+@dataclass
+class Risk:
+    description: str
+    category: Literal["Technical", "Resource", "Timeline", "External", "Stakeholder"]
+    impact: Literal["High", "Medium", "Low"]
+    probability: Literal["High", "Medium", "Low"]
+    priority: Literal["High", "Medium", "Low"]
+    mitigation_strategy: str
+    contingency_plan: str
+
+
+@dataclass
+class FeasibilityConcern:
+    area: str
+    description: str
+    recommendation: str
+
+
+@dataclass
+class Dealbreaker:
+    description: str
+    impact: str
+    potential_solution: str
+
+
+# Base class (used for typing clarity, not strictly necessary)
+@dataclass
+class FeasibilityAssessmentBase:
+    risks: List[Risk] = field(default_factory=list)
+    assumptions: List[str] = field(default_factory=list)
+    feasibility_concerns: List[FeasibilityConcern] = field(default_factory=list)
+
+
+# Feasible case
+@dataclass
+class FeasibleAssessment(FeasibilityAssessmentBase):
+    feasible: Literal[True] = True
+
+
+# Not feasible case
+@dataclass
+class NotFeasibleAssessment(FeasibilityAssessmentBase):
+    feasible: Literal[False] = False
+    dealbreakers: List[Dealbreaker] = field(default_factory=list)
+
+
+# Union type if you'd like to work with either
+FeasibilityAssessment = Union[FeasibleAssessment, NotFeasibleAssessment]
+
+
 RISK_OUTPUT = """OUTPUT FORMAT:
 {{
     "feasible": true,
@@ -73,8 +129,14 @@ GUIDELINES:
 class RiskAgent(BaseAgent):
     """Agent that reviews feasibility and spots contradictions."""
 
-    def __init__(self, llm):
-        super().__init__(llm, "Risk", RISK_PROMPT, RISK_OUTPUT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            "Risk",
+            RISK_PROMPT,
+            RISK_OUTPUT,
+            FeasibilityAssessment if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""

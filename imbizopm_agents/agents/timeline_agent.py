@@ -4,6 +4,27 @@ from typing import Any, Dict
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
+from dataclasses import dataclass, field
+from typing import Dict, List
+
+
+@dataclass
+class TaskDuration:
+    start: str  # e.g., "T+0"
+    end: str  # e.g., "T+2"
+
+
+@dataclass
+class ProjectTimeline:
+    task_durations: Dict[str, TaskDuration] = field(
+        default_factory=dict
+    )  # key: task ID
+    milestones: List[str] = field(
+        default_factory=list
+    )  # e.g., ["M1: Repo Initialized"]
+    critical_path: List[str] = field(default_factory=list)  # e.g., ["T1", "T5", "T7"]
+
+
 TIMELINE_OUTPUT = """OUTPUT FORMAT:
 {{
     "task_durations": {{
@@ -40,9 +61,13 @@ GUIDELINES:
 class TimelineAgent(BaseAgent):
     """Agent that maps tasks to durations and milestones."""
 
-    def __init__(self, llm):
+    def __init__(self, llm, use_structured_output: bool = False):
         super().__init__(
-            llm, AgentRoute.TimelineAgent, TIMELINE_PROMPT, TIMELINE_OUTPUT
+            llm,
+            AgentRoute.TimelineAgent,
+            TIMELINE_PROMPT,
+            TIMELINE_OUTPUT,
+            ProjectTimeline if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:

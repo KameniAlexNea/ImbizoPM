@@ -5,6 +5,22 @@ from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
 
+from dataclasses import dataclass, field
+from typing import List
+
+
+@dataclass
+class Deliverable:
+    name: str
+    description: str
+
+
+@dataclass
+class ProjectSuccessCriteria:
+    success_metrics: List[str] = field(default_factory=list)
+    deliverables: List[Deliverable] = field(default_factory=list)
+
+
 OUTCOME_OUTPUT = """OUTPUT FORMAT:
 {{
     "success_metrics": [
@@ -43,8 +59,14 @@ GUIDELINES:
 class OutcomeAgent(BaseAgent):
     """Agent that defines success metrics and deliverables."""
 
-    def __init__(self, llm):
-        super().__init__(llm, AgentRoute.OutcomeAgent, OUTCOME_PROMPT, OUTCOME_OUTPUT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            AgentRoute.OutcomeAgent,
+            OUTCOME_PROMPT,
+            OUTCOME_OUTPUT,
+            ProjectSuccessCriteria if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""Refined idea:
@@ -60,15 +82,15 @@ Define success metrics and deliverables."""
         # Extract data with more robust error handling
         success_metrics = result.get("success_metrics", [])
         deliverables = result.get("deliverables", [])
-        
+
         # Add the data to state
         state["outcomes"] = success_metrics
         state["deliverables"] = deliverables
-        
+
         # Determine next step based on presence of outcomes
         state["next"] = (
             AgentRoute.PlannerAgent if success_metrics else AgentRoute.ClarifierAgent
         )
         state["current"] = AgentRoute.OutcomeAgent
-        
+
         return state

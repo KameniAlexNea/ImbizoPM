@@ -4,6 +4,50 @@ import json
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
+from dataclasses import dataclass, field
+from typing import List, Literal, Union
+
+
+@dataclass
+class Task:
+    id: str
+    name: str
+    description: str
+    deliverable: str
+    owner_role: str
+    dependencies: List[str] = field(default_factory=list)
+    estimated_effort: Literal["Low", "Medium", "High"]
+    epic: str
+    phase: str
+
+
+@dataclass
+class MissingInfoDetails:
+    unclear_aspects: List[str] = field(default_factory=list)
+    questions: List[str] = field(default_factory=list)
+    suggestions: List[str] = field(default_factory=list)
+
+
+# For when all task info is available
+@dataclass
+class TaskPlanComplete:
+    tasks: List[Task] = field(default_factory=list)
+    missing_info: Literal[False] = False
+    missing_info_details: MissingInfoDetails = field(default_factory=MissingInfoDetails)
+
+
+# For when critical task info is missing
+@dataclass
+class TaskPlanMissingInfo:
+    tasks: List[Task] = field(default_factory=list)  # Will remain empty
+    missing_info: Literal[True] = True
+    missing_info_details: MissingInfoDetails
+
+
+# Unified type
+TaskPlan = Union[TaskPlanComplete, TaskPlanMissingInfo]
+
+
 TASKIFIER_OUTPUT = """### OUTPUT FORMAT:
 
 If enough information is available:
@@ -78,9 +122,13 @@ Follow these steps carefully to generate the output:
 class TaskifierAgent(BaseAgent):
     """Agent that produces detailed tasks with owners and dependencies."""
 
-    def __init__(self, llm):
+    def __init__(self, llm, use_structured_output: bool = False):
         super().__init__(
-            llm, AgentRoute.TaskifierAgent, TASKIFIER_PROMPT, TASKIFIER_OUTPUT
+            llm,
+            AgentRoute.TaskifierAgent,
+            TASKIFIER_PROMPT,
+            TASKIFIER_OUTPUT,
+            TaskPlan if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:

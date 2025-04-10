@@ -5,6 +5,53 @@ from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
 
+from dataclasses import dataclass, field
+from typing import List, Literal, Union
+
+
+@dataclass
+class MVPScope:
+    features: List[str] = field(default_factory=list)
+    user_stories: List[str] = field(default_factory=list)
+
+
+@dataclass
+class Phase:
+    phase: str
+    description: str
+
+
+@dataclass
+class OverloadDetails:
+    problem_areas: List[str] = field(default_factory=list)
+    recommendations: List[str] = field(default_factory=list)
+
+
+# Base class for shared fields
+@dataclass
+class ScopeDefinitionBase:
+    mvp_scope: MVPScope
+    scope_exclusions: List[str] = field(default_factory=list)
+    phased_approach: List[Phase] = field(default_factory=list)
+    overload_details: OverloadDetails = field(default_factory=OverloadDetails)
+
+
+# Feasible scope (no overload)
+@dataclass
+class NoScopeOverload(ScopeDefinitionBase):
+    overload: Literal[False] = False
+
+
+# Overloaded scope
+@dataclass
+class ScopeOverload(ScopeDefinitionBase):
+    overload: Literal[True] = True
+
+
+# Union type for handling either case
+ScopeDefinition = Union[NoScopeOverload, ScopeOverload]
+
+
 SCOPER_OUTPUT = """OUTPUT FORMAT:
 {{
     "mvp_scope": {{
@@ -78,17 +125,27 @@ GUIDELINES:
 class ScoperAgent(BaseAgent):
     """Agent that trims the plan into an MVP and resolves overload."""
 
-    def __init__(self, llm):
-        super().__init__(llm, AgentRoute.ScoperAgent, SCOPER_PROMPT, SCOPER_OUTPUT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            AgentRoute.ScoperAgent,
+            SCOPER_PROMPT,
+            SCOPER_OUTPUT,
+            ScopeDefinition if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = [f"Refined idea:\n {state['idea'].get('refined', '')}"]
 
         if state["plan"].get("phases"):
-            prompt_parts.append(f"Phases: {json.dumps(state['plan'].get('phases', []), indent=2)}")
+            prompt_parts.append(
+                f"Phases: {json.dumps(state['plan'].get('phases', []), indent=2)}"
+            )
 
         if state["plan"].get("epics"):
-            prompt_parts.append(f"Epics: {json.dumps(state['plan'].get('epics', []), indent=2)}")
+            prompt_parts.append(
+                f"Epics: {json.dumps(state['plan'].get('epics', []), indent=2)}"
+            )
 
         if state.get("constraints"):
             prompt_parts.append(

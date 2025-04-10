@@ -4,6 +4,23 @@ import json
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
+from dataclasses import dataclass, field
+from typing import List, Literal
+
+
+@dataclass
+class NegotiationDetails:
+    issues: List[str] = field(default_factory=list)
+    proposed_solutions: List[str] = field(default_factory=list)
+    priorities: List[str] = field(default_factory=list)
+
+
+@dataclass
+class ConflictResolution:
+    conflict_area: Literal["scope", "plan"]
+    negotiation_details: NegotiationDetails
+
+
 NEGOCIATOR_OUTPUT = """OUTPUT FORMAT:
 {{
 	"conflict_area": "scope", // or "plan"
@@ -40,7 +57,11 @@ class NegotiatorAgent(BaseAgent):
 
     def __init__(self, llm):
         super().__init__(
-            llm, AgentRoute.NegotiatorAgent, NEGOCIATOR_PROMPT, NEGOCIATOR_OUTPUT
+            llm,
+            AgentRoute.NegotiatorAgent,
+            NEGOCIATOR_PROMPT,
+            NEGOCIATOR_OUTPUT,
+            ConflictResolution if self.structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:

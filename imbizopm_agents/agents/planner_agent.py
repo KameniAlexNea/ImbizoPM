@@ -5,6 +5,32 @@ from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
 
+from dataclasses import dataclass, field
+from typing import List
+
+
+@dataclass
+class NamedDescription:
+    name: str
+    description: str
+
+
+@dataclass
+class VagueDetails:
+    unclear_aspects: List[str] = field(default_factory=list)
+    questions: List[str] = field(default_factory=list)
+    suggestions: List[str] = field(default_factory=list)
+
+
+@dataclass
+class ProjectPlanOutput:
+    too_vague: bool
+    vague_details: VagueDetails = field(default_factory=VagueDetails)
+    phases: List[NamedDescription] = field(default_factory=list)
+    epics: List[NamedDescription] = field(default_factory=list)
+    strategies: List[NamedDescription] = field(default_factory=list)
+
+
 PLANNER_OUTPUT = """OUTPUT FORMAT:
 {{
     "phases": [
@@ -77,8 +103,14 @@ GUIDELINES:
 class PlannerAgent(BaseAgent):
     """Agent that breaks the project into phases, epics, and strategies."""
 
-    def __init__(self, llm):
-        super().__init__(llm, "Planner", PLANNER_PROMPT, PLANNER_OUTPUT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            "Planner",
+            PLANNER_PROMPT,
+            PLANNER_OUTPUT,
+            ProjectPlanOutput if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = [f"Refined idea: {state['idea'].get('refined', '')}"]
@@ -96,7 +128,9 @@ class PlannerAgent(BaseAgent):
             prompt_parts.append(
                 f"Negotiation details:\n{json.dumps(state['warn_errors'].get('negotiation_details'), indent=2)}"
             )
-            prompt_parts.append(f"Previous plan:\n{json.dumps(state['plan'], indent=2)}")
+            prompt_parts.append(
+                f"Previous plan:\n{json.dumps(state['plan'], indent=2)}"
+            )
             state["warn_errors"].pop("negotiation_details")
 
         # Check for risk details from RiskAgent
@@ -105,14 +139,20 @@ class PlannerAgent(BaseAgent):
             prompt_parts.append(
                 f"Risks details:\n{json.dumps(state['warn_errors'].get('dealbreakers'), indent=2)}"
             )
-            prompt_parts.append(f"Previous plan:\n{json.dumps(state['plan'], indent=2)}")
+            prompt_parts.append(
+                f"Previous plan:\n{json.dumps(state['plan'], indent=2)}"
+            )
             state["warn_errors"].pop("dealbreakers")
 
         # Check for validation details from ValidatorAgent
         if state.get("current") == AgentRoute.ValidatorAgent:
             prompt_parts.append(f"Some issues were raised during validation.")
-            prompt_parts.append(f"Validation details:\n{json.dumps(state['validation'], indent=2)}")
-            prompt_parts.append(f"Previous plan:\n{json.dumps(state['plan'], indent=2)}")
+            prompt_parts.append(
+                f"Validation details:\n{json.dumps(state['validation'], indent=2)}"
+            )
+            prompt_parts.append(
+                f"Previous plan:\n{json.dumps(state['plan'], indent=2)}"
+            )
             state["validation"] = dict()
 
         prompt_parts.append("Break into phases, epics, and strategies.")
