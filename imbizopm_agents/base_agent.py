@@ -5,9 +5,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph.graph import CompiledGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import create_react_agent
+from loguru import logger
 from typing_extensions import TypedDict
 
-from loguru import logger
 from imbizopm_agents.utils import extract_structured_data
 
 
@@ -80,7 +80,7 @@ class BaseAgent:
             parsed_content = extract_structured_data(retry_text)
             if "error" in parsed_content:
                 logger.error(f"Failed to parse output again: {self.name}")
-                parsed_content["text"] = raw_output['messages'][-1].content
+                parsed_content["text"] = raw_output["messages"][-1].content
         state["messages"] = raw_output["messages"]
         return self._process_result(state, parsed_content)
 

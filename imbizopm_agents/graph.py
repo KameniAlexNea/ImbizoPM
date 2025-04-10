@@ -40,7 +40,7 @@ def create_project_planning_graph(
     for node_name, node_config in config["nodes"].items():
         # Create and add agent nodes
         agent_class: Type[BaseAgent] = node_config["agent_class"]
-        agent = agent_class(llm)
+        agent = agent_class(llm, use_structured_output=True)
         agents[node_name] = agent
         workflow.add_node(node_name, agent.run)
 

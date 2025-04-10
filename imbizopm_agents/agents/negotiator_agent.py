@@ -1,11 +1,9 @@
-from typing import Any, Dict
 import json
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Literal
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
-
-from dataclasses import dataclass, field
-from typing import List, Literal
 
 
 @dataclass
@@ -55,13 +53,13 @@ GUIDELINES:
 class NegotiatorAgent(BaseAgent):
     """Agent that coordinates conflict resolution among agents."""
 
-    def __init__(self, llm):
+    def __init__(self, llm, use_structured_output: bool = False):
         super().__init__(
             llm,
             AgentRoute.NegotiatorAgent,
             NEGOCIATOR_PROMPT,
             NEGOCIATOR_OUTPUT,
-            ConflictResolution if self.structured_output else None,
+            ConflictResolution if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:

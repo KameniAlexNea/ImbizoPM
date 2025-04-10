@@ -1,11 +1,9 @@
-from typing import Any, Dict
 import json
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Literal, Union
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
-
-from dataclasses import dataclass, field
-from typing import List, Literal, Union
 
 
 @dataclass
@@ -15,10 +13,10 @@ class Task:
     description: str
     deliverable: str
     owner_role: str
-    dependencies: List[str] = field(default_factory=list)
     estimated_effort: Literal["Low", "Medium", "High"]
     epic: str
     phase: str
+    dependencies: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -39,9 +37,9 @@ class TaskPlanComplete:
 # For when critical task info is missing
 @dataclass
 class TaskPlanMissingInfo:
-    tasks: List[Task] = field(default_factory=list)  # Will remain empty
-    missing_info: Literal[True] = True
     missing_info_details: MissingInfoDetails
+    missing_info: Literal[True] = True
+    tasks: List[Task] = field(default_factory=list)  # Will remain empty
 
 
 # Unified type

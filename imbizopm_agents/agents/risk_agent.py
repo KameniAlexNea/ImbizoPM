@@ -1,11 +1,9 @@
-from typing import Any, Dict
 import json
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Literal, Union
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
-
-from dataclasses import dataclass, field
-from typing import List, Literal, Union
 
 # Risk and feasibility-related dataclasses
 

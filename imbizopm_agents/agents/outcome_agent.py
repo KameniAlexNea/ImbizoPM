@@ -1,12 +1,9 @@
-from typing import Any, Dict
-import json
+from dataclasses import dataclass, field
+from typing import Any, Dict, List
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
-
-from dataclasses import dataclass, field
-from typing import List
 
 
 @dataclass

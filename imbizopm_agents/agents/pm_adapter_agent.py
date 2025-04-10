@@ -1,21 +1,19 @@
-from typing import Any, Dict, Literal
 import json
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Literal
 
 from ..base_agent import AgentState, BaseAgent
 from ..utils import format_project_plan_for_export
 from .agent_routes import AgentRoute
-
-from dataclasses import dataclass, field
-from typing import List, Dict, Any
 
 
 @dataclass
 class ProjectOverview:
     name: str
     description: str
+    timeline: str
     objectives: List[str] = field(default_factory=list)
     key_stakeholders: List[str] = field(default_factory=list)
-    timeline: str
 
 
 @dataclass
@@ -28,8 +26,8 @@ class Milestone:
 @dataclass
 class ResourceRequirement:
     role: str
-    skills: List[str] = field(default_factory=list)
     allocation: str
+    skills: List[str] = field(default_factory=list)
 
 
 @dataclass
