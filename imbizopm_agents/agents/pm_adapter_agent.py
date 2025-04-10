@@ -97,7 +97,7 @@ class PMAdapterAgent(BaseAgent):
 - Timeline: {json.dumps(state['timeline'])}
 - Risks: {json.dumps(state['risks'])}
 
-Format this project plan for export to project management tools."""
+Format this project plan for export to project management tools. Stricly output only the JSON, to the appropriate format."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["final_output"] = {

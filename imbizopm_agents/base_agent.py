@@ -76,6 +76,9 @@ class BaseAgent:
                 ]
             ).content
             parsed_content = extract_structured_data(retry_text)
+            if "error" in parsed_content:
+                logger.error(f"Failed to parse output again: {self.name}")
+                parsed_content["text"] = raw_output['messages'][-1].content
         state["messages"] = raw_output["messages"]
         return self._process_result(state, parsed_content)
 

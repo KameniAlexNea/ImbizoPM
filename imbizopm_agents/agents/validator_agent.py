@@ -81,7 +81,7 @@ Plan:\n {json.dumps(state['plan'], indent=2)}
 Scope:\n {json.dumps(state['scope'], indent=2)}
 Tasks:\n {json.dumps(state['tasks'], indent=2)}
 
-Validate alignment between the idea, goals, and the resulting plan."""
+Validate alignment between the idea, goals, and the resulting plan. Stricly output only the JSON, to the appropriate format."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
         state["validation"] = {
