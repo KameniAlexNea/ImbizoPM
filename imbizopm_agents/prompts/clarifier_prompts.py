@@ -1,19 +1,9 @@
+from ..dtypes.clarifier_types import ProjectPlan
+from .utils import prepare_output
+
 def get_clarifier_output_format() -> str:
     """Return the output format for the clarifier agent."""
-    return """Your output should be structured as follows:
-{{
-    "refined_idea": "A clear, concise statement of what the project aims to accomplish",
-    "goals": [
-        "Specific, measurable goal that addresses a core need",
-        "Another well-defined objective with clear success criteria",
-        "..."
-    ],
-    "constraints": [
-        "Specific limitation or boundary that must be respected",
-        "Another constraint with clear parameters",
-        "..."
-    ]
-}}"""
+    return prepare_output(ProjectPlan.example())
 
 
 def get_clarifier_prompt() -> str:

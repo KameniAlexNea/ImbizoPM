@@ -1,20 +1,10 @@
+from imbizopm_agents.dtypes.outcome_types import ProjectSuccessCriteria
+from imbizopm_agents.prompts.utils import prepare_output
+
+
 def get_outcome_output_format() -> str:
     """Return the output format for the outcome agent."""
-    return """OUTPUT FORMAT:
-{{
-    "success_metrics": [
-        "Specific measurement that indicates goal achievement (target value, measurement method)",
-        "Another concrete metric with clear threshold for success",
-        "..."
-    ],
-    "deliverables": [
-        {{
-            "name": "Clear name of deliverable",
-            "description": "Detailed description of what this deliverable includes"
-        }},
-        ...
-    ]
-}}"""
+    return prepare_output(ProjectSuccessCriteria.example(), union=False)
 
 
 def get_outcome_prompt() -> str:

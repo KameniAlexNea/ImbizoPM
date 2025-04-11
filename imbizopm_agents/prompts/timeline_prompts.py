@@ -1,16 +1,10 @@
+from imbizopm_agents.dtypes.timeline_types import ProjectTimeline
+from imbizopm_agents.prompts.utils import prepare_output
+
+
 def get_timeline_output_format() -> str:
     """Return the output format for the timeline agent."""
-    return """OUTPUT FORMAT:
-{{
-    "task_durations": {{
-        "T1": {{"start": "T+0", "end": "T+2"}},
-        "T2": {{"start": "T+2", "end": "T+4"}},
-        ...
-    }},
-    "milestones": ["M1: Repo Initialized", "M2: MVP Complete"],
-    "critical_path": ["T1", "T5", "T7", "..."]
-}}
-"""
+    return prepare_output(ProjectTimeline.example(), union=False)
 
 
 def get_timeline_prompt() -> str:

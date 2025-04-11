@@ -1,53 +1,10 @@
+from imbizopm_agents.dtypes.planner_types import ProjectPlanOutput
+from imbizopm_agents.prompts.utils import prepare_output
+
+
 def get_planner_output_format() -> str:
     """Return the output format for the planner agent."""
-    return """OUTPUT FORMAT:
-{{
-    "phases": [
-        {{
-            "name": "Descriptive phase name",
-            "description": "Detailed phase description with clear objectives"
-        }},
-        ...
-    ],
-    "epics": [
-        {{
-            "name": "Descriptive epic name",
-            "description": "Detailed epic description focusing on value delivered"
-        }},
-        ...
-    ],
-    "strategies": [
-        {{
-            "name": "Strategy name",
-            "description": "Detailed description of the strategic approach"
-        }},
-        ...
-    ],
-    "too_vague": false,
-    "vague_details": {{}}
-}}
-
-If the project is too vague to create a meaningful plan:
-{{
-    "too_vague": true,
-    "vague_details": {{
-        "unclear_aspects": [
-            "Specific aspect of the project that lacks clarity",
-            "..."
-        ],
-        "questions": [
-            "Specific question that needs answering before planning can proceed",
-            "..."
-        ],
-        "suggestions": [
-            "Concrete suggestion to address the lack of clarity",
-            "..."
-        ]
-    }},
-    "phases": [],
-    "epics": [],
-    "strategies": []
-}}"""
+    return prepare_output(ProjectPlanOutput.example(), union=False)
 
 
 def get_planner_prompt() -> str:

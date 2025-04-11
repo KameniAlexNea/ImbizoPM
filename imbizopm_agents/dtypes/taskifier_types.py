@@ -172,5 +172,5 @@ def task_plan_examples() -> Dict[str, Any]:
     """Return examples of both complete and missing info task plans."""
     return {
         "complete_plan_example": TaskPlanComplete.example(),
-        "missing_info_example": TaskPlanMissingInfo.example(),
+        "missing_plan_example": TaskPlanMissingInfo.example(),
     }

@@ -1,14 +1,10 @@
+from imbizopm_agents.dtypes.negotiator_types import ConflictResolution
+from imbizopm_agents.prompts.utils import prepare_output
+
+
 def get_negotiator_output_format() -> str:
     """Return the output format for the negotiator agent."""
-    return """OUTPUT FORMAT:
-{{
-	"conflict_area": "scope", // or "plan"
-	"negotiation_details": {{
-		"issues": ["<specific issue>", "..."],
-		"proposed_solutions": ["<solution>", "..."],
-		"priorities": ["<priority>", "..."]
-	}}
-}}"""
+    return prepare_output(ConflictResolution.example(), union=False)
 
 
 def get_negotiator_prompt() -> str:

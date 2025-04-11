@@ -1,50 +1,10 @@
+from imbizopm_agents.dtypes.taskifier_types import task_plan_examples
+from imbizopm_agents.prompts.utils import prepare_output
+
+
 def get_taskifier_output_format() -> str:
     """Return the output format for the taskifier agent."""
-    return """### OUTPUT FORMAT:
-
-If enough information is available:
-```json
-{{
-  "tasks": [
-    {{
-      "id": "T1",
-      "name": "Descriptive task name",
-      "description": "Detailed description of what needs to be done",
-      "deliverable": "Which deliverable this task contributes to",
-      "owner_role": "Role responsible for completing this task",
-      "dependencies": ["T2", "T3"],
-      "estimated_effort": "Low/Medium/High",
-      "epic": "Parent epic name",
-      "phase": "Phase where this task should be completed"
-    }}
-    // ... More tasks
-  ],
-  "missing_info": false,
-  "missing_info_details": {{}}
-}}
-```
-
-If important information is missing:
-```json
-{{
-  "missing_info": true,
-  "missing_info_details": {{
-    "unclear_aspects": [
-      "Specific aspect that prevents task definition",
-      "..."
-    ],
-    "questions": [
-      "Specific question that needs answering before tasks can be defined",
-      "..."
-    ],
-    "suggestions": [
-      "Concrete suggestion to address the lack of clarity",
-      "..."
-    ]
-  }},
-  "tasks": []
-}}
-```"""
+    return prepare_output(task_plan_examples(), union=True)
 
 
 def get_taskifier_prompt() -> str:
