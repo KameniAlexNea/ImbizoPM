@@ -1,17 +1,15 @@
 import json
 from typing import Any, Dict
 
+from imbizopm_agents.prompts.utils import dumps_to_yaml
+
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.negotiator_types import ConflictResolution
 from ..prompts.negotiator_prompts import (
     get_negotiator_output_format,
     get_negotiator_prompt,
 )
-from ..agent_routes import AgentRoute
-
-NEGOCIATOR_OUTPUT = get_negotiator_output_format()
-
-NEGOCIATOR_PROMPT = get_negotiator_prompt()
+from ..agent_routes import AgentDtypes, AgentRoute
 
 
 class NegotiatorAgent(BaseAgent):
@@ -21,34 +19,40 @@ class NegotiatorAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.NegotiatorAgent,
-            NEGOCIATOR_PROMPT,
-            NEGOCIATOR_OUTPUT,
+            get_negotiator_output_format(),
+            get_negotiator_prompt(),
             ConflictResolution if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:
         # Identify which aspect has conflicts
-        return f"""Refined idea: {json.dumps(state['idea'].get('refined', ''), indent=2)}
-Plan: {json.dumps(state['plan'], indent=2) if state.get('plan') else ''}
-Scope: {json.dumps(state['scope'], indent=2) if state.get('scope') else ''}
+        return f"""# Project Idea
+{state[AgentRoute.ClarifierAgent].refined_idea}
+        
+# Scoper Agent
+{dumps_to_yaml(state[AgentRoute.ScoperAgent])}
 
-Consider the plan and scope. Identify any conflicts or inconsistencies between them."""
+# Planner Agent
+{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
 
-    def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
+## Taskifier Agent
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent])}
+
+## Timeline Agent
+{dumps_to_yaml(state[AgentRoute.TimelineAgent])}
+
+Consider the main idea, plan and scope. Identify any conflicts or inconsistencies between them."""
+
+    def _process_result(self, state: AgentState, result: AgentDtypes.NegotiatorAgent) -> AgentState:
         # Store negotiation details in scope dictionary
-        if result.get("negotiation_details"):
+        if result.negotiation_details.proposed_solutions:
             if "warn_errors" not in state:
                 state["warn_errors"] = {}
-            state["warn_errors"]["negotiation_details"] = result.get(
-                "negotiation_details"
-            )
-
-        # Based on which aspect was negotiated, return to the appropriate agent
-        conflict_area = result.get("conflict_area", "")
-        state["next"] = (
+            state["warn_errors"]["negotiation_details"] = result.negotiation_details
+        state["forward"] = (
             AgentRoute.ScoperAgent
-            if conflict_area == "scope"
+            if result.conflict_area == "scope"
             else AgentRoute.PlannerAgent
         )
-        state["current"] = AgentRoute.NegotiatorAgent
+        state["backward"] = AgentRoute.NegotiatorAgent
         return state

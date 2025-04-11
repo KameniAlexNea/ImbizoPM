@@ -23,25 +23,25 @@ from imbizopm_agents.utils import extract_structured_data
 from .agent_routes import AgentDtypes
 
 
-class AgentState(TypedDict):
-    input: str
-    idea: Dict[str, Any]
-    goals: List[str]
-    constraints: List[str]
-    outcomes: List[str]
-    deliverables: List[Dict[str, Any]]
-    plan: Dict[str, Any]
-    scope: Dict[str, Any]
-    tasks: List[Dict[str, Any]]
-    timeline: Dict[str, Any]
-    risks: List[Dict[str, Any]]
-    validation: Dict[str, bool]
-    messages: Annotated[list, add_messages]
-    next: Optional[str]
-    current: Optional[str]
-    warn_errors: dict[str, Any]
-    assumptions: list[str]
-    feasibility_concerns: list[Dict[str, Any]]
+# class AgentState(TypedDict):
+#     input: str
+#     idea: Dict[str, Any]
+#     goals: List[str]
+#     constraints: List[str]
+#     outcomes: List[str]
+#     deliverables: List[Dict[str, Any]]
+#     plan: Dict[str, Any]
+#     scope: Dict[str, Any]
+#     tasks: List[Dict[str, Any]]
+#     timeline: Dict[str, Any]
+#     risks: List[Dict[str, Any]]
+#     validation: Dict[str, bool]
+#     messages: Annotated[list, add_messages]
+#     next: Optional[str]
+#     current: Optional[str]
+#     warn_errors: dict[str, Any]
+#     assumptions: list[str]
+#     feasibility_concerns: list[Dict[str, Any]]
 
 class AgentState(TypedDict):
     start: str
