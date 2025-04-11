@@ -11,6 +11,12 @@ from .base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG, NodeSuffix
 
 
+def update_name(name: str):
+    if name == END:
+        return name
+    return name + NodeSuffix
+
+
 def create_project_planning_graph(
     llm: BaseChatModel,
     graph_config: Optional[Dict[str, Dict]] = DEFAULT_GRAPH_CONFIG,
@@ -34,14 +40,14 @@ def create_project_planning_graph(
     workflow = StateGraph(AgentState)
 
     # Initialize agents dictionary to store references
-    agents = {}
+    # agents = {}
 
     # Add all nodes to the graph
     for node_name, node_config in config["nodes"].items():
         # Create and add agent nodes
         agent_class: Type[BaseAgent] = node_config["agent_class"]
         agent = agent_class(llm, use_structured_output=True)
-        agents[node_name] = agent
+        # agents[node_name] = agent
         workflow.add_node(node_name + NodeSuffix, agent.run)
 
     # Define the conditional routing logic
@@ -49,21 +55,21 @@ def create_project_planning_graph(
         """Route to the next agent based on the 'next' field in state."""
         if state.get("forward") is None:
             return END
-        return state["forward"] + NodeSuffix
+        return update_name(state["forward"])
 
     # Set entry point
-    workflow.set_entry_point(config["entry_point"])
+    workflow.set_entry_point(update_name(config["entry_point"]))
 
     # Connect all nodes with conditional routing
     for node_name, edges in config["edges"].items():
         if len(edges) == 1:
             # Direct connection to the next node
-            workflow.add_edge(node_name + NodeSuffix, edges[0] + NodeSuffix)
+            workflow.add_edge(update_name(node_name), update_name(edges[0]))
         else:
             workflow.add_conditional_edges(
                 node_name + NodeSuffix,
                 route_next,
-                {k + NodeSuffix: v + NodeSuffix for k, v in edges.items()},
+                {update_name(k): update_name(v) for k, v in edges.items()},
             )
 
     # Apply checkpointing if requested
@@ -99,19 +105,10 @@ def run_project_planning_graph(
     # Initialize the state with the user input
     initial_state = {
         "input": user_input,
-        "idea": {"original": user_input},
-        "goals": [],
-        "constraints": [],
-        "outcomes": [],
-        "deliverables": [],
-        "plan": {},
-        "scope": {},
-        "tasks": [],
-        "timeline": {},
-        "risks": [],
-        "validation": {},
         "messages": [],
-        "next": DEFAULT_GRAPH_CONFIG["entry_point"],  # Use the entry point from config
+        "forward": update_name(DEFAULT_GRAPH_CONFIG["entry_point"]),
+        "backward": "",
+        "routes": [],
     }
 
     # Stream the events
@@ -129,7 +126,7 @@ def run_project_planning_graph(
             logger.info(message.pretty_repr())
         else:
             logger.info(event)
-        logger.info(f"Next Direction: {event['next']}")
+        logger.info(f"Next Direction: {event['forward']}")
         # Store each state update
         results.append(event)
 

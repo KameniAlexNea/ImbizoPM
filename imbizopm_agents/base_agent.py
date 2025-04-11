@@ -14,21 +14,23 @@ from imbizopm_agents.utils import extract_structured_data
 from .agent_routes import AgentDtypes
 
 class AgentState(TypedDict):
+    input: str
     start: str
     backward: str
     forward: str
     warn_errors: dict[str, Any]
     routes: Annotated[list[str], add_messages]
-    clarifieragent: AgentDtypes.ClarifierAgent
-    outcomeagent: AgentDtypes.OutcomeAgent
-    planneragent: AgentDtypes.PlannerAgent
-    scoperagent: AgentDtypes.ScoperAgent
-    taskifieragent: AgentDtypes.TaskifierAgent
-    timelineagent: AgentDtypes.TimelineAgent
-    riskagent: AgentDtypes.RiskAgent
-    validatorAgent: AgentDtypes.ValidatorAgent
-    pmadapteragent: AgentDtypes.PMAdapterAgent
-    negotiatoragent: AgentDtypes.NegotiatorAgent
+    messages: Annotated[list[str], add_messages]
+    ClarifierAgent: AgentDtypes.ClarifierAgent
+    OutcomeAgent: AgentDtypes.OutcomeAgent
+    PlannerAgent: AgentDtypes.PlannerAgent
+    ScoperAgent: AgentDtypes.ScoperAgent
+    TaskifierAgent: AgentDtypes.TaskifierAgent
+    TimelineAgent: AgentDtypes.TimelineAgent
+    RiskAgent: AgentDtypes.RiskAgent
+    ValidatorAgent: AgentDtypes.ValidatorAgent
+    PMAdapterAgent: AgentDtypes.PMAdapterAgent
+    NegotiatorAgent: AgentDtypes.NegotiatorAgent
 
 
 class BaseAgent:

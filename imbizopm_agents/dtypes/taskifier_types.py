@@ -170,7 +170,7 @@ class TaskPlan(BaseModel):
 
     @staticmethod
     def example() -> dict:
-        {
+        return {
             "complete_plan_example": TaskPlanComplete.example(),
             "missing_plan_example": TaskPlanMissingInfo.example(),
         }
