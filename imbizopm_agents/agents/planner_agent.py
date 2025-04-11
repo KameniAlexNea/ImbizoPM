@@ -1,13 +1,15 @@
 import json
 from typing import Any, Dict
 
+from imbizopm_agents.prompts.utils import dumps_to_yaml
+
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.planner_types import ProjectPlanOutput
 from ..prompts.planner_prompts import (
     get_planner_output_format,
     get_planner_prompt,
 )
-from ..agent_routes import AgentRoute
+from ..agent_routes import AgentRoute, AgentDtypes
 from .utils import format_list
 
 PLANNER_OUTPUT = get_planner_output_format()
@@ -28,25 +30,21 @@ class PlannerAgent(BaseAgent):
         )
 
     def _prepare_input(self, state: AgentState) -> str:
-        prompt_parts = [f"Refined idea: {state['idea'].get('refined', '')}"]
-        prompt_parts.append(f"Goals:\n{format_list(state.get('goals', []))}")
-        prompt_parts.append(
-            f"Constraints:\n{format_list(state.get('constraints', []))}"
-        )
-        prompt_parts.append(f"Outcomes:\n{format_list(state.get('outcomes', []))}")
-        deliverables = [d.get("name", "") for d in state.get("deliverables", [])]
-        prompt_parts.append(f"Deliverables:\n{format_list(deliverables)}")
+        prompt_parts = [f"""# Clarifier Agent
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
+# Outcome Agent
+{dumps_to_yaml(state[AgentRoute.OutcomeAgent], indent=2)}
+"""]
         # Check for negotiation details from NegotiatorAgent
+        flag = False
         if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
             prompt_parts.append(f"Some issues were raised during negotiation.")
             prompt_parts.append(
                 f"Negotiation details:\n{json.dumps(state['warn_errors'].get('negotiation_details'), indent=2)}"
             )
-            prompt_parts.append(
-                f"Previous plan:\n{json.dumps(state['plan'], indent=2)}"
-            )
             state["warn_errors"].pop("negotiation_details")
+            flag = True
 
         # Check for risk details from RiskAgent
         if state.get("warn_errors") and state["warn_errors"].get("dealbreakers"):
@@ -54,45 +52,36 @@ class PlannerAgent(BaseAgent):
             prompt_parts.append(
                 f"Risks details:\n{json.dumps(state['warn_errors'].get('dealbreakers'), indent=2)}"
             )
-            prompt_parts.append(
-                f"Previous plan:\n{json.dumps(state['plan'], indent=2)}"
-            )
             state["warn_errors"].pop("dealbreakers")
-
+            flag = True
+        
         # Check for validation details from ValidatorAgent
-        if state.get("current") == AgentRoute.ValidatorAgent:
+        if state.get("forward") == AgentRoute.ValidatorAgent:
             prompt_parts.append(f"Some issues were raised during validation.")
             prompt_parts.append(
                 f"Validation details:\n{json.dumps(state['validation'], indent=2)}"
             )
-            prompt_parts.append(
-                f"Previous plan:\n{json.dumps(state['plan'], indent=2)}"
-            )
             state["validation"] = dict()
+            flag = True
+        
+        if flag:
+            prompt_parts.append(
+                f"Previous plan with issue:\n{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}"
+            )
 
         prompt_parts.append("Break into phases, epics, and strategies.")
 
         return "\n".join(prompt_parts)
 
-    def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["plan"] = {
-            "phases": result.get("phases", []),
-            "epics": result.get("epics", []),
-            "strategies": result.get("strategies", []),
-        }
-
-        # Store feedback in plan dictionary if too vague
-        if result.get("too_vague", False):
-            state["plan"]["vague_feedback"] = result.get("vague_details", {})
-
-        state["next"] = (
+    def _process_result(self, state: AgentState, result: AgentDtypes.PlannerAgent) -> AgentState:
+        state["forward"] = (
             AgentRoute.ClarifierAgent
-            if result.get("too_vague", False) and result.get("vague_details", {})
+            if result.too_vague and result.vague_details.unclear_aspects
             else (
                 AgentRoute.ScoperAgent
-                if state["current"] != AgentRoute.NegotiatorAgent
+                if state["backward"] != AgentRoute.NegotiatorAgent
                 else AgentRoute.NegotiatorAgent
             )
         )
-        state["current"] = AgentRoute.PlannerAgent
+        state["backward"] = AgentRoute.PlannerAgent
         return state

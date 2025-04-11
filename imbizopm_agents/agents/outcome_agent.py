@@ -1,6 +1,8 @@
 from typing import Any, Dict
 
-from ..base_agent import AgentState, BaseAgent
+from imbizopm_agents.prompts.utils import dumps_to_yaml
+
+from ..base_agent import AgentState, BaseAgent, AgentDtypes
 from ..dtypes.outcome_types import ProjectSuccessCriteria
 from ..prompts.outcome_prompts import (
     get_outcome_output_format,
@@ -8,10 +10,6 @@ from ..prompts.outcome_prompts import (
 )
 from ..agent_routes import AgentRoute
 from .utils import format_list
-
-OUTCOME_OUTPUT = get_outcome_output_format()
-
-OUTCOME_PROMPT = get_outcome_prompt()
 
 
 class OutcomeAgent(BaseAgent):
@@ -21,34 +19,22 @@ class OutcomeAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.OutcomeAgent,
-            OUTCOME_PROMPT,
-            OUTCOME_OUTPUT,
+            get_outcome_output_format(),
+            get_outcome_prompt(),
             ProjectSuccessCriteria if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""Refined idea:
-{state['idea'].get('refined', '')}
-Goals:
-{format_list(state.get('goals', []))}
-Constraints:
-{format_list(state.get('constraints', []))}
+        return f"""# Clarifier Agent
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent])}
 
 Define success metrics and deliverables."""
 
-    def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        # Extract data with more robust error handling
-        success_metrics = result.get("success_metrics", [])
-        deliverables = result.get("deliverables", [])
-
-        # Add the data to state
-        state["outcomes"] = success_metrics
-        state["deliverables"] = deliverables
-
+    def _process_result(self, state: AgentState, result: AgentDtypes.OutcomeAgent) -> AgentState:
         # Determine next step based on presence of outcomes
-        state["next"] = (
-            AgentRoute.PlannerAgent if success_metrics else AgentRoute.ClarifierAgent
+        state["forward"] = (
+            AgentRoute.PlannerAgent if result.success_metrics else AgentRoute.ClarifierAgent
         )
-        state["current"] = AgentRoute.OutcomeAgent
+        state["backward"] = AgentRoute.OutcomeAgent
 
         return state
