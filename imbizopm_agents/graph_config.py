@@ -112,3 +112,5 @@ DEFAULT_GRAPH_CONFIG = {
     },
     "entry_point": "ClarifierAgent",
 }
+
+NodeSuffix = "Node"

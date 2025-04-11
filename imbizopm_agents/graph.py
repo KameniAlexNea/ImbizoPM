@@ -8,7 +8,7 @@ from langgraph.graph.graph import CompiledGraph
 from loguru import logger
 
 from .base_agent import AgentState, BaseAgent
-from .graph_config import DEFAULT_GRAPH_CONFIG
+from .graph_config import DEFAULT_GRAPH_CONFIG, NodeSuffix
 
 
 def create_project_planning_graph(
@@ -42,14 +42,14 @@ def create_project_planning_graph(
         agent_class: Type[BaseAgent] = node_config["agent_class"]
         agent = agent_class(llm, use_structured_output=True)
         agents[node_name] = agent
-        workflow.add_node(node_name, agent.run)
+        workflow.add_node(node_name + NodeSuffix, agent.run)
 
     # Define the conditional routing logic
     def route_next(state: AgentState) -> str:
         """Route to the next agent based on the 'next' field in state."""
-        if state.get("next") is None:
+        if state.get("forward") is None:
             return END
-        return state["next"]
+        return state["forward"] + NodeSuffix
 
     # Set entry point
     workflow.set_entry_point(config["entry_point"])
@@ -58,9 +58,13 @@ def create_project_planning_graph(
     for node_name, edges in config["edges"].items():
         if len(edges) == 1:
             # Direct connection to the next node
-            workflow.add_edge(node_name, edges[0])
+            workflow.add_edge(node_name + NodeSuffix, edges[0] + NodeSuffix)
         else:
-            workflow.add_conditional_edges(node_name, route_next, edges)
+            workflow.add_conditional_edges(
+                node_name + NodeSuffix,
+                route_next,
+                {k + NodeSuffix: v + NodeSuffix for k, v in edges.items()},
+            )
 
     # Apply checkpointing if requested
     if use_checkpointing:
