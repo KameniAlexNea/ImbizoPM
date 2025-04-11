@@ -3,40 +3,16 @@ from typing import Any, Dict, List, Literal
 
 from pydantic import BaseModel, Field
 
+from ..prompts.negotiator_prompts import get_negotiator_prompt, get_negotiator_output_format
+
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.negotiator_types import ConflictResolution, NegotiationDetails
 from .agent_routes import AgentRoute
 
 
-NEGOCIATOR_OUTPUT = """OUTPUT FORMAT:
-{{
-	"conflict_area": "scope", // or "plan"
-	"negotiation_details": {{
-		"issues": ["<specific issue>", "..."],
-		"proposed_solutions": ["<solution>", "..."],
-		"priorities": ["<priority>", "..."]
-	}}
-}}"""
+NEGOCIATOR_OUTPUT = get_negotiator_output_format()
 
-NEGOCIATOR_PROMPT = f"""You are the Negotiator Agent. Your job is to identify and resolve conflicts between different aspects of the project plan and propose balanced solutions.
-
-PROCESS:
-1. Review all components of the project plan
-2. Identify inconsistencies, contradictions, or competing priorities
-3. Analyze the source and impact of each conflict
-4. Propose specific solutions that balance competing needs
-5. Prioritize changes based on impact to project success
-6. Consider tradeoffs between scope, time, quality, and resources
-
-GUIDELINES:
-- Look for conflicts between goals, constraints, timeline, and resources
-- Identify where agents have made contradictory assumptions
-- Consider stakeholder perspectives when proposing solutions
-- Focus on preserving core value while making necessary compromises
-- Be specific about what needs to change and why
-- Document tradeoffs explicitly so stakeholders understand implications
-
-{NEGOCIATOR_OUTPUT}"""
+NEGOCIATOR_PROMPT = get_negotiator_prompt()
 
 
 class NegotiatorAgent(BaseAgent):

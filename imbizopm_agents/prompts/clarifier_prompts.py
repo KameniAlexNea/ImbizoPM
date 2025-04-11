@@ -1,7 +1,7 @@
 def get_clarifier_output_format() -> str:
     """Return the output format for the clarifier agent."""
     return """Your output should be structured as follows:
-{
+{{
     "refined_idea": "A clear, concise statement of what the project aims to accomplish",
     "goals": [
         "Specific, measurable goal that addresses a core need",
@@ -13,7 +13,7 @@ def get_clarifier_output_format() -> str:
         "Another constraint with clear parameters",
         "..."
     ]
-}"""
+}}"""
 
 
 def get_clarifier_prompt() -> str:

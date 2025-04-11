@@ -4,57 +4,17 @@ from typing import Any, Dict, List
 from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel, Field
 
+from ..prompts.clarifier_prompts import get_clarifier_output_format, get_clarifier_prompt
+
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.clarifier_types import ProjectPlan
 from .agent_routes import AgentRoute
 
 
-class ProjectPlan(BaseModel):
-    refined_idea: str = Field(
-        description="A clear, concise statement of what the project aims to accomplish"
-    )
-    goals: List[str] = Field(
-        default_factory=list,
-        description="A list of specific, measurable goals that address core needs with clear success criteria",
-    )
-    constraints: List[str] = Field(
-        default_factory=list,
-        description="A list of specific limitations or boundaries that must be respected during the project",
-    )
 
+CLASSIFIER_OUTPUT = get_clarifier_output_format()
 
-CLASSIFIER_OUTPUT = """Your output should be structured as follows:
-{{
-    "refined_idea": "A clear, concise statement of what the project aims to accomplish",
-    "goals": [
-        "Specific, measurable goal that addresses a core need",
-        "Another well-defined objective with clear success criteria",
-        "..."
-    ],
-    "constraints": [
-        "Specific limitation or boundary that must be respected",
-        "Another constraint with clear parameters",
-        "..."
-    ]
-}}"""
-
-CLASSIFIER_PROMPT = f"""You are the Clarifier Agent. Your job is to analyze the user's project idea and transform it into structured requirements.
-
-PROCESS:
-1. Carefully read the idea to understand the core project concept
-2. Identify ambiguities or missing information in the original idea
-3. Extract or infer clear goals based on the user's stated or implied needs
-4. Determine realistic constraints that should apply to this project
-5. Refine the idea into a concise, actionable statement
-
-GUIDELINES:
-- If the idea is vague, make reasonable assumptions based on industry standards
-- Focus on clarifying the "what" and "why" before the "how"
-- Consider technical, resource, timeline, and budget constraints even if not explicitly mentioned
-- When receiving feedback from other agents, prioritize addressing identified ambiguities
-
-{CLASSIFIER_OUTPUT}
-"""
+CLASSIFIER_PROMPT = get_clarifier_prompt()
 
 
 class ClarifierAgent(BaseAgent):

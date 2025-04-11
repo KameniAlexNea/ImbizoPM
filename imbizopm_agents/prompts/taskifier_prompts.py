@@ -4,9 +4,9 @@ def get_taskifier_output_format() -> str:
 
 If enough information is available:
 ```json
-{
+{{
   "tasks": [
-    {
+    {{
       "id": "T1",
       "name": "Descriptive task name",
       "description": "Detailed description of what needs to be done",
@@ -16,19 +16,19 @@ If enough information is available:
       "estimated_effort": "Low/Medium/High",
       "epic": "Parent epic name",
       "phase": "Phase where this task should be completed"
-    }
+    }}
     // ... More tasks
   ],
   "missing_info": false,
-  "missing_info_details": {}
-}
+  "missing_info_details": {{}}
+}}
 ```
 
 If important information is missing:
 ```json
-{
+{{
   "missing_info": true,
-  "missing_info_details": {
+  "missing_info_details": {{
     "unclear_aspects": [
       "Specific aspect that prevents task definition",
       "..."
@@ -41,9 +41,9 @@ If important information is missing:
       "Concrete suggestion to address the lack of clarity",
       "..."
     ]
-  },
+  }},
   "tasks": []
-}
+}}
 ```"""
 
 

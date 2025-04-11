@@ -1,14 +1,14 @@
 def get_negotiator_output_format() -> str:
     """Return the output format for the negotiator agent."""
     return """OUTPUT FORMAT:
-{
+{{
 	"conflict_area": "scope", // or "plan"
-	"negotiation_details": {
+	"negotiation_details": {{
 		"issues": ["<specific issue>", "..."],
 		"proposed_solutions": ["<solution>", "..."],
 		"priorities": ["<priority>", "..."]
-	}
-}"""
+	}}
+}}"""
 
 
 def get_negotiator_prompt() -> str:

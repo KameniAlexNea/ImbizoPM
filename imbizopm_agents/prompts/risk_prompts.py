@@ -1,10 +1,10 @@
 def get_risk_output_format() -> str:
     """Return the output format for the risk agent."""
     return """OUTPUT FORMAT:
-{
+{{
     "feasible": true,
     "risks": [
-        {
+        {{
             "description": "Detailed description of the risk",
             "category": "Technical/Resource/Timeline/External/Stakeholder",
             "impact": "High/Medium/Low",
@@ -12,7 +12,7 @@ def get_risk_output_format() -> str:
             "priority": "High/Medium/Low",
             "mitigation_strategy": "Specific actions to reduce risk",
             "contingency_plan": "What to do if the risk materializes"
-        },
+        }},
         "..."
     ],
     "assumptions": [
@@ -20,30 +20,30 @@ def get_risk_output_format() -> str:
         "..."
     ],
     "feasibility_concerns": [
-        {
+        {{
             "area": "Specific area of concern",
             "description": "Detailed description of why this is a concern",
             "recommendation": "How to address this concern"
-        },
+        }},
         "..."
     ]
-}
+}}
 
 // Alternative output if project is not feasible:
-{
+{{
     "feasible": false,
     "dealbreakers": [
-        {
+        {{
             "description": "Critical issue that makes the project unfeasible",
             "impact": "Why this is a dealbreaker",
             "potential_solution": "Possible way to address this issue"
-        },
+        }},
         "..."
     ],
     "risks": [...],
     "assumptions": [...],
     "feasibility_concerns": [...]
-}"""
+}}"""
 
 
 def get_risk_prompt() -> str:
