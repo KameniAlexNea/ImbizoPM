@@ -1,21 +1,14 @@
 import json
 from typing import Any, Dict
 
-from ..prompts.scoper_prompts import get_scoper_output_format, get_scoper_prompt
-
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.scoper_types import (
-    MVPScope,
-    NoScopeOverload,
-    OverloadDetails,
-    Phase,
-    ScopeDefinition,
-    ScopeDefinitionBase,
-    ScopeOverload,
+from ..dtypes.scoper_types import ScopeDefinition
+from ..prompts.scoper_prompts import (
+    get_scoper_output_format,
+    get_scoper_prompt,
 )
 from .agent_routes import AgentRoute
 from .utils import format_list
-
 
 SCOPER_OUTPUT = get_scoper_output_format()
 

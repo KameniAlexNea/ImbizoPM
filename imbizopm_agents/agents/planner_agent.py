@@ -1,15 +1,14 @@
 import json
-from typing import Any, Dict, List
-
-from pydantic import BaseModel, Field
-
-from ..prompts.planner_prompts import get_planner_prompt, get_planner_output_format
+from typing import Any, Dict
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.planner_types import NamedDescription, ProjectPlanOutput, VagueDetails
+from ..dtypes.planner_types import ProjectPlanOutput
+from ..prompts.planner_prompts import (
+    get_planner_output_format,
+    get_planner_prompt,
+)
 from .agent_routes import AgentRoute
 from .utils import format_list
-
 
 PLANNER_OUTPUT = get_planner_output_format()
 

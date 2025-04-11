@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Union, Dict
+from typing import Any, Dict, List, Literal, Union
 
 from pydantic import BaseModel, Field
 
@@ -50,7 +50,7 @@ class TaskPlanComplete(BaseModel):
         default_factory=MissingInfoDetails,
         description="Empty structure when no info is missing",
     )
-    
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of a complete task plan."""
@@ -65,7 +65,7 @@ class TaskPlanComplete(BaseModel):
                     "estimated_effort": "Medium",
                     "epic": "User Authentication System",
                     "phase": "Development",
-                    "dependencies": []
+                    "dependencies": [],
                 },
                 {
                     "id": "TASK-002",
@@ -76,7 +76,7 @@ class TaskPlanComplete(BaseModel):
                     "estimated_effort": "Low",
                     "epic": "User Authentication System",
                     "phase": "Design",
-                    "dependencies": []
+                    "dependencies": [],
                 },
                 {
                     "id": "TASK-003",
@@ -87,7 +87,7 @@ class TaskPlanComplete(BaseModel):
                     "estimated_effort": "Medium",
                     "epic": "User Authentication System",
                     "phase": "Development",
-                    "dependencies": ["TASK-001", "TASK-002"]
+                    "dependencies": ["TASK-001", "TASK-002"],
                 },
                 {
                     "id": "TASK-004",
@@ -98,7 +98,7 @@ class TaskPlanComplete(BaseModel):
                     "estimated_effort": "High",
                     "epic": "User Authentication System",
                     "phase": "Development",
-                    "dependencies": ["TASK-001"]
+                    "dependencies": ["TASK-001"],
                 },
                 {
                     "id": "TASK-005",
@@ -109,15 +109,15 @@ class TaskPlanComplete(BaseModel):
                     "estimated_effort": "Medium",
                     "epic": "User Authentication System",
                     "phase": "Testing",
-                    "dependencies": ["TASK-001", "TASK-003", "TASK-004"]
-                }
+                    "dependencies": ["TASK-001", "TASK-003", "TASK-004"],
+                },
             ],
             "missing_info": False,
             "missing_info_details": {
                 "unclear_aspects": [],
                 "questions": [],
-                "suggestions": []
-            }
+                "suggestions": [],
+            },
         }
 
 
@@ -133,7 +133,7 @@ class TaskPlanMissingInfo(BaseModel):
         default_factory=list,
         description="Empty list since tasks can't be defined without resolving issues",
     )
-    
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of a task plan with missing information."""
@@ -144,32 +144,33 @@ class TaskPlanMissingInfo(BaseModel):
                     "The project scope does not specify which user roles need to be supported",
                     "Integration requirements with existing systems are not defined",
                     "Performance requirements and expected user load are not specified",
-                    "Security requirements and compliance standards are not detailed"
+                    "Security requirements and compliance standards are not detailed",
                 ],
                 "questions": [
                     "What user roles need to be supported in the authentication system?",
                     "Which existing systems need to integrate with the new authentication service?",
                     "What is the expected peak user load for authentication services?",
                     "Are there specific security certifications or compliance standards that must be met?",
-                    "Is single sign-on (SSO) functionality required? If so, which providers?"
+                    "Is single sign-on (SSO) functionality required? If so, which providers?",
                 ],
                 "suggestions": [
                     "Conduct a stakeholder workshop to define user roles and permissions",
                     "Request documentation for existing systems that require integration",
                     "Perform load testing on current systems to establish performance baselines",
                     "Consult with the security team to identify compliance requirements",
-                    "Create a technical specification document before proceeding with task definition"
-                ]
+                    "Create a technical specification document before proceeding with task definition",
+                ],
             },
-            "tasks": []
+            "tasks": [],
         }
 
 
 TaskPlan = Union[TaskPlanComplete, TaskPlanMissingInfo]
 
+
 def task_plan_examples() -> Dict[str, Any]:
     """Return examples of both complete and missing info task plans."""
     return {
         "complete_plan_example": TaskPlanComplete.example(),
-        "missing_info_example": TaskPlanMissingInfo.example()
+        "missing_info_example": TaskPlanMissingInfo.example(),
     }

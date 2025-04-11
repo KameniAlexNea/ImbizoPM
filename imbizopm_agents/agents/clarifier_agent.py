@@ -1,16 +1,15 @@
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from langchain_core.language_models import BaseChatModel
-from pydantic import BaseModel, Field
-
-from ..prompts.clarifier_prompts import get_clarifier_output_format, get_clarifier_prompt
 
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.clarifier_types import ProjectPlan
+from ..prompts.clarifier_prompts import (
+    get_clarifier_output_format,
+    get_clarifier_prompt,
+)
 from .agent_routes import AgentRoute
-
-
 
 CLASSIFIER_OUTPUT = get_clarifier_output_format()
 

@@ -1,9 +1,8 @@
-from typing import List, Literal, Union, Dict, Any
+from typing import Any, Dict, List, Literal, Union
 
 from pydantic import BaseModel, Field
 
 from .common import Risk
-
 
 
 class FeasibilityConcern(BaseModel):
@@ -43,7 +42,7 @@ class FeasibleAssessment(FeasibilityAssessmentBase):
     feasible: Literal[True] = Field(
         default=True, description="Set to True when the project is considered feasible"
     )
-    
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of a feasible assessment."""
@@ -57,7 +56,7 @@ class FeasibleAssessment(FeasibilityAssessmentBase):
                     "probability": "Medium",
                     "priority": "High",
                     "mitigation_strategy": "Identify backup vendors and establish clear delivery timelines with penalties for delays",
-                    "contingency_plan": "Maintain buffer inventory and prepare alternative sourcing routes"
+                    "contingency_plan": "Maintain buffer inventory and prepare alternative sourcing routes",
                 },
                 {
                     "description": "Key technical expertise may be unavailable during implementation",
@@ -66,26 +65,26 @@ class FeasibleAssessment(FeasibilityAssessmentBase):
                     "probability": "Low",
                     "priority": "Medium",
                     "mitigation_strategy": "Cross-train team members and document knowledge sharing sessions",
-                    "contingency_plan": "Establish contracts with external consultants who can be engaged on short notice"
-                }
+                    "contingency_plan": "Establish contracts with external consultants who can be engaged on short notice",
+                },
             ],
             "assumptions": [
                 "Current infrastructure can support the increased load",
                 "Regulatory approval will be granted within 30 days of submission",
-                "The target user base has sufficient technical proficiency"
+                "The target user base has sufficient technical proficiency",
             ],
             "feasibility_concerns": [
                 {
                     "area": "Technology Integration",
                     "description": "The new system requires integration with legacy systems that have limited documentation",
-                    "recommendation": "Conduct a technical spike to assess integration complexity and allocate additional time for unexpected issues"
+                    "recommendation": "Conduct a technical spike to assess integration complexity and allocate additional time for unexpected issues",
                 },
                 {
                     "area": "Market Timing",
                     "description": "Competitor products may launch before our release date",
-                    "recommendation": "Prioritize differentiating features for initial release and accelerate go-to-market strategy"
-                }
-            ]
+                    "recommendation": "Prioritize differentiating features for initial release and accelerate go-to-market strategy",
+                },
+            ],
         }
 
 
@@ -98,7 +97,7 @@ class NotFeasibleAssessment(FeasibilityAssessmentBase):
         default_factory=list,
         description="List of critical, blocking issues with possible solutions",
     )
-    
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of a not feasible assessment."""
@@ -112,7 +111,7 @@ class NotFeasibleAssessment(FeasibilityAssessmentBase):
                     "probability": "High",
                     "priority": "High",
                     "mitigation_strategy": "Evaluate alternative technology platforms with better security profiles",
-                    "contingency_plan": "Implement additional security layers and frequent vulnerability scanning"
+                    "contingency_plan": "Implement additional security layers and frequent vulnerability scanning",
                 },
                 {
                     "description": "Budget is 40% below realistic implementation costs",
@@ -121,46 +120,47 @@ class NotFeasibleAssessment(FeasibilityAssessmentBase):
                     "probability": "High",
                     "priority": "High",
                     "mitigation_strategy": "Reduce scope or extend timeline to match available funding",
-                    "contingency_plan": "Pursue additional funding sources or phase implementation"
-                }
+                    "contingency_plan": "Pursue additional funding sources or phase implementation",
+                },
             ],
             "assumptions": [
                 "Regulatory framework will remain stable",
                 "User requirements are accurately represented in current specifications",
-                "Third-party APIs will continue to be available"
+                "Third-party APIs will continue to be available",
             ],
             "feasibility_concerns": [
                 {
                     "area": "Budget",
                     "description": "Current funding is insufficient for the proposed scope",
-                    "recommendation": "Either secure additional funding or reduce project scope by 30-40%"
+                    "recommendation": "Either secure additional funding or reduce project scope by 30-40%",
                 },
                 {
                     "area": "Timeline",
                     "description": "The requested delivery date is unrealistic given resource constraints",
-                    "recommendation": "Extend timeline by at least 3 months or increase development team size"
-                }
+                    "recommendation": "Extend timeline by at least 3 months or increase development team size",
+                },
             ],
             "dealbreakers": [
                 {
                     "description": "Critical dependency on third-party API that is being deprecated",
                     "impact": "Without this API, core functionality cannot be delivered as specified",
-                    "potential_solution": "Rebuild the required functionality in-house, adding 4-6 months to the timeline"
+                    "potential_solution": "Rebuild the required functionality in-house, adding 4-6 months to the timeline",
                 },
                 {
                     "description": "Compliance requirements cannot be met with the current technical approach",
                     "impact": "Project would violate regulatory requirements in key markets",
-                    "potential_solution": "Redesign architecture to incorporate required security and privacy controls"
-                }
-            ]
+                    "potential_solution": "Redesign architecture to incorporate required security and privacy controls",
+                },
+            ],
         }
 
 
 FeasibilityAssessment = Union[FeasibleAssessment, NotFeasibleAssessment]
 
+
 def feasibility_assessment_examples() -> Dict[str, Any]:
     """Return examples of both feasible and not feasible assessments."""
     return {
         "feasible_example": FeasibleAssessment.example(),
-        "not_feasible_example": NotFeasibleAssessment.example()
+        "not_feasible_example": NotFeasibleAssessment.example(),
     }

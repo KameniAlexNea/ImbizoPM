@@ -1,12 +1,14 @@
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-from imbizopm_agents.prompts.timeline_prompts import get_timeline_output_format, get_timeline_prompt
+from imbizopm_agents.prompts.timeline_prompts import (
+    get_timeline_output_format,
+    get_timeline_prompt,
+)
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.timeline_types import ProjectTimeline, TaskDuration
+from ..dtypes.timeline_types import ProjectTimeline
 from .agent_routes import AgentRoute
-
 
 TIMELINE_OUTPUT = get_timeline_output_format()
 

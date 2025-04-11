@@ -1,22 +1,10 @@
 import json
-from typing import Any, Dict, List, Literal, Union
-
-from pydantic import BaseModel, Field
-
-from ..prompts.risk_prompts import get_risk_prompt, get_risk_output_format
+from typing import Any, Dict
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.common import Risk
-from ..dtypes.risk_types import (
-    Dealbreaker,
-    FeasibilityAssessment,
-    FeasibilityAssessmentBase,
-    FeasibilityConcern,
-    FeasibleAssessment,
-    NotFeasibleAssessment,
-)
+from ..dtypes.risk_types import FeasibilityAssessment
+from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
 from .agent_routes import AgentRoute
-
 
 RISK_OUTPUT = get_risk_output_format()
 

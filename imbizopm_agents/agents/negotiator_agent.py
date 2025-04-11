@@ -1,14 +1,13 @@
 import json
-from typing import Any, Dict, List, Literal
-
-from pydantic import BaseModel, Field
-
-from ..prompts.negotiator_prompts import get_negotiator_prompt, get_negotiator_output_format
+from typing import Any, Dict
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.negotiator_types import ConflictResolution, NegotiationDetails
+from ..dtypes.negotiator_types import ConflictResolution
+from ..prompts.negotiator_prompts import (
+    get_negotiator_output_format,
+    get_negotiator_prompt,
+)
 from .agent_routes import AgentRoute
-
 
 NEGOCIATOR_OUTPUT = get_negotiator_output_format()
 

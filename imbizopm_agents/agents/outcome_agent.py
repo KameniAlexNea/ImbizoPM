@@ -1,12 +1,13 @@
-from typing import Any, Dict, List
-
-from ..prompts.outcome_prompts import get_outcome_output_format, get_outcome_prompt
+from typing import Any, Dict
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.outcome_types import Deliverable, ProjectSuccessCriteria
+from ..dtypes.outcome_types import ProjectSuccessCriteria
+from ..prompts.outcome_prompts import (
+    get_outcome_output_format,
+    get_outcome_prompt,
+)
 from .agent_routes import AgentRoute
 from .utils import format_list
-
 
 OUTCOME_OUTPUT = get_outcome_output_format()
 

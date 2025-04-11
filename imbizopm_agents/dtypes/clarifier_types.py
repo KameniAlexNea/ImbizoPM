@@ -15,7 +15,7 @@ class ProjectPlan(BaseModel):
         default_factory=list,
         description="A list of specific limitations or boundaries that must be respected during the project",
     )
-    
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of the ProjectPlan model."""
@@ -25,12 +25,12 @@ class ProjectPlan(BaseModel):
                 "Create a user-friendly interface that allows users to log daily activities",
                 "Implement a carbon footprint calculator that provides real-time feedback",
                 "Design a gamified reward system to incentivize sustainable behaviors",
-                "Achieve 10,000 active users within 6 months of launch"
+                "Achieve 10,000 active users within 6 months of launch",
             ],
             "constraints": [
                 "The application must be completed within a 4-month timeframe",
                 "The development budget is limited to $50,000",
                 "The app must comply with GDPR and other data privacy regulations",
-                "Must be compatible with both iOS and Android platforms"
-            ]
+                "Must be compatible with both iOS and Android platforms",
+            ],
         }
