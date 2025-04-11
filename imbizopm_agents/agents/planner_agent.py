@@ -1,16 +1,14 @@
 import json
-from typing import Any, Dict
 
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.planner_types import ProjectPlanOutput
 from ..prompts.planner_prompts import (
     get_planner_output_format,
     get_planner_prompt,
 )
-from ..agent_routes import AgentRoute, AgentDtypes
-from .utils import format_list
 
 PLANNER_OUTPUT = get_planner_output_format()
 
@@ -30,12 +28,14 @@ class PlannerAgent(BaseAgent):
         )
 
     def _prepare_input(self, state: AgentState) -> str:
-        prompt_parts = [f"""# Clarifier Agent
+        prompt_parts = [
+            f"""# Clarifier Agent
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
 # Outcome Agent
 {dumps_to_yaml(state[AgentRoute.OutcomeAgent], indent=2)}
-"""]
+"""
+        ]
         # Check for negotiation details from NegotiatorAgent
         flag = False
         if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
@@ -54,7 +54,7 @@ class PlannerAgent(BaseAgent):
             )
             state["warn_errors"].pop("dealbreakers")
             flag = True
-        
+
         # Check for validation details from ValidatorAgent
         if state.get("forward") == AgentRoute.ValidatorAgent:
             prompt_parts.append(f"Some issues were raised during validation.")
@@ -63,7 +63,7 @@ class PlannerAgent(BaseAgent):
             )
             state["validation"] = dict()
             flag = True
-        
+
         if flag:
             prompt_parts.append(
                 f"Previous plan with issue:\n{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}"
@@ -73,7 +73,9 @@ class PlannerAgent(BaseAgent):
 
         return "\n".join(prompt_parts)
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.PlannerAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.PlannerAgent
+    ) -> AgentState:
         state["forward"] = (
             AgentRoute.ClarifierAgent
             if result.too_vague and result.vague_details.unclear_aspects

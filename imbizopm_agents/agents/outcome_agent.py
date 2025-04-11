@@ -1,15 +1,12 @@
-from typing import Any, Dict
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent, AgentDtypes
+from ..agent_routes import AgentRoute
+from ..base_agent import AgentDtypes, AgentState, BaseAgent
 from ..dtypes.outcome_types import ProjectSuccessCriteria
 from ..prompts.outcome_prompts import (
     get_outcome_output_format,
     get_outcome_prompt,
 )
-from ..agent_routes import AgentRoute
-from .utils import format_list
 
 
 class OutcomeAgent(BaseAgent):
@@ -30,10 +27,14 @@ class OutcomeAgent(BaseAgent):
 
 Define success metrics and deliverables."""
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.OutcomeAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.OutcomeAgent
+    ) -> AgentState:
         # Determine next step based on presence of outcomes
         state["forward"] = (
-            AgentRoute.PlannerAgent if result.success_metrics else AgentRoute.ClarifierAgent
+            AgentRoute.PlannerAgent
+            if result.success_metrics
+            else AgentRoute.ClarifierAgent
         )
         state["backward"] = AgentRoute.OutcomeAgent
 

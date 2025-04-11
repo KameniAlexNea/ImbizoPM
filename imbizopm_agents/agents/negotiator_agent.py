@@ -1,15 +1,12 @@
-import json
-from typing import Any, Dict
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.negotiator_types import ConflictResolution
 from ..prompts.negotiator_prompts import (
     get_negotiator_output_format,
     get_negotiator_prompt,
 )
-from ..agent_routes import AgentDtypes, AgentRoute
 
 
 class NegotiatorAgent(BaseAgent):
@@ -43,7 +40,9 @@ class NegotiatorAgent(BaseAgent):
 
 Consider the main idea, plan and scope. Identify any conflicts or inconsistencies between them."""
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.NegotiatorAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.NegotiatorAgent
+    ) -> AgentState:
         # Store negotiation details in scope dictionary
         if result.negotiation_details.proposed_solutions:
             if "warn_errors" not in state:

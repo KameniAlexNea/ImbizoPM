@@ -1,15 +1,12 @@
-import json
-from typing import Any, Dict
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.validator_types import PlanValidation
 from ..prompts.validator_prompts import (
     get_validator_output_format,
     get_validator_prompt,
 )
-from ..agent_routes import AgentDtypes, AgentRoute
 
 
 class ValidatorAgent(BaseAgent):
@@ -35,7 +32,9 @@ class ValidatorAgent(BaseAgent):
 
 Validate alignment between the idea, goals, and the resulting plan. Stricly output only the JSON, to the appropriate format."""
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.ValidatorAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.ValidatorAgent
+    ) -> AgentState:
         # Check validation result
         state["forward"] = (
             AgentRoute.PMAdapterAgent

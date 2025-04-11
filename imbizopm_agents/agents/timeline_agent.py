@@ -1,15 +1,12 @@
-import json
-from typing import Any, Dict
-
 from imbizopm_agents.prompts.timeline_prompts import (
     get_timeline_output_format,
     get_timeline_prompt,
 )
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.timeline_types import ProjectTimeline
-from ..agent_routes import AgentDtypes, AgentRoute
 
 TIMELINE_OUTPUT = get_timeline_output_format()
 
@@ -37,7 +34,9 @@ Tasks:
 
 Estimate timeline with milestones and critical path."""
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.TimelineAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.TimelineAgent
+    ) -> AgentState:
         state["forward"] = AgentRoute.RiskAgent
         state["backward"] = AgentRoute.TimelineAgent
         return state

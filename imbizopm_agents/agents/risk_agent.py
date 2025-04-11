@@ -1,12 +1,9 @@
-import json
-from typing import Any, Dict
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent, AgentDtypes
+from ..agent_routes import AgentRoute
+from ..base_agent import AgentDtypes, AgentState, BaseAgent
 from ..dtypes.risk_types import FeasibilityAssessment
 from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
-from ..agent_routes import AgentRoute
 
 RISK_OUTPUT = get_risk_output_format()
 
@@ -40,7 +37,9 @@ class RiskAgent(BaseAgent):
 
 Assess risks and overall feasibility. You should output a JSON format"""
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.RiskAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.RiskAgent
+    ) -> AgentState:
         if "warn_errors" not in state:
             state["warn_errors"] = {}
         state["warn_errors"]["dealbreakers"] = result.result.dealbreakers

@@ -1,16 +1,14 @@
-import json
 from typing import Any, Dict
 
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.pm_adapter_types import ProjectSummary
 from ..prompts.pm_adapter_prompts import (
     get_pm_adapter_output_format,
     get_pm_adapter_prompt,
 )
-from ..utils import format_project_plan_for_export
-from ..agent_routes import AgentRoute
 
 
 class PMAdapterAgent(BaseAgent):

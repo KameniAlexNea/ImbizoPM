@@ -1,15 +1,13 @@
-import json
-from typing import Any, Dict
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.taskifier_types import TaskPlan
 from ..prompts.taskifier_prompts import (
     get_taskifier_output_format,
     get_taskifier_prompt,
 )
-from ..agent_routes import AgentDtypes, AgentRoute
+
 
 class TaskifierAgent(BaseAgent):
     """Agent that produces detailed tasks with owners and dependencies."""
@@ -35,7 +33,9 @@ class TaskifierAgent(BaseAgent):
 
 Break into detailed tasks with effort, roles, and dependencies."""
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.TaskifierAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.TaskifierAgent
+    ) -> AgentState:
         tasks = result.result.tasks
 
         # If missing info, store feedback in the tasks structure

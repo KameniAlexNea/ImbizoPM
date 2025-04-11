@@ -1,16 +1,12 @@
-import json
-from typing import Any, Dict
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.scoper_types import ScopeDefinition
 from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
 )
-from ..agent_routes import AgentDtypes, AgentRoute
-from .utils import format_list
 
 
 class ScoperAgent(BaseAgent):
@@ -26,12 +22,14 @@ class ScoperAgent(BaseAgent):
         )
 
     def _prepare_input(self, state: AgentState) -> str:
-        prompt_parts = [f"""# Clarifier Agent
+        prompt_parts = [
+            f"""# Clarifier Agent
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
 # Planner Agent
 {dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
-"""]
+"""
+        ]
 
         # Check for negotiation details from NegotiatorAgent
         if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
@@ -48,7 +46,9 @@ class ScoperAgent(BaseAgent):
 
         return "\n".join(prompt_parts)
 
-    def _process_result(self, state: AgentState, result: AgentDtypes.ScoperAgent) -> AgentState:
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.ScoperAgent
+    ) -> AgentState:
         if result.result.overload:
             state["scope"]["overload"] = result.result.overload_details
         state["forward"] = (
