@@ -9,7 +9,7 @@ def get_validator_output_format() -> str:
 
 def get_validator_prompt() -> str:
     """Return the system prompt for the validator agent."""
-    get_validator_output_format()
+    output_format = get_validator_output_format()
     return f"""You are the Validator Agent. Your job is to verify that the final project plan aligns with the original goals, respects all constraints, and will deliver the expected outcomes.
 
 PROCESS:
@@ -26,4 +26,4 @@ GUIDELINES:
 - Look for logical inconsistencies or missing components
 - Consider the project from stakeholder perspectives
 
-{{output_format}}"""
+{output_format}"""

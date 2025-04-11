@@ -1,6 +1,7 @@
 from ..dtypes.clarifier_types import ProjectPlan
 from .utils import prepare_output
 
+
 def get_clarifier_output_format() -> str:
     """Return the output format for the clarifier agent."""
     return prepare_output(ProjectPlan.example())
