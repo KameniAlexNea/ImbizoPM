@@ -4,6 +4,13 @@ from typing import Any, Dict, List, Literal, Union
 from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
+from ..dtypes.taskifier_types import (
+    MissingInfoDetails,
+    Task,
+    TaskPlan,
+    TaskPlanComplete,
+    TaskPlanMissingInfo,
+)
 from .agent_routes import AgentRoute
 
 

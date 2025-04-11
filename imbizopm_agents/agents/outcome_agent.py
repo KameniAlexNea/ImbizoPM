@@ -1,28 +1,9 @@
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, Field
-
 from ..base_agent import AgentState, BaseAgent
+from ..dtypes.outcome_types import Deliverable, ProjectSuccessCriteria
 from .agent_routes import AgentRoute
 from .utils import format_list
-
-
-class Deliverable(BaseModel):
-    name: str = Field(description="Clear name of the deliverable")
-    description: str = Field(
-        description="Detailed description of what this deliverable includes"
-    )
-
-
-class ProjectSuccessCriteria(BaseModel):
-    success_metrics: List[str] = Field(
-        default_factory=list,
-        description="List of specific measurements that indicate goal achievement (e.g., target value, method of measurement)",
-    )
-    deliverables: List[Deliverable] = Field(
-        default_factory=list,
-        description="List of key deliverables, each defined by a name and detailed description",
-    )
 
 
 OUTCOME_OUTPUT = """OUTPUT FORMAT:

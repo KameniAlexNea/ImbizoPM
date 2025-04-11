@@ -4,80 +4,16 @@ from typing import Any, Dict, List, Literal, Union
 from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
+from ..dtypes.common import Risk
+from ..dtypes.risk_types import (
+    Dealbreaker,
+    FeasibilityAssessment,
+    FeasibilityAssessmentBase,
+    FeasibilityConcern,
+    FeasibleAssessment,
+    NotFeasibleAssessment,
+)
 from .agent_routes import AgentRoute
-
-
-class Risk(BaseModel):
-    description: str = Field(description="Detailed description of the risk")
-    category: Literal[
-        "Technical", "Resource", "Timeline", "External", "Stakeholder"
-    ] = Field(description="Category of the risk")
-    impact: Literal["High", "Medium", "Low"] = Field(
-        description="Impact level if the risk materializes"
-    )
-    probability: Literal["High", "Medium", "Low"] = Field(
-        description="Likelihood of the risk occurring"
-    )
-    priority: Literal["High", "Medium", "Low"] = Field(
-        description="Risk priority based on impact and probability"
-    )
-    mitigation_strategy: str = Field(
-        description="Specific actions to reduce or prevent the risk"
-    )
-    contingency_plan: str = Field(description="Backup plan if the risk actually occurs")
-
-
-class FeasibilityConcern(BaseModel):
-    area: str = Field(
-        description="Specific area of concern (e.g., funding, technology, regulations)"
-    )
-    description: str = Field(
-        description="Detailed explanation of why this area is a concern"
-    )
-    recommendation: str = Field(description="Suggested actions to address the concern")
-
-
-class Dealbreaker(BaseModel):
-    description: str = Field(description="Critical issue making the project unfeasible")
-    impact: str = Field(
-        description="Explanation of how this issue threatens feasibility"
-    )
-    potential_solution: str = Field(description="Proposed workaround or fix, if any")
-
-
-class FeasibilityAssessmentBase(BaseModel):
-    risks: List[Risk] = Field(
-        default_factory=list,
-        description="List of identified risks with mitigation and contingency strategies",
-    )
-    assumptions: List[str] = Field(
-        default_factory=list,
-        description="List of critical assumptions underlying the feasibility analysis",
-    )
-    feasibility_concerns: List[FeasibilityConcern] = Field(
-        default_factory=list,
-        description="Areas that may threaten feasibility along with recommendations",
-    )
-
-
-class FeasibleAssessment(FeasibilityAssessmentBase):
-    feasible: Literal[True] = Field(
-        default=True, description="Set to True when the project is considered feasible"
-    )
-
-
-class NotFeasibleAssessment(FeasibilityAssessmentBase):
-    feasible: Literal[False] = Field(
-        default=False,
-        description="Set to False when the project is currently not feasible",
-    )
-    dealbreakers: List[Dealbreaker] = Field(
-        default_factory=list,
-        description="List of critical, blocking issues with possible solutions",
-    )
-
-
-FeasibilityAssessment = Union[FeasibleAssessment, NotFeasibleAssessment]
 
 
 RISK_OUTPUT = """OUTPUT FORMAT:

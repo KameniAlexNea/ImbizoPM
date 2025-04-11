@@ -6,6 +6,13 @@ from pydantic import BaseModel, Field
 from ..base_agent import AgentState, BaseAgent
 from ..utils import format_project_plan_for_export
 from .agent_routes import AgentRoute
+from ..dtypes.pm_adapter_types import (
+    Milestone,
+    PMToolExport,
+    ProjectOverview,
+    ProjectSummary,
+    ResourceRequirement,
+)
 
 
 class ProjectOverview(BaseModel):

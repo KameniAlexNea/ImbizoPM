@@ -5,6 +5,7 @@ from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
+from ..dtypes.clarifier_types import ProjectPlan
 from .agent_routes import AgentRoute
 
 
