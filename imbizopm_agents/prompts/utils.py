@@ -9,7 +9,7 @@ def prepare_output(data: dict, union=False):
     # Convert the data to a JSON string
     json_data = ""
     if union:
-        raws = [f"For {k}: \n {json.dumps({"result": v}, indent=2)}" for k, v in data.items()]
+        raws = [f"For {k}: \n {json.dumps({'result': v}, indent=2)}" for k, v in data.items()]
         json_data = "\n".join(raws)
     else:
         json_data = json.dumps(data, indent=2)
