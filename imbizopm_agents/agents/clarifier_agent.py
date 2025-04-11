@@ -9,7 +9,7 @@ from ..prompts.clarifier_prompts import (
     get_clarifier_output_format,
     get_clarifier_prompt,
 )
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 
 CLASSIFIER_OUTPUT = get_clarifier_output_format()
 

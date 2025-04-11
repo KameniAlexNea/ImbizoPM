@@ -6,7 +6,7 @@ from ..prompts.outcome_prompts import (
     get_outcome_output_format,
     get_outcome_prompt,
 )
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 from .utils import format_list
 
 OUTCOME_OUTPUT = get_outcome_output_format()

@@ -7,7 +7,7 @@ from ..prompts.taskifier_prompts import (
     get_taskifier_output_format,
     get_taskifier_prompt,
 )
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 
 TASKIFIER_OUTPUT = get_taskifier_output_format()
 

@@ -20,6 +20,7 @@ from imbizopm_agents.dtypes.taskifier_types import TaskPlan
 from imbizopm_agents.dtypes.timeline_types import ProjectTimeline
 from imbizopm_agents.dtypes.validator_types import PlanValidation
 from imbizopm_agents.utils import extract_structured_data
+from .agent_routes import AgentDtypes
 
 
 class AgentState(TypedDict):
@@ -47,16 +48,16 @@ class AgentState(TypedDict):
     prev: str
     warn_errors: dict[str, Any]
     routes: Annotated[list[str], add_messages]
-    ClarifierAgent: ProjectPlan
-    OutcomeAgent: ProjectSuccessCriteria
-    PlannerAgent: ProjectPlanOutput
-    ScoperAgent: ScopeDefinition
-    TaskifierAgent: TaskPlan
-    TimelineAgent: ProjectTimeline
-    RiskAgent: FeasibilityAssessment
-    ValidatorAgent: PlanValidation
-    PMAdapterAgent: ProjectSummary
-    NegotiatorAgent: ConflictResolution
+    ClarifierAgent: AgentDtypes.ClarifierAgent
+    OutcomeAgent: AgentDtypes.OutcomeAgent
+    PlannerAgent: AgentDtypes.PlannerAgent
+    ScoperAgent: AgentDtypes.ScoperAgent
+    TaskifierAgent: AgentDtypes.TaskifierAgent
+    TimelineAgent: AgentDtypes.TimelineAgent
+    RiskAgent: AgentDtypes.RiskAgent
+    ValidatorAgent: AgentDtypes.ValidatorAgent
+    PMAdapterAgent: AgentDtypes.PMAdapterAgent
+    NegotiatorAgent: AgentDtypes.NegotiatorAgent
 
 
 class BaseAgent:
@@ -99,9 +100,7 @@ class BaseAgent:
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
         if self.structured_output:
-            content: BaseModel = raw_output["structured_response"]
-            logger.debug(f"Structured output: {content}")
-            parsed_content = content.model_dump()
+            parsed_content: BaseModel = raw_output["structured_response"]
         else:
             parsed_content = extract_structured_data(raw_output["messages"][-1].content)
         if "error" in parsed_content:

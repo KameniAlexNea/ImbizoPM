@@ -8,7 +8,7 @@ from ..prompts.pm_adapter_prompts import (
     get_pm_adapter_prompt,
 )
 from ..utils import format_project_plan_for_export
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 
 PM_ADAPTER_OUTPUT = get_pm_adapter_output_format()
 

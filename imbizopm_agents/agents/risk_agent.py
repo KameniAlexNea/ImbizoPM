@@ -4,7 +4,7 @@ from typing import Any, Dict
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.risk_types import FeasibilityAssessment
 from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 
 RISK_OUTPUT = get_risk_output_format()
 

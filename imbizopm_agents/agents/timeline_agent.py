@@ -8,7 +8,7 @@ from imbizopm_agents.prompts.timeline_prompts import (
 
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.timeline_types import ProjectTimeline
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 
 TIMELINE_OUTPUT = get_timeline_output_format()
 

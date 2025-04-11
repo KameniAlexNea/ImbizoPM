@@ -7,7 +7,7 @@ from ..prompts.negotiator_prompts import (
     get_negotiator_output_format,
     get_negotiator_prompt,
 )
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 
 NEGOCIATOR_OUTPUT = get_negotiator_output_format()
 

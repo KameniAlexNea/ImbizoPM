@@ -7,7 +7,7 @@ from ..prompts.planner_prompts import (
     get_planner_output_format,
     get_planner_prompt,
 )
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 from .utils import format_list
 
 PLANNER_OUTPUT = get_planner_output_format()

@@ -7,7 +7,7 @@ from ..prompts.validator_prompts import (
     get_validator_output_format,
     get_validator_prompt,
 )
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 
 
 class ValidatorAgent(BaseAgent):

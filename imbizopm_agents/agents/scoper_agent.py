@@ -7,7 +7,7 @@ from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
 )
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 from .utils import format_list
 
 SCOPER_OUTPUT = get_scoper_output_format()

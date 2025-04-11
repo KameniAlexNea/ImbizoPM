@@ -1,4 +1,4 @@
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
 from .clarifier_agent import ClarifierAgent
 from .negotiator_agent import NegotiatorAgent
 from .outcome_agent import OutcomeAgent
