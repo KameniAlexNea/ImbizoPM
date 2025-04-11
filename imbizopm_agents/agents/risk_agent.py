@@ -16,7 +16,7 @@ class RiskAgent(BaseAgent):
     def __init__(self, llm, use_structured_output: bool = False):
         super().__init__(
             llm,
-            "Risk",
+            AgentRoute.RiskAgent,
             RISK_PROMPT,
             RISK_OUTPUT,
             FeasibilityAssessment if use_structured_output else None,

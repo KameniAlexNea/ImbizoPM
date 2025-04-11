@@ -53,11 +53,11 @@ class BaseAgent:
         self.system_prompt = system_prompt
         self.format_prompt = format_prompt
         self.agent: CompiledGraph = None
-        if self.structured_output:
-            self.system_prompt = self.system_prompt.replace(
-                self.format_prompt,
-                "Your output should follow exactly the schema provided in the format prompt.",
-            ).strip()
+        # if self.structured_output:
+        #     self.system_prompt = self.system_prompt.replace(
+        #         self.format_prompt,
+        #         "Your output should follow exactly the schema provided in the format prompt.",
+        #     ).strip()
         self._build_agent()
 
     def _build_agent(self):
@@ -87,12 +87,13 @@ class BaseAgent:
             if "error" in parsed_content:
                 raise ValueError(f"Failed to parse output again: {self.name}")
         model_name: BaseModel = getattr(AgentDtypes, self.name)
-        return model_name.model_validate(extract_structured_data(parsed_content))
+        return model_name.model_validate(parsed_content)
 
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
         if self.structured_output:
             parsed_content: BaseModel = raw_output["structured_response"]
+            logger.debug(parsed_content)
         else:
             parsed_content = self._parse_content(raw_output["messages"][-1].content)
         state["messages"] = raw_output["messages"]

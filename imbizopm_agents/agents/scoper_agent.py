@@ -50,6 +50,8 @@ class ScoperAgent(BaseAgent):
         self, state: AgentState, result: AgentDtypes.ScoperAgent
     ) -> AgentState:
         if result.result.overload:
+            if "scope" not in state:
+                state["scope"] = {}
             state["scope"]["overload"] = result.result.overload_details
         state["forward"] = (
             AgentRoute.NegotiatorAgent

@@ -21,6 +21,7 @@ def create_project_planning_graph(
     llm: BaseChatModel,
     graph_config: Optional[Dict[str, Dict]] = DEFAULT_GRAPH_CONFIG,
     use_checkpointing: bool = True,
+    use_structured_output: bool = True,
 ) -> CompiledGraph:
     """
     Create the project planning graph with all agents and their connections.
@@ -46,9 +47,9 @@ def create_project_planning_graph(
     for node_name, node_config in config["nodes"].items():
         # Create and add agent nodes
         agent_class: Type[BaseAgent] = node_config["agent_class"]
-        agent = agent_class(llm, use_structured_output=True)
+        agent = agent_class(llm, use_structured_output=use_structured_output)
         # agents[node_name] = agent
-        workflow.add_node(node_name + NodeSuffix, agent.run)
+        workflow.add_node(update_name(node_name), agent.run)
 
     # Define the conditional routing logic
     def route_next(state: AgentState) -> str:

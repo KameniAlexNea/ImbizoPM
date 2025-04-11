@@ -15,7 +15,7 @@ class ValidatorAgent(BaseAgent):
     def __init__(self, llm, use_structured_output: bool = False):
         super().__init__(
             llm,
-            "Validator",
+            AgentRoute.ValidatorAgent,
             get_validator_prompt(),
             get_validator_output_format(),
             PlanValidation if use_structured_output else None,

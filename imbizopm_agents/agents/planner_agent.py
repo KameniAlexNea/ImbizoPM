@@ -21,7 +21,7 @@ class PlannerAgent(BaseAgent):
     def __init__(self, llm, use_structured_output: bool = False):
         super().__init__(
             llm,
-            "Planner",
+            AgentRoute.PlannerAgent,
             PLANNER_PROMPT,
             PLANNER_OUTPUT,
             ProjectPlanOutput if use_structured_output else None,
