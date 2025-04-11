@@ -1,6 +1,7 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Union
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
@@ -8,8 +9,7 @@ from .agent_routes import AgentRoute
 # Risk and feasibility-related dataclasses
 
 
-@dataclass
-class Risk:
+class Risk(BaseModel):
     description: str
     category: Literal["Technical", "Resource", "Timeline", "External", "Stakeholder"]
     impact: Literal["High", "Medium", "Low"]
@@ -19,39 +19,40 @@ class Risk:
     contingency_plan: str
 
 
-@dataclass
-class FeasibilityConcern:
+class FeasibilityConcern(BaseModel):
     area: str
     description: str
     recommendation: str
 
 
-@dataclass
-class Dealbreaker:
+class Dealbreaker(BaseModel):
     description: str
     impact: str
     potential_solution: str
 
 
 # Base class (used for typing clarity, not strictly necessary)
-@dataclass
-class FeasibilityAssessmentBase:
-    risks: List[Risk] = field(default_factory=list)
-    assumptions: List[str] = field(default_factory=list)
-    feasibility_concerns: List[FeasibilityConcern] = field(default_factory=list)
+
+
+class FeasibilityAssessmentBase(BaseModel):
+    risks: List[Risk] = Field(default_factory=list)
+    assumptions: List[str] = Field(default_factory=list)
+    feasibility_concerns: List[FeasibilityConcern] = Field(default_factory=list)
 
 
 # Feasible case
-@dataclass
+
+
 class FeasibleAssessment(FeasibilityAssessmentBase):
     feasible: Literal[True] = True
 
 
 # Not feasible case
-@dataclass
+
+
 class NotFeasibleAssessment(FeasibilityAssessmentBase):
     feasible: Literal[False] = False
-    dealbreakers: List[Dealbreaker] = field(default_factory=list)
+    dealbreakers: List[Dealbreaker] = Field(default_factory=list)
 
 
 # Union type if you'd like to work with either

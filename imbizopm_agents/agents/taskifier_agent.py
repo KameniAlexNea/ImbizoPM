@@ -1,13 +1,13 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Union
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
 
-@dataclass
-class Task:
+class Task(BaseModel):
     id: str
     name: str
     description: str
@@ -16,30 +16,31 @@ class Task:
     estimated_effort: Literal["Low", "Medium", "High"]
     epic: str
     phase: str
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class MissingInfoDetails:
-    unclear_aspects: List[str] = field(default_factory=list)
-    questions: List[str] = field(default_factory=list)
-    suggestions: List[str] = field(default_factory=list)
+class MissingInfoDetails(BaseModel):
+    unclear_aspects: List[str] = Field(default_factory=list)
+    questions: List[str] = Field(default_factory=list)
+    suggestions: List[str] = Field(default_factory=list)
 
 
 # For when all task info is available
-@dataclass
-class TaskPlanComplete:
-    tasks: List[Task] = field(default_factory=list)
+
+
+class TaskPlanComplete(BaseModel):
+    tasks: List[Task] = Field(default_factory=list)
     missing_info: Literal[False] = False
-    missing_info_details: MissingInfoDetails = field(default_factory=MissingInfoDetails)
+    missing_info_details: MissingInfoDetails = Field(default_factory=MissingInfoDetails)
 
 
 # For when critical task info is missing
-@dataclass
-class TaskPlanMissingInfo:
+
+
+class TaskPlanMissingInfo(BaseModel):
     missing_info_details: MissingInfoDetails
     missing_info: Literal[True] = True
-    tasks: List[Task] = field(default_factory=list)  # Will remain empty
+    tasks: List[Task] = Field(default_factory=list)  # Will remain empty
 
 
 # Unified type

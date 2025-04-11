@@ -1,47 +1,48 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Union
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
 
 
-@dataclass
-class MVPScope:
-    features: List[str] = field(default_factory=list)
-    user_stories: List[str] = field(default_factory=list)
+class MVPScope(BaseModel):
+    features: List[str] = Field(default_factory=list)
+    user_stories: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class Phase:
+class Phase(BaseModel):
     phase: str
     description: str
 
 
-@dataclass
-class OverloadDetails:
-    problem_areas: List[str] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
+class OverloadDetails(BaseModel):
+    problem_areas: List[str] = Field(default_factory=list)
+    recommendations: List[str] = Field(default_factory=list)
 
 
 # Base class for shared fields
-@dataclass
-class ScopeDefinitionBase:
+
+
+class ScopeDefinitionBase(BaseModel):
     mvp_scope: MVPScope
-    scope_exclusions: List[str] = field(default_factory=list)
-    phased_approach: List[Phase] = field(default_factory=list)
-    overload_details: OverloadDetails = field(default_factory=OverloadDetails)
+    scope_exclusions: List[str] = Field(default_factory=list)
+    phased_approach: List[Phase] = Field(default_factory=list)
+    overload_details: OverloadDetails = Field(default_factory=OverloadDetails)
 
 
 # Feasible scope (no overload)
-@dataclass
+
+
 class NoScopeOverload(ScopeDefinitionBase):
     overload: Literal[False] = False
 
 
 # Overloaded scope
-@dataclass
+
+
 class ScopeOverload(ScopeDefinitionBase):
     overload: Literal[True] = True
 

@@ -1,46 +1,42 @@
 import json  # Add import for json module
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
 
-@dataclass
-class GoalAlignment:
+class GoalAlignment(BaseModel):
     aligned: Literal["Yes", "Partial", "No"]  # "Yes", "Partial", "No"
     evidence: str
     gaps: str
 
 
-@dataclass
-class ConstraintRespect:
+class ConstraintRespect(BaseModel):
     respected: Literal["Yes", "Partial", "No"]  # "Yes", "Partial", "No"
     evidence: str
     concerns: str
 
 
-@dataclass
-class OutcomeAchievability:
+class OutcomeAchievability(BaseModel):
     achievable: Literal["Yes", "Partial", "No"]  # "Yes", "Partial", "No"
     evidence: str
     risks: str
 
 
-@dataclass
-class CompletenessAssessment:
-    missing_elements: List[str] = field(default_factory=list)
-    improvement_suggestions: List[str] = field(default_factory=list)
+class CompletenessAssessment(BaseModel):
+    missing_elements: List[str] = Field(default_factory=list)
+    improvement_suggestions: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class PlanValidation:
+class PlanValidation(BaseModel):
     overall_validation: bool
     alignment_score: str  # e.g., "87%"
-    goals_alignment: Dict[str, GoalAlignment] = field(default_factory=dict)
-    constraints_respected: Dict[str, ConstraintRespect] = field(default_factory=dict)
-    outcomes_achievable: Dict[str, OutcomeAchievability] = field(default_factory=dict)
-    completeness_assessment: CompletenessAssessment = field(
+    goals_alignment: Dict[str, GoalAlignment] = Field(default_factory=dict)
+    constraints_respected: Dict[str, ConstraintRespect] = Field(default_factory=dict)
+    outcomes_achievable: Dict[str, OutcomeAchievability] = Field(default_factory=dict)
+    completeness_assessment: CompletenessAssessment = Field(
         default_factory=CompletenessAssessment
     )
 

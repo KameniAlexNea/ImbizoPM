@@ -1,21 +1,20 @@
-from dataclasses import dataclass, field
 from typing import Any, Dict, List
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
 
 
-@dataclass
-class Deliverable:
+class Deliverable(BaseModel):
     name: str
     description: str
 
 
-@dataclass
-class ProjectSuccessCriteria:
-    success_metrics: List[str] = field(default_factory=list)
-    deliverables: List[Deliverable] = field(default_factory=list)
+class ProjectSuccessCriteria(BaseModel):
+    success_metrics: List[str] = Field(default_factory=list)
+    deliverables: List[Deliverable] = Field(default_factory=list)
 
 
 OUTCOME_OUTPUT = """OUTPUT FORMAT:

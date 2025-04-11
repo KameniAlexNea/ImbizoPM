@@ -1,32 +1,30 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 from .utils import format_list
 
 
-@dataclass
-class NamedDescription:
+class NamedDescription(BaseModel):
     name: str
     description: str
 
 
-@dataclass
-class VagueDetails:
-    unclear_aspects: List[str] = field(default_factory=list)
-    questions: List[str] = field(default_factory=list)
-    suggestions: List[str] = field(default_factory=list)
+class VagueDetails(BaseModel):
+    unclear_aspects: List[str] = Field(default_factory=list)
+    questions: List[str] = Field(default_factory=list)
+    suggestions: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class ProjectPlanOutput:
+class ProjectPlanOutput(BaseModel):
     too_vague: bool
-    vague_details: VagueDetails = field(default_factory=VagueDetails)
-    phases: List[NamedDescription] = field(default_factory=list)
-    epics: List[NamedDescription] = field(default_factory=list)
-    strategies: List[NamedDescription] = field(default_factory=list)
+    vague_details: VagueDetails = Field(default_factory=VagueDetails)
+    phases: List[NamedDescription] = Field(default_factory=list)
+    epics: List[NamedDescription] = Field(default_factory=list)
+    strategies: List[NamedDescription] = Field(default_factory=list)
 
 
 PLANNER_OUTPUT = """OUTPUT FORMAT:

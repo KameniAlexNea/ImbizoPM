@@ -1,26 +1,25 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
 
-@dataclass
-class TaskDuration:
+class TaskDuration(BaseModel):
     start: str  # e.g., "T+0"
     end: str  # e.g., "T+2"
 
 
-@dataclass
-class ProjectTimeline:
-    task_durations: Dict[str, TaskDuration] = field(
+class ProjectTimeline(BaseModel):
+    task_durations: Dict[str, TaskDuration] = Field(
         default_factory=dict
     )  # key: task ID
-    milestones: List[str] = field(
+    milestones: List[str] = Field(
         default_factory=list
     )  # e.g., ["M1: Repo Initialized"]
-    critical_path: List[str] = field(default_factory=list)  # e.g., ["T1", "T5", "T7"]
+    critical_path: List[str] = Field(default_factory=list)  # e.g., ["T1", "T5", "T7"]
 
 
 TIMELINE_OUTPUT = """OUTPUT FORMAT:

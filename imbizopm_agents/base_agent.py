@@ -46,7 +46,9 @@ class BaseAgent:
     ):
         self.name = name
         self.description = description
-        self.llm = llm if model_class is None else llm.with_structured_output(llm)
+        self.llm = (
+            llm if model_class is None else llm.with_structured_output(model_class)
+        )
         self.structured_output = model_class is not None
         self.system_prompt = system_prompt
         self.format_prompt = format_prompt

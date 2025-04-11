@@ -1,20 +1,19 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
 
-@dataclass
-class NegotiationDetails:
-    issues: List[str] = field(default_factory=list)
-    proposed_solutions: List[str] = field(default_factory=list)
-    priorities: List[str] = field(default_factory=list)
+class NegotiationDetails(BaseModel):
+    issues: List[str] = Field(default_factory=list)
+    proposed_solutions: List[str] = Field(default_factory=list)
+    priorities: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class ConflictResolution:
+class ConflictResolution(BaseModel):
     conflict_area: Literal["scope", "plan"]
     negotiation_details: NegotiationDetails
 

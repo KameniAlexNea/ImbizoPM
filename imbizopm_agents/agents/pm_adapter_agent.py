@@ -1,37 +1,34 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal
+
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from ..utils import format_project_plan_for_export
 from .agent_routes import AgentRoute
 
 
-@dataclass
-class ProjectOverview:
+class ProjectOverview(BaseModel):
     name: str
     description: str
     timeline: str
-    objectives: List[str] = field(default_factory=list)
-    key_stakeholders: List[str] = field(default_factory=list)
+    objectives: List[str] = Field(default_factory=list)
+    key_stakeholders: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class Milestone:
+class Milestone(BaseModel):
     name: str
     date: str
-    deliverables: List[str] = field(default_factory=list)
+    deliverables: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class ResourceRequirement:
+class ResourceRequirement(BaseModel):
     role: str
     allocation: str
-    skills: List[str] = field(default_factory=list)
+    skills: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class Risk:
+class Risk(BaseModel):
     description: str
     impact: Literal[
         "High", "Medium", "Low"
@@ -39,23 +36,21 @@ class Risk:
     mitigation: str
 
 
-@dataclass
 class PMToolExport:
-    tasks: List[Any] = field(default_factory=list)
-    milestones: List[Any] = field(default_factory=list)
-    dependencies: List[Any] = field(default_factory=list)
-    resources: List[Any] = field(default_factory=list)
+    tasks: List[Any] = Field(default_factory=list)
+    milestones: List[Any] = Field(default_factory=list)
+    dependencies: List[Any] = Field(default_factory=list)
+    resources: List[Any] = Field(default_factory=list)
 
 
-@dataclass
 class ProjectSummary:
     executive_summary: str
     project_overview: ProjectOverview
-    key_milestones: List[Milestone] = field(default_factory=list)
-    resource_requirements: List[ResourceRequirement] = field(default_factory=list)
-    top_risks: List[Risk] = field(default_factory=list)
-    next_steps: List[str] = field(default_factory=list)
-    pm_tool_export: PMToolExport = field(default_factory=PMToolExport)
+    key_milestones: List[Milestone] = Field(default_factory=list)
+    resource_requirements: List[ResourceRequirement] = Field(default_factory=list)
+    top_risks: List[Risk] = Field(default_factory=list)
+    next_steps: List[str] = Field(default_factory=list)
+    pm_tool_export: PMToolExport = Field(default_factory=PMToolExport)
 
 
 PM_ADAPTER_OUTPUT = """OUTPUT FORMAT:

@@ -1,18 +1,17 @@
 import json
-from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
 from langchain_core.language_models import BaseChatModel
+from pydantic import BaseModel, Field
 
 from ..base_agent import AgentState, BaseAgent
 from .agent_routes import AgentRoute
 
 
-@dataclass
-class ProjectPlan:
+class ProjectPlan(BaseModel):
     refined_idea: str
-    goals: List[str] = field(default_factory=list)
-    constraints: List[str] = field(default_factory=list)
+    goals: List[str] = Field(default_factory=list)
+    constraints: List[str] = Field(default_factory=list)
 
 
 CLASSIFIER_OUTPUT = """Your output should be structured as follows:
