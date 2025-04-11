@@ -20,8 +20,8 @@ def prepare_output(data: dict, union=False):
 {output}"""
 
 
-def dumps_to_yaml(data: Union[dict, BaseModel]) -> str:
+def dumps_to_yaml(data: Union[dict, BaseModel], indent=2) -> str:
     # Convert a dictionary to a YAML string
     if isinstance(data, BaseModel):
         data = data.model_dump()
-    return yaml.dump(data, default_flow_style=False, allow_unicode=True, indent=2)
+    return yaml.dump(data, default_flow_style=False, allow_unicode=True, indent=indent)

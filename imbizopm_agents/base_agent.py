@@ -45,7 +45,8 @@ class AgentState(TypedDict):
 
 class AgentState(TypedDict):
     start: str
-    prev: str
+    backward: str
+    forward: str
     warn_errors: dict[str, Any]
     routes: Annotated[list[str], add_messages]
     ClarifierAgent: AgentDtypes.ClarifierAgent
@@ -96,29 +97,35 @@ class BaseAgent:
         self.agent: CompiledGraph = create_react_agent(
             self.llm, tools=[], prompt=prompt, response_format=self.model_class
         )
-
-    def run(self, state: AgentState) -> AgentState:
-        raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
-        if self.structured_output:
-            parsed_content: BaseModel = raw_output["structured_response"]
-        else:
-            parsed_content = extract_structured_data(raw_output["messages"][-1].content)
+    
+    def _parse_content(self, content: str):
+        parsed_content = extract_structured_data(content)
         if "error" in parsed_content:
             logger.warning(f"Errors found in output: {self.name}")
             retry_text = self.llm.invoke(
                 [
                     {
                         "role": "human",
-                        "content": f"Format the following text as JSON (strictly output only the JSON, choose the appropriate format):\n{raw_output['messages'][-1].content}"
+                        "content": f"Format the following text as JSON (strictly output only the JSON, choose the appropriate format):\n{content}"
                         + self.format_prompt,
                     }
                 ]
             ).content
             parsed_content = extract_structured_data(retry_text)
             if "error" in parsed_content:
-                logger.error(f"Failed to parse output again: {self.name}")
-                parsed_content["text"] = raw_output["messages"][-1].content
+                raise ValueError(f"Failed to parse output again: {self.name}")
+        model_name: BaseModel = getattr(AgentDtypes, self.name)
+        return model_name.model_validate(extract_structured_data(parsed_content))
+
+    def run(self, state: AgentState) -> AgentState:
+        raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
+        if self.structured_output:
+            parsed_content: BaseModel = raw_output["structured_response"]
+        else:
+            parsed_content = self._parse_content(raw_output["messages"][-1].content)
         state["messages"] = raw_output["messages"]
+        state[self.name] = parsed_content
+        state["routes"] = [self.name]
         return self._process_result(state, parsed_content)
 
     def _prepare_input(self, state: AgentState) -> str:

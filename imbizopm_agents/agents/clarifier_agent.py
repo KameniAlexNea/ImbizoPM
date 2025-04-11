@@ -3,6 +3,8 @@ from typing import Any, Dict
 
 from langchain_core.language_models import BaseChatModel
 
+from imbizopm_agents.prompts.utils import dumps_to_yaml
+
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.clarifier_types import ProjectPlan
 from ..prompts.clarifier_prompts import (
@@ -30,56 +32,44 @@ class ClarifierAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         """Prepare input for the agent."""
-        if state.get("current") == AgentRoute.OutcomeAgent:  # From outcome agent
-            return f"""
+        if state.get("backward") is not None:
+            backward = state.get("backward")
+            if backward == AgentRoute.OutcomeAgent:  # From outcome agent
+                return f"""
 idea: {state['input']}
 
 # Previous Outcome Agent
-Refined idea: {state['idea'].get('refined', '')}
-goals: {json.dumps(state.get('goals', []), indent=2)}
-constraints: {json.dumps(state.get('constraints', []), indent=2)}
+{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
 
 From the previous refined idea, goals, and constraints, it was not possible to extract clear success_metrics and deliverables. Please clarify the project idea, goals, and constraints.
 """
-        elif state.get("current") == AgentRoute.PlannerAgent:  # From planner agent
-            return f"""
+            elif backward == AgentRoute.PlannerAgent:  # From planner agent
+                return f"""
 idea: {state['input']}
 
 # Previous Clarifier Agent
-Refined idea: {state['idea'].get('refined', '')}
-goals: {json.dumps(state.get('goals', []), indent=2)}
-constraints: {json.dumps(state.get('constraints', []), indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent])}
 
 # Previous Outcome Agent
-outcomes: {json.dumps(state.get('outcomes', []), indent=2)}
-deliverables: {json.dumps(state.get('deliverables', []), indent=2)}
+{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
 
 # Previous Planner Agent
-phases: {json.dumps(state['plan'].get('phases', []), indent=2)}
-epics: {json.dumps(state['plan'].get('epics', []), indent=2)}
-strategies: {json.dumps(state['plan'].get('strategies', []), indent=2)}
-vague_feedback: {json.dumps(state['plan'].get('vague_feedback', {}), indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent])}
 
 From the previous refined idea, goals, constraints, it was not possible to extract clear phases, epics, and strategies. Please clarify the project idea, goals, and constraints.
 """
-        elif state.get("current") == AgentRoute.TaskifierAgent:
-            return f"""
+            elif backward == AgentRoute.TaskifierAgent:
+                return f"""
 idea: {state['input']}
 
 # Previous Clarifier Agent
-Refined idea: {state['idea'].get('refined', '')}
-goals: {json.dumps(state.get('goals', []), indent=2)}
-constraints: {json.dumps(state.get('constraints', []), indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent])}
 
 # Previous Outcome Agent
-outcomes: {json.dumps(state.get('outcomes', []), indent=2)}
-deliverables: {json.dumps(state.get('deliverables', []), indent=2)}
+{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
 
 # Previous Planner Agent
-phases: {json.dumps(state['plan'].get('phases', []), indent=2)}
-epics: {json.dumps(state['plan'].get('epics', []), indent=2)}
-strategies: {json.dumps(state['plan'].get('strategies', []), indent=2)}
-vague_feedback: {json.dumps(state['plan'].get('vague_feedback', {}), indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent])}
 
 # Taskifier Agent
 Missing info: {json.dumps(state['warn_errors'].get('missing_info', {}), indent=2)}
@@ -90,33 +80,17 @@ From the previous refined idea, goals, constraints, it was not possible to extra
 
         # Check for TaskifierAgent feedback
         if (
-            state.get("tasks")
-            and state["tasks"]
-            and isinstance(state["tasks"], list)
-            and len(state["tasks"]) > 0
+            state.get(AgentRoute.TaskifierAgent)
+            and state[AgentRoute.TaskifierAgent].result.tasks
+            and state[AgentRoute.TaskifierAgent].result.missing_info
         ):
-            if any(task.get("missing_info_feedback") for task in state["tasks"]):
-                missing_info = [
-                    task.get("missing_info_feedback")
-                    for task in state["tasks"]
-                    if task.get("missing_info_feedback")
-                ]
-                prompt_parts.append(
-                    f"Taskifier feedback: {json.dumps(missing_info, indent=2)}"
-                )
-
-        # Check for PlannerAgent feedback
-        if state.get("plan") and state["plan"] and state["plan"].get("vague_feedback"):
             prompt_parts.append(
-                f"Planner feedback: {json.dumps(state['plan'].get('vague_feedback'), indent=2)}"
+                f"Some issues when generating tasks: {dumps_to_yaml(state[AgentRoute.TaskifierAgent].result.missing_info)}"
             )
 
         return "\n".join(prompt_parts)
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["idea"] = {"refined": result.get("refined_idea", "")}
-        state["goals"] = result.get("goals", [])
-        state["constraints"] = result.get("constraints", [])
-        state["next"] = AgentRoute.OutcomeAgent
-        state["current"] = AgentRoute.ClarifierAgent
+        state["forward"] = AgentRoute.OutcomeAgent
+        state["backward"] = AgentRoute.ClarifierAgent
         return state

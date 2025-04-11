@@ -166,7 +166,7 @@ class TaskPlanMissingInfo(BaseModel):
 
 
 class TaskPlan(BaseModel):
-    tasks_plan: Union[TaskPlanComplete, TaskPlanMissingInfo]
+    result: Union[TaskPlanComplete, TaskPlanMissingInfo]
 
     @staticmethod
     def example() -> dict:
