@@ -1,10 +1,10 @@
-from imbizopm_agents.dtypes.scoper_types import scope_definition_examples
+from imbizopm_agents.dtypes.scoper_types import ScopeDefinition
 from imbizopm_agents.prompts.utils import prepare_output
 
 
 def get_scoper_output_format() -> str:
     """Return the output format for the scoper agent."""
-    return prepare_output(scope_definition_examples(), union=True)
+    return prepare_output(ScopeDefinition.example(), union=True)
 
 
 def get_scoper_prompt() -> str:

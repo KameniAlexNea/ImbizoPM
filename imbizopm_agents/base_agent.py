@@ -9,6 +9,16 @@ from loguru import logger
 from pydantic import BaseModel
 from typing_extensions import TypedDict
 
+from imbizopm_agents.dtypes.clarifier_types import ProjectPlan
+from imbizopm_agents.dtypes.negotiator_types import ConflictResolution
+from imbizopm_agents.dtypes.outcome_types import ProjectSuccessCriteria
+from imbizopm_agents.dtypes.planner_types import ProjectPlanOutput
+from imbizopm_agents.dtypes.pm_adapter_types import ProjectSummary
+from imbizopm_agents.dtypes.risk_types import FeasibilityAssessment
+from imbizopm_agents.dtypes.scoper_types import ScopeDefinition
+from imbizopm_agents.dtypes.taskifier_types import TaskPlan
+from imbizopm_agents.dtypes.timeline_types import ProjectTimeline
+from imbizopm_agents.dtypes.validator_types import PlanValidation
 from imbizopm_agents.utils import extract_structured_data
 
 
@@ -31,6 +41,22 @@ class AgentState(TypedDict):
     warn_errors: dict[str, Any]
     assumptions: list[str]
     feasibility_concerns: list[Dict[str, Any]]
+
+class AgentState(TypedDict):
+    start: str
+    prev: str
+    warn_errors: dict[str, Any]
+    routes: Annotated[list[str], add_messages]
+    ClarifierAgent: ProjectPlan
+    OutcomeAgent: ProjectSuccessCriteria
+    PlannerAgent: ProjectPlanOutput
+    ScoperAgent: ScopeDefinition
+    TaskifierAgent: TaskPlan
+    TimelineAgent: ProjectTimeline
+    RiskAgent: FeasibilityAssessment
+    ValidatorAgent: PlanValidation
+    PMAdapterAgent: ProjectSummary
+    NegotiatorAgent: ConflictResolution
 
 
 class BaseAgent:

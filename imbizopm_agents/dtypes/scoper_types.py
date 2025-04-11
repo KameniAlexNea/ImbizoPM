@@ -159,12 +159,13 @@ class ScopeOverload(ScopeDefinitionBase):
         }
 
 
-ScopeDefinition = Union[NoScopeOverload, ScopeOverload]
+class ScopeDefinition(BaseModel):
+    result: Union[NoScopeOverload, ScopeOverload]
 
-
-def scope_definition_examples() -> Dict[str, Any]:
-    """Return examples of both no overload and overloaded scope definitions."""
-    return {
-        "no_overload_example": NoScopeOverload.example(),
-        "overload_example": ScopeOverload.example(),
-    }
+    @staticmethod
+    def example() -> Dict[str, Any]:
+        """Return examples of both no overload and overloaded scope definitions."""
+        return {
+            "no_overload_example": NoScopeOverload.example(),
+            "overload_example": ScopeOverload.example(),
+        }

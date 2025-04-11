@@ -165,12 +165,12 @@ class TaskPlanMissingInfo(BaseModel):
         }
 
 
-TaskPlan = Union[TaskPlanComplete, TaskPlanMissingInfo]
+class TaskPlan(BaseModel):
+    tasks_plan: Union[TaskPlanComplete, TaskPlanMissingInfo]
 
-
-def task_plan_examples() -> Dict[str, Any]:
-    """Return examples of both complete and missing info task plans."""
-    return {
-        "complete_plan_example": TaskPlanComplete.example(),
-        "missing_plan_example": TaskPlanMissingInfo.example(),
-    }
+    @staticmethod
+    def example() -> dict:
+        {
+            "complete_plan_example": TaskPlanComplete.example(),
+            "missing_plan_example": TaskPlanMissingInfo.example(),
+        }

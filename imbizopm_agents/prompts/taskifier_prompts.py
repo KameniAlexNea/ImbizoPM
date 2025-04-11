@@ -1,10 +1,10 @@
-from imbizopm_agents.dtypes.taskifier_types import task_plan_examples
+from imbizopm_agents.dtypes.taskifier_types import TaskPlan
 from imbizopm_agents.prompts.utils import prepare_output
 
 
 def get_taskifier_output_format() -> str:
     """Return the output format for the taskifier agent."""
-    return prepare_output(task_plan_examples(), union=True)
+    return prepare_output(TaskPlan.example(), union=True)
 
 
 def get_taskifier_prompt() -> str:

@@ -1,10 +1,10 @@
-from imbizopm_agents.dtypes.risk_types import feasibility_assessment_examples
+from imbizopm_agents.dtypes.risk_types import FeasibilityAssessment
 from imbizopm_agents.prompts.utils import prepare_output
 
 
 def get_risk_output_format() -> str:
     """Return the output format for the risk agent."""
-    return prepare_output(feasibility_assessment_examples(), union=True)
+    return prepare_output(FeasibilityAssessment.example(), union=True)
 
 
 def get_risk_prompt() -> str:

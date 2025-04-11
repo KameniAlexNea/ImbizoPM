@@ -173,12 +173,13 @@ class NotFeasibleAssessment(FeasibilityAssessmentBase):
         }
 
 
-FeasibilityAssessment = Union[FeasibleAssessment, NotFeasibleAssessment]
+class FeasibilityAssessment(BaseModel):
+    result: Union[FeasibleAssessment, NotFeasibleAssessment]
 
-
-def feasibility_assessment_examples() -> Dict[str, Any]:
-    """Return examples of both feasible and not feasible assessments."""
-    return {
-        "feasible_example": FeasibleAssessment.example(),
-        "not_feasible_example": NotFeasibleAssessment.example(),
-    }
+    @staticmethod
+    def example() -> Dict[str, Any]:
+        """Return examples of both feasible and not feasible assessments."""
+        return {
+            "feasible_example": FeasibleAssessment.example(),
+            "not_feasible_example": NotFeasibleAssessment.example(),
+        }
