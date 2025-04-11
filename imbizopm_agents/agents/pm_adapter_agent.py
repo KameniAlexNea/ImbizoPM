@@ -1,6 +1,8 @@
 import json
 from typing import Any, Dict
 
+from imbizopm_agents.prompts.utils import dumps_to_yaml
+
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.pm_adapter_types import ProjectSummary
 from ..prompts.pm_adapter_prompts import (
@@ -10,10 +12,6 @@ from ..prompts.pm_adapter_prompts import (
 from ..utils import format_project_plan_for_export
 from ..agent_routes import AgentRoute
 
-PM_ADAPTER_OUTPUT = get_pm_adapter_output_format()
-
-PM_ADAPTER_PROMPT = get_pm_adapter_prompt()
-
 
 class PMAdapterAgent(BaseAgent):
     """Agent that formats and exports the project plan for external tools."""
@@ -22,38 +20,31 @@ class PMAdapterAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.PMAdapterAgent,
-            PM_ADAPTER_PROMPT,
-            PM_ADAPTER_OUTPUT,
+            get_pm_adapter_output_format(),
+            get_pm_adapter_prompt(),
             ProjectSummary if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""" Project Description:
-- Idea: {json.dumps(state['idea'].get('refined', ''))}
-- Goals: {json.dumps(state['goals'])}
-- Outcomes: {json.dumps(state['outcomes'])}
-- Deliverables: {json.dumps(state['deliverables'])}
+        return f""""# Clarifier Agent
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
 # Project Plan:
-- Plan: {json.dumps(state['plan'])}
-- Scope: {json.dumps(state['scope'])}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
 
 # Project Tasks:
-- Tasks: {json.dumps(state['tasks'])}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
 
-# Project Timeline and Risks:
-- Timeline: {json.dumps(state['timeline'])}
-- Risks: {json.dumps(state['risks'])}
+# Project Timeline:
+{dumps_to_yaml(state[AgentRoute.TimelineAgent], indent=2)}
 
-Format this project plan for export to project management tools. Stricly output only the JSON, to the appropriate format."""
+# Project Risks:
+{dumps_to_yaml(state[AgentRoute.RiskAgent], indent=2)}
+
+Format this project plan for exporting to JSON. Stricly output only the JSON, to the appropriate format."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["final_output"] = {
-            **result,
-            "json_export": format_project_plan_for_export(state),
-        }
-
         # This is the final agent, no next state needed
-        state["next"] = AgentRoute.END
-        state["current"] = AgentRoute.PMAdapterAgent
+        state["forward"] = AgentRoute.END
+        state["backward"] = AgentRoute.PMAdapterAgent
         return state
