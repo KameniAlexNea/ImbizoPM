@@ -9,9 +9,17 @@ from .agent_routes import AgentRoute
 
 
 class ProjectPlan(BaseModel):
-    refined_idea: str
-    goals: List[str] = Field(default_factory=list)
-    constraints: List[str] = Field(default_factory=list)
+    refined_idea: str = Field(
+        description="A clear, concise statement of what the project aims to accomplish"
+    )
+    goals: List[str] = Field(
+        default_factory=list,
+        description="A list of specific, measurable goals that address core needs with clear success criteria",
+    )
+    constraints: List[str] = Field(
+        default_factory=list,
+        description="A list of specific limitations or boundaries that must be respected during the project",
+    )
 
 
 CLASSIFIER_OUTPUT = """Your output should be structured as follows:

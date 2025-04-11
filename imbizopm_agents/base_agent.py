@@ -6,6 +6,7 @@ from langgraph.graph.graph import CompiledGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import create_react_agent
 from loguru import logger
+from pydantic import BaseModel
 from typing_extensions import TypedDict
 
 from imbizopm_agents.utils import extract_structured_data
@@ -46,13 +47,17 @@ class BaseAgent:
     ):
         self.name = name
         self.description = description
-        self.llm = (
-            llm if model_class is None else llm.with_structured_output(model_class)
-        )
+        self.llm = llm
+        self.model_class = model_class
         self.structured_output = model_class is not None
         self.system_prompt = system_prompt
         self.format_prompt = format_prompt
         self.agent: CompiledGraph = None
+        if self.structured_output:
+            self.system_prompt = self.system_prompt.replace(
+                self.format_prompt,
+                "Your output should follow exactly the schema provided in the format prompt.",
+            ).strip()
         self._build_agent()
 
     def _build_agent(self):
@@ -62,12 +67,17 @@ class BaseAgent:
         )
 
         self.agent: CompiledGraph = create_react_agent(
-            self.llm, tools=[], prompt=prompt
+            self.llm, tools=[], prompt=prompt, response_format=self.model_class
         )
 
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
-        parsed_content = extract_structured_data(raw_output["messages"][-1].content)
+        if self.structured_output:
+            content: BaseModel = raw_output["structured_response"]
+            logger.debug(f"Structured output: {content}")
+            parsed_content = content.model_dump()
+        else:
+            parsed_content = extract_structured_data(raw_output["messages"][-1].content)
         if "error" in parsed_content:
             logger.warning(f"Errors found in output: {self.name}")
             retry_text = self.llm.invoke(
