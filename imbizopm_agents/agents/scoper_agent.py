@@ -1,18 +1,16 @@
 import json
 from typing import Any, Dict
 
+from imbizopm_agents.prompts.utils import dumps_to_yaml
+
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.scoper_types import ScopeDefinition
 from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
 )
-from ..agent_routes import AgentRoute
+from ..agent_routes import AgentDtypes, AgentRoute
 from .utils import format_list
-
-SCOPER_OUTPUT = get_scoper_output_format()
-
-SCOPER_PROMPT = get_scoper_prompt()
 
 
 class ScoperAgent(BaseAgent):
@@ -22,33 +20,27 @@ class ScoperAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.ScoperAgent,
-            SCOPER_PROMPT,
-            SCOPER_OUTPUT,
+            get_scoper_output_format(),
+            get_scoper_prompt(),
             ScopeDefinition if use_structured_output else None,
         )
 
     def _prepare_input(self, state: AgentState) -> str:
-        prompt_parts = [f"Refined idea:\n {state['idea'].get('refined', '')}"]
+        prompt_parts = [f"""# Clarifier Agent
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
-        if state["plan"].get("phases"):
-            prompt_parts.append(
-                f"Phases: {json.dumps(state['plan'].get('phases', []), indent=2)}"
-            )
-
-        if state["plan"].get("epics"):
-            prompt_parts.append(
-                f"Epics: {json.dumps(state['plan'].get('epics', []), indent=2)}"
-            )
-
-        if state.get("constraints"):
-            prompt_parts.append(
-                f"Constraints:\n{format_list(state.get('constraints', []))}"
-            )
+# Planner Agent
+{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+"""]
 
         # Check for negotiation details from NegotiatorAgent
         if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
             prompt_parts.append(
-                f"Negotiation details:\n{state['warn_errors'].get('negotiation_details')}"
+                f"Negotiation details:\n{dumps_to_yaml(state['warn_errors'].get('negotiation_details'))}"
+            )
+
+            prompt_parts.append(
+                f"Previous Scope Agent:\n{dumps_to_yaml(state[AgentRoute.ScoperAgent])}"
             )
             state["warn_errors"].pop("negotiation_details")
 
@@ -56,18 +48,13 @@ class ScoperAgent(BaseAgent):
 
         return "\n".join(prompt_parts)
 
-    def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["scope"] = {
-            "mvp": result.get("mvp_scope", {}),
-            "exclusions": result.get("scope_exclusions", []),
-            "phased_approach": result.get("phased_approach", []),
-        }
-        if result.get("overload", False):
-            state["scope"]["overload"] = result.get("overload_details", {})
-        state["next"] = (
+    def _process_result(self, state: AgentState, result: AgentDtypes.ScoperAgent) -> AgentState:
+        if result.result.overload:
+            state["scope"]["overload"] = result.result.overload_details
+        state["forward"] = (
             AgentRoute.NegotiatorAgent
-            if result.get("overload", False) and result.get("overload_details", {})
+            if result.result.overload and result.result.overload_details
             else AgentRoute.TaskifierAgent
         )
-        state["current"] = AgentRoute.ScoperAgent
+        state["backward"] = AgentRoute.ScoperAgent
         return state
