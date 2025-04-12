@@ -1,102 +1,44 @@
-from typing import Any, Dict
+from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
-from .agent_routes import AgentRoute
-from .utils import format_list
-
-SCOPER_PROMPT = """You are the Scoper Agent. Your job is to define a realistic Minimum Viable Product (MVP) and create a phased delivery approach that manages scope effectively.
-
-PROCESS:
-1. Review the full project plan, deliverables, and goals
-2. Identify the minimum features needed to deliver core value
-3. Explicitly exclude nice-to-have features from the MVP
-4. Develop a phased approach to incrementally deliver value
-5. Check for scope overload and make recommendations for scope reduction if needed
-
-GUIDELINES:
-- The MVP should focus only on features essential to test core hypotheses
-- User stories should represent the perspective of actual end users
-- Scope exclusions should be explicit to prevent scope creep
-- The phased approach should prioritize features by value and dependencies
-- Consider technical debt and foundation work in early phases
-
-OUTPUT FORMAT:
-{{
-    "mvp_scope": {{
-        "features": [
-            "Essential feature that delivers core value",
-            "..."
-        ],
-        "user_stories": [
-            "As a [user type], I want [capability] so that [benefit]",
-            "..."
-        ]
-    }},
-    "scope_exclusions": [
-        "Specific feature/capability explicitly excluded from MVP scope",
-        "..."
-    ],
-    "phased_approach": [
-        {{
-            "phase": "Phase name (e.g., MVP, Phase 2, etc.)",
-            "description": "Detailed description of this phase's focus"
-        }},
-        ...
-    ]
-    "overload": false,
-    "overload_details": {{
-        "problem_areas": [],
-        "recommendations": []
-    }}
-}}
-
-// Alternative output if scope overload is detected:
-{{
-    "overload": true,
-    "overload_details": {{
-        "problem_areas": [
-            "Specific area where scope exceeds realistic constraints",
-            "..."
-        ],
-        "recommendations": [
-            "Specific recommendation to reduce scope",
-            "..."
-        ]
-    }},
-    "mvp_scope": {{
-        "features": ["..."],
-        "user_stories": ["..."]
-    }},
-    "scope_exclusions": ["..."],
-    "phased_approach": ["..."]
-}}
-"""
+from ..dtypes.scoper_types import ScopeDefinition
+from ..prompts.scoper_prompts import (
+    get_scoper_output_format,
+    get_scoper_prompt,
+)
 
 
 class ScoperAgent(BaseAgent):
     """Agent that trims the plan into an MVP and resolves overload."""
 
-    def __init__(self, llm):
-        super().__init__(llm, AgentRoute.ScoperAgent, SCOPER_PROMPT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            AgentRoute.ScoperAgent,
+            get_scoper_output_format(),
+            get_scoper_prompt(),
+            ScopeDefinition if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
-        prompt_parts = [f"Refined idea:\n {state['idea'].get('refined', '')}"]
+        prompt_parts = [
+            f"""# Clarifier Agent
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
-        if state["plan"].get("phases"):
-            prompt_parts.append(f"Phases: {state['plan'].get('phases', [])}")
-
-        if state["plan"].get("epics"):
-            prompt_parts.append(f"Epics: {state['plan'].get('epics', [])}")
-
-        if state.get("constraints"):
-            prompt_parts.append(
-                f"Constraints:\n{format_list(state.get('constraints', []))}"
-            )
+# Planner Agent
+{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+"""
+        ]
 
         # Check for negotiation details from NegotiatorAgent
         if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
             prompt_parts.append(
-                f"Negotiation details:\n{state['warn_errors'].get('negotiation_details')}"
+                f"Negotiation details:\n{dumps_to_yaml(state['warn_errors'].get('negotiation_details'))}"
+            )
+
+            prompt_parts.append(
+                f"Previous Scope Agent:\n{dumps_to_yaml(state[AgentRoute.ScoperAgent])}"
             )
             state["warn_errors"].pop("negotiation_details")
 
@@ -104,18 +46,17 @@ class ScoperAgent(BaseAgent):
 
         return "\n".join(prompt_parts)
 
-    def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["scope"] = {
-            "mvp": result.get("mvp_scope", {}),
-            "exclusions": result.get("scope_exclusions", []),
-            "phased_approach": result.get("phased_approach", []),
-        }
-        if result.get("overload", False):
-            state["scope"]["overload"] = result.get("overload_details", {})
-        state["next"] = (
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.ScoperAgent
+    ) -> AgentState:
+        if result.result.overload:
+            if "scope" not in state:
+                state["scope"] = {}
+            state["scope"]["overload"] = result.result.overload_details
+        state["forward"] = (
             AgentRoute.NegotiatorAgent
-            if result.get("overload", False) and result.get("overload_details", {})
+            if result.result.overload and result.result.overload_details
             else AgentRoute.TaskifierAgent
         )
-        state["current"] = AgentRoute.ScoperAgent
+        state["backward"] = AgentRoute.ScoperAgent
         return state

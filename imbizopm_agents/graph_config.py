@@ -81,41 +81,36 @@ DEFAULT_GRAPH_CONFIG = {
         "OutcomeAgent": {
             "ClarifierAgent": "ClarifierAgent",  # No Clear Outcome path
             "PlannerAgent": "PlannerAgent",
-            # END: END,
         },
         "PlannerAgent": {
             "ClarifierAgent": "ClarifierAgent",  # Too Vague path
             "ScoperAgent": "ScoperAgent",
             "NegotiatorAgent": "NegotiatorAgent",  # If previous plan is negotiated
-            # END: END,
         },
         "ScoperAgent": {
             "NegotiatorAgent": "NegotiatorAgent",  # Overload path
             "TaskifierAgent": "TaskifierAgent",
-            # END: END,
         },
         "TaskifierAgent": {
             "ClarifierAgent": "ClarifierAgent",  # Missing Info path
             "TimelineAgent": "TimelineAgent",
-            # END: END,
         },
         "TimelineAgent": ["RiskAgent"],
         "RiskAgent": {
             "ValidatorAgent": "ValidatorAgent",
             "PlannerAgent": "PlannerAgent",  # Unfeasible path
-            # END: END,
         },
         "NegotiatorAgent": {
             "PlannerAgent": "PlannerAgent",
             "ScoperAgent": "ScoperAgent",
-            # END: END,
         },
         "ValidatorAgent": {
             "PMAdapterAgent": "PMAdapterAgent",  # Valid path
             "PlannerAgent": "PlannerAgent",  # Mismatch path
-            # END: END,
         },
         "PMAdapterAgent": [END],
     },
     "entry_point": "ClarifierAgent",
 }
+
+NodeSuffix = "Node"

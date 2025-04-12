@@ -1,103 +1,52 @@
-from typing import Any, Dict
+from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent
-from .agent_routes import AgentRoute
+from ..agent_routes import AgentRoute
+from ..base_agent import AgentDtypes, AgentState, BaseAgent
+from ..dtypes.risk_types import FeasibilityAssessment
+from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
 
-RISK_PROMPT = """You are the Risk Agent. Your job is to identify potential risks, assess the project's feasibility, and develop mitigation strategies.
+RISK_OUTPUT = get_risk_output_format()
 
-PROCESS:
-1. Review the entire project plan, timeline, and tasks
-2. Identify potential risks that could impact success
-3. Assess the impact and probability of each risk
-4. Develop specific mitigation strategies for high-priority risks
-5. Evaluate the overall feasibility of the project plan
-6. Look for contradictions or unrealistic aspects in the plan
-
-GUIDELINES:
-- Consider technical, resource, timeline, external dependency, and stakeholder risks
-- Assess impact based on effect on goals, timeline, budget, and quality
-- Probability should reflect realistic likelihood based on project context
-- Mitigation strategies should be specific and actionable
-- Feasibility assessment should consider team capabilities, resources, and constraints
-- Identify any assumptions that may impact feasibility
-
-OUTPUT FORMAT:
-{{
-    "feasible": true,
-    "risks": [
-        {{
-            "description": "Detailed description of the risk",
-            "category": "Technical/Resource/Timeline/External/Stakeholder",
-            "impact": "High/Medium/Low",
-            "probability": "High/Medium/Low",
-            "priority": "High/Medium/Low",
-            "mitigation_strategy": "Specific actions to reduce risk",
-            "contingency_plan": "What to do if the risk materializes"
-        }},
-        "..."
-    ],
-    "assumptions": [
-        "Critical assumption that impacts project success",
-        "..."
-    ],
-    "feasibility_concerns": [
-        {{
-            "area": "Specific area of concern",
-            "description": "Detailed description of why this is a concern",
-            "recommendation": "How to address this concern"
-        }},
-        "..."
-    ]
-}}
-
-// Alternative output if project is not feasible:
-{{
-    "feasible": false,
-    "dealbreakers": [
-        {{
-            "description": "Critical issue that makes the project unfeasible",
-            "impact": "Why this is a dealbreaker",
-            "potential_solution": "Possible way to address this issue"
-        }},
-        "..."
-    ],
-    "risks": [...],
-    "assumptions": [...],
-    "feasibility_concerns": [...]
-}}
-"""
+RISK_PROMPT = get_risk_prompt()
 
 
 class RiskAgent(BaseAgent):
     """Agent that reviews feasibility and spots contradictions."""
 
-    def __init__(self, llm):
-        super().__init__(llm, "Risk", RISK_PROMPT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            AgentRoute.RiskAgent,
+            RISK_PROMPT,
+            RISK_OUTPUT,
+            FeasibilityAssessment if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""
-Refined idea: {state.get('idea', {}).get('refined', '')}
-Goals: {state.get('goals', [])}
-Constraints: {state.get('constraints', [])}
+        return f"""# Clarifier Agent
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
-Plan: {state.get("plan", {})}
-Scope: {state.get("scope", {})}
-Tasks: {state.get("tasks", [])}
-Timeline: {state.get("timeline", {})}
+# Plan Agent
+{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+
+# Taskifier Agent
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
+
+# Timeline Agent
+{dumps_to_yaml(state[AgentRoute.TimelineAgent], indent=2)}
 
 Assess risks and overall feasibility. You should output a JSON format"""
 
-    def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["risks"] = result.get("risks", [])
-        state["assumptions"] = result.get("assumptions", [])
-        state["feasibility_concerns"] = result.get("feasibility_concerns", [])
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.RiskAgent
+    ) -> AgentState:
         if "warn_errors" not in state:
             state["warn_errors"] = {}
-        state["warn_errors"]["dealbreakers"] = result.get("dealbreakers", [])
-        state["next"] = (
+        state["warn_errors"]["dealbreakers"] = result.result.dealbreakers
+        state["forward"] = (
             AgentRoute.ValidatorAgent
-            if result.get("feasible", True) or not state["dealbreakers"]
+            if result.result.feasible or not result.result.dealbreakers
             else AgentRoute.PlannerAgent
         )
-        state["current"] = AgentRoute.RiskAgent
+        state["backward"] = AgentRoute.RiskAgent
         return state

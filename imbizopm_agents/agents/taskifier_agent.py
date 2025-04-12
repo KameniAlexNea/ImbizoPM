@@ -1,117 +1,54 @@
-from typing import Any, Dict
+from imbizopm_agents.prompts.utils import dumps_to_yaml
 
+from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
-from .agent_routes import AgentRoute
-
-TASKIFIER_PROMPT = """You are the **Taskifier Agent**. Your responsibility is to transform a given project plan into a well-structured list of actionable tasks that are easy to assign, track, and complete. Your output must follow the format provided and reflect a clear breakdown of work.
-
----
-
-### PROCESS:
-Follow these steps carefully to generate the output:
-
-1. **Understand the input**: Analyze the project plan, phases, and epics.
-2. **Decompose epics**: Break down each epic into small, actionable, and independent tasks.
-3. **Define dependencies**: Identify which tasks depend on others being completed first.
-4. **Assign roles**: Choose an appropriate owner role for each task, based on required skills.
-5. **Estimate effort**: Label each task as Low, Medium, or High effort based on complexity.
-6. **Validate completeness**: Check if the provided input contains enough information to define meaningful tasks. If not, output missing info instead of tasks.
-
----
-
-### GUIDELINES:
-- Each task must be achievable by **one person in 1-3 working days**.
-- Task **names** must be clear and action-oriented.
-- Task **descriptions** must precisely explain what is to be done.
-- **Dependencies** must form a logical sequence and avoid circularity.
-- **Effort estimates** (Low/Medium/High) should reflect **complexity**, not duration alone.
-- **Owner roles** should match the expertise required to complete the task.
-- If **information is insufficient**, clearly indicate what's missing and provide helpful suggestions/questions.
-
----
-
-### OUTPUT FORMAT:
-
-If enough information is available:
-```json
-{{
-  "tasks": [
-    {{
-      "id": "T1",
-      "name": "Descriptive task name",
-      "description": "Detailed description of what needs to be done",
-      "deliverable": "Which deliverable this task contributes to",
-      "owner_role": "Role responsible for completing this task",
-      "dependencies": ["T2", "T3"],
-      "estimated_effort": "Low/Medium/High",
-      "epic": "Parent epic name",
-      "phase": "Phase where this task should be completed"
-    }}
-    // ... More tasks
-  ],
-  "missing_info": false,
-  "missing_info_details": {{}}
-}}
-```
-
-If important information is missing:
-```json
-{{
-  "missing_info": true,
-  "missing_info_details": {{
-    "unclear_aspects": [
-      "Specific aspect that prevents task definition",
-      "..."
-    ],
-    "questions": [
-      "Specific question that needs answering before tasks can be defined",
-      "..."
-    ],
-    "suggestions": [
-      "Concrete suggestion to address the lack of clarity",
-      "..."
-    ]
-  }},
-  "tasks": []
-}}
-```"""
+from ..dtypes.taskifier_types import TaskPlan
+from ..prompts.taskifier_prompts import (
+    get_taskifier_output_format,
+    get_taskifier_prompt,
+)
 
 
 class TaskifierAgent(BaseAgent):
     """Agent that produces detailed tasks with owners and dependencies."""
 
-    def __init__(self, llm):
-        super().__init__(llm, AgentRoute.TaskifierAgent, TASKIFIER_PROMPT)
+    def __init__(self, llm, use_structured_output: bool = False):
+        super().__init__(
+            llm,
+            AgentRoute.TaskifierAgent,
+            get_taskifier_output_format(),
+            get_taskifier_prompt(),
+            TaskPlan if use_structured_output else None,
+        )
 
     def _prepare_input(self, state: AgentState) -> str:
-        return f"""Refined idea: {state['idea'].get('refined', '')}
-Goals and objectives: {state['goals']}
-Constraints: {state.get('constraints', [])}
-Outcomes: {state.get('outcomes', [])}
+        return f"""# Clarifier Agent
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
-MVP: {state['scope'].get('mvp', {})}
-Phases: {state['plan'].get('phases', [])}
-Epics: {state['plan'].get('epics', [])}
+# Scoper Agent
+{dumps_to_yaml(state[AgentRoute.ScoperAgent], indent=2)}
+
+# Planner Agent
+{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
 
 Break into detailed tasks with effort, roles, and dependencies."""
 
-    def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        tasks = result.get("tasks", [])
+    def _process_result(
+        self, state: AgentState, result: AgentDtypes.TaskifierAgent
+    ) -> AgentState:
+        tasks = result.result.tasks
 
         # If missing info, store feedback in the tasks structure
-        if result.get("missing_info", False) and result.get("missing_info_details"):
+        if result.result.missing_info and result.result.missing_info_details:
             # Create a special task to carry the feedback
             if "warn_errors" not in state:
                 state["warn_errors"] = {}
-            state["warn_errors"]["missing_info"] = {
-                "missing_info_feedback": result.get("missing_info_details")
-            }
+            state["warn_errors"]["missing_info"] = result.result.missing_info_details
 
-        state["tasks"] = tasks
-        state["next"] = (
+        state["forward"] = (
             AgentRoute.ClarifierAgent
-            if result.get("missing_info", False) or not tasks
+            if result.result.missing_info or not tasks
             else AgentRoute.TimelineAgent
         )
-        state["current"] = AgentRoute.TaskifierAgent
+        state["backward"] = AgentRoute.TaskifierAgent
         return state
