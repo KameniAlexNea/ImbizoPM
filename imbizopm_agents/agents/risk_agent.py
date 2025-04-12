@@ -26,7 +26,7 @@ class RiskAgent(BaseAgent):
 {dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
 
 # Taskifier Agent
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=2)}
 
 # Timeline Agent
 {dumps_to_yaml(state[AgentRoute.TimelineAgent], indent=2)}

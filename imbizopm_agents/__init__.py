@@ -1,4 +1,4 @@
-from imbizopm_agents.agent_types import (
+from imbizopm_agents.agents import (
     ClarifierAgent,
     NegotiatorAgent,
     OutcomeAgent,
