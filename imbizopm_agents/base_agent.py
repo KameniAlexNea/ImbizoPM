@@ -13,6 +13,7 @@ from imbizopm_agents.utils import extract_structured_data
 
 from .agent_routes import AgentDtypes
 
+
 class AgentState(TypedDict):
     input: str
     start: str
@@ -53,11 +54,6 @@ class BaseAgent:
         self.system_prompt = system_prompt
         self.format_prompt = format_prompt
         self.agent: CompiledGraph = None
-        # if self.structured_output:
-        #     self.system_prompt = self.system_prompt.replace(
-        #         self.format_prompt,
-        #         "Your output should follow exactly the schema provided in the format prompt.",
-        #     ).strip()
         self._build_agent()
 
     def _build_agent(self):
@@ -72,6 +68,7 @@ class BaseAgent:
 
     def _parse_content(self, content: str):
         parsed_content = extract_structured_data(content)
+        retry_text = None
         if "error" in parsed_content:
             logger.warning(f"Errors found in output: {self.name}")
             retry_text = self.llm.invoke(
@@ -87,7 +84,20 @@ class BaseAgent:
             if "error" in parsed_content:
                 raise ValueError(f"Failed to parse output again: {self.name}")
         model_name: BaseModel = getattr(AgentDtypes, self.name)
-        return model_name.model_validate(parsed_content)
+        try:
+            return model_name.model_validate(parsed_content)
+        except Exception as e:
+            try:
+                return model_name.model_validate({"result": parsed_content})
+            except:
+                pass
+            logger.warning(f"Failed to validate output: {self.name}")
+            logger.warning(f"Error: {e}")
+            logger.warning(f"Parsed content: {parsed_content}")
+            logger.warning(f"Raw content: {content}")
+            if retry_text:
+                logger.warning(f"Retry text: {retry_text}")
+            raise ValueError(f"Failed to validate output: {self.name}")
 
     def run(self, state: AgentState) -> AgentState:
         raw_output = self.agent.invoke({"messages": self._prepare_input(state)})

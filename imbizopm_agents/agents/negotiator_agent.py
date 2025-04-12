@@ -32,11 +32,6 @@ class NegotiatorAgent(BaseAgent):
 # Planner Agent
 {dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
 
-## Taskifier Agent
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent])}
-
-## Timeline Agent
-{dumps_to_yaml(state[AgentRoute.TimelineAgent])}
 
 Consider the main idea, plan and scope. Identify any conflicts or inconsistencies between them."""
 

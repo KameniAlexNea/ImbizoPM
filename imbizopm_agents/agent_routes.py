@@ -25,6 +25,7 @@ class AgentRoute:
     NegotiatorAgent = "NegotiatorAgent"
     END = END
 
+
 # class AgentStateNames:
 #     ClarifierAgent = AgentRoute.ClarifierAgent.lower()
 #     OutcomeAgent = AgentRoute.OutcomeAgent.lower()
@@ -36,6 +37,7 @@ class AgentRoute:
 #     ValidatorAgent = AgentRoute.ValidatorAgent.lower()
 #     PMAdapterAgent = AgentRoute.PMAdapterAgent.lower()
 #     NegotiatorAgent = AgentRoute.NegotiatorAgent.lower()
+
 
 class AgentDtypes:
     ClarifierAgent = ProjectPlan

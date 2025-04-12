@@ -54,12 +54,16 @@ class FeasibilityAssessmentBase(BaseModel):
         default_factory=list,
         description="Areas that may threaten feasibility along with recommendations",
     )
-
-
-class FeasibleAssessment(FeasibilityAssessmentBase):
+    dealbreakers: List[Dealbreaker] = Field(
+        default_factory=list,
+        description="List of critical, blocking issues with possible solutions",
+    )
     feasible: Literal[True] = Field(
         default=True, description="Set to True when the project is considered feasible"
     )
+
+
+class FeasibleAssessment(FeasibilityAssessmentBase):
 
     @staticmethod
     def example() -> dict:
@@ -107,14 +111,6 @@ class FeasibleAssessment(FeasibilityAssessmentBase):
 
 
 class NotFeasibleAssessment(FeasibilityAssessmentBase):
-    feasible: Literal[False] = Field(
-        default=False,
-        description="Set to False when the project is currently not feasible",
-    )
-    dealbreakers: List[Dealbreaker] = Field(
-        default_factory=list,
-        description="List of critical, blocking issues with possible solutions",
-    )
 
     @staticmethod
     def example() -> dict:
