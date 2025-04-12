@@ -77,11 +77,11 @@ From the previous refined idea, goals, constraints, it was not possible to extra
         # Check for TaskifierAgent feedback
         if (
             state.get(AgentRoute.TaskifierAgent)
-            and state[AgentRoute.TaskifierAgent].result.tasks
-            and state[AgentRoute.TaskifierAgent].result.missing_info
+            and state[AgentRoute.TaskifierAgent].tasks
+            and state[AgentRoute.TaskifierAgent].missing_info
         ):
             prompt_parts.append(
-                f"Some issues when generating tasks: {dumps_to_yaml(state[AgentRoute.TaskifierAgent].result.missing_info)}"
+                f"Some issues when generating tasks: {dumps_to_yaml(state[AgentRoute.TaskifierAgent].missing_info)}"
             )
 
         return "\n".join(prompt_parts)

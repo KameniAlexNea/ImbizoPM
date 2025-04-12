@@ -49,13 +49,13 @@ class ScoperAgent(BaseAgent):
     def _process_result(
         self, state: AgentState, result: AgentDtypes.ScoperAgent
     ) -> AgentState:
-        if result.result.overload:
+        if result.overload:
             if "scope" not in state:
                 state["scope"] = {}
-            state["scope"]["overload"] = result.result.overload_details
+            state["scope"]["overload"] = result.overload_details
         state["forward"] = (
             AgentRoute.NegotiatorAgent
-            if result.result.overload and result.result.overload_details
+            if result.overload and result.overload_details
             else AgentRoute.TaskifierAgent
         )
         state["backward"] = AgentRoute.ScoperAgent

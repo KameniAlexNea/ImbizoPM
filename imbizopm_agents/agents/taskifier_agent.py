@@ -36,18 +36,18 @@ Break into detailed tasks with effort, roles, and dependencies."""
     def _process_result(
         self, state: AgentState, result: AgentDtypes.TaskifierAgent
     ) -> AgentState:
-        tasks = result.result.tasks
+        tasks = result.tasks
 
         # If missing info, store feedback in the tasks structure
-        if result.result.missing_info and result.result.missing_info_details:
+        if result.missing_info and result.missing_info_details:
             # Create a special task to carry the feedback
             if "warn_errors" not in state:
                 state["warn_errors"] = {}
-            state["warn_errors"]["missing_info"] = result.result.missing_info_details
+            state["warn_errors"]["missing_info"] = result.missing_info_details
 
         state["forward"] = (
             AgentRoute.ClarifierAgent
-            if result.result.missing_info or not tasks
+            if result.missing_info or not tasks
             else AgentRoute.TimelineAgent
         )
         state["backward"] = AgentRoute.TaskifierAgent

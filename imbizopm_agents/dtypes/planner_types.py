@@ -52,7 +52,7 @@ class ProjectPlanOutput(BaseModel):
     def example() -> dict:
         """Return an example JSON representation of the ProjectPlanOutput model."""
         return {
-            "not_too_vague_example": {
+            "not_too_vague_project": {
                 "too_vague": False,
                 "vague_details": {
                     "unclear_aspects": [],
@@ -118,7 +118,7 @@ class ProjectPlanOutput(BaseModel):
                     },
                 ],
             },
-            "too_vague_example": {
+            "too_vague_project": {
                 "too_vague": True,
                 "vague_details": {
                     "unclear_aspects": [

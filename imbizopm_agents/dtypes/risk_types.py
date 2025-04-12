@@ -68,7 +68,7 @@ class FeasibilityAssessment(FeasibilityAssessmentBase):
     def example() -> Dict[str, Any]:
         """Return examples of both feasible and not feasible assessments."""
         return {
-            "feasible_example": {
+            "feasible": {
                 "feasible": True,
                 "risks": [
                     {
@@ -109,7 +109,7 @@ class FeasibilityAssessment(FeasibilityAssessmentBase):
                 ],
                 "dealbreakers": []
             },
-            "not_feasible_example": {
+            "not_feasible": {
                 "feasible": False,
                 "risks": [],
                 "assumptions": [],

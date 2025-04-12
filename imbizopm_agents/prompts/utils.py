@@ -10,7 +10,7 @@ def prepare_output(data: dict, union=False):
     json_data = ""
     if union:
         raws = [
-            f"For {k}: \n {json.dumps({'result': v}, indent=2)}"
+            f"If {k}:\n {json.dumps(v, indent=2)}"
             for k, v in data.items()
         ]
         json_data = "\n".join(raws)

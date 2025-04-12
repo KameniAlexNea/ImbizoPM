@@ -42,10 +42,10 @@ Assess risks and overall feasibility. You should output a JSON format"""
     ) -> AgentState:
         if "warn_errors" not in state:
             state["warn_errors"] = {}
-        state["warn_errors"]["dealbreakers"] = result.result.dealbreakers
+        state["warn_errors"]["dealbreakers"] = result.dealbreakers
         state["forward"] = (
             AgentRoute.ValidatorAgent
-            if result.result.feasible or not result.result.dealbreakers
+            if result.feasible or not result.dealbreakers
             else AgentRoute.PlannerAgent
         )
         state["backward"] = AgentRoute.RiskAgent

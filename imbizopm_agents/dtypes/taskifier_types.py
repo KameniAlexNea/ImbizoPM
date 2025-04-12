@@ -55,7 +55,7 @@ class TaskPlan(BaseModel):
     @staticmethod
     def example() -> dict:
         return {
-            "complete_plan_example": {
+            "complete_plan": {
                 "tasks": [
                     {
                         "id": "TASK-001",
@@ -120,7 +120,7 @@ class TaskPlan(BaseModel):
                     "suggestions": [],
                 },
             },
-            "missing_plan_example": {
+            "missing_plan": {
                 "missing_info": True,
                 "missing_info_details": {
                     "unclear_aspects": [

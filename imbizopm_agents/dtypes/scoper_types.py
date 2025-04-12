@@ -33,6 +33,10 @@ class OverloadDetails(BaseModel):
 
 
 class ScopeDefinitionBase(BaseModel):
+    overload: bool = Field(
+        default=False,
+        description="Indicates whether the scope is overloaded or manageable",
+    )
     mvp_scope: MVPScope = Field(description="Core MVP features and user stories")
     scope_exclusions: List[str] = Field(
         default_factory=list,
@@ -47,12 +51,12 @@ class ScopeDefinitionBase(BaseModel):
         description="Detailed explanation of any scope overload issues and suggestions",
     )
 
-class ScopeDefinition(BaseModel):
+class ScopeDefinition(ScopeDefinitionBase):
     @staticmethod
     def example() -> Dict[str, Any]:
         """Return examples of both no overload and overloaded scope definitions."""
         return {
-            "no_overload_example": {
+            "no_overload_score": {
                 "overload": False,
                 "mvp_scope": {
                     "features": [
@@ -90,7 +94,7 @@ class ScopeDefinition(BaseModel):
                 ],
                 "overload_details": {"problem_areas": [], "recommendations": []},
             },
-            "overload_example": {
+            "overload_score": {
                 "overload": True,
                 "mvp_scope": {"features": [], "user_stories": []},
                 "scope_exclusions": [],
