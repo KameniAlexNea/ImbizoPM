@@ -8,10 +8,6 @@ from ..base_agent import AgentState, BaseAgent
 from ..dtypes.timeline_types import ProjectTimeline
 from .config import AgentDtypes, AgentRoute
 
-TIMELINE_OUTPUT = get_timeline_output_format()
-
-TIMELINE_PROMPT = get_timeline_prompt()
-
 
 class TimelineAgent(BaseAgent):
     """Agent that maps tasks to durations and milestones."""

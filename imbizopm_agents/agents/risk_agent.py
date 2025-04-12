@@ -5,10 +5,6 @@ from ..dtypes.risk_types import FeasibilityAssessment
 from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
 from .config import AgentRoute
 
-RISK_OUTPUT = get_risk_output_format()
-
-RISK_PROMPT = get_risk_prompt()
-
 
 class RiskAgent(BaseAgent):
     """Agent that reviews feasibility and spots contradictions."""
@@ -17,8 +13,8 @@ class RiskAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.RiskAgent,
-            RISK_PROMPT,
-            RISK_OUTPUT,
+            get_risk_output_format(),
+            get_risk_prompt(),
             FeasibilityAssessment if use_structured_output else None,
         )
 

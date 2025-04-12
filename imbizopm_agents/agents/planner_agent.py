@@ -10,10 +10,6 @@ from ..prompts.planner_prompts import (
 )
 from .config import AgentDtypes, AgentRoute
 
-PLANNER_OUTPUT = get_planner_output_format()
-
-PLANNER_PROMPT = get_planner_prompt()
-
 
 class PlannerAgent(BaseAgent):
     """Agent that breaks the project into phases, epics, and strategies."""
@@ -22,8 +18,8 @@ class PlannerAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.PlannerAgent,
-            PLANNER_PROMPT,
-            PLANNER_OUTPUT,
+            get_planner_output_format(),
+            get_planner_prompt(),
             ProjectPlanOutput if use_structured_output else None,
         )
 
