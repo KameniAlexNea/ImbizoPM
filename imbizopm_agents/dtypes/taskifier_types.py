@@ -1,4 +1,4 @@
-from typing import List, Literal, Union
+from typing import List, Literal
 
 from pydantic import BaseModel, Field
 
@@ -36,7 +36,6 @@ class MissingInfoDetails(BaseModel):
         default_factory=list,
         description="Concrete suggestions to resolve ambiguity or missing details",
     )
-
 
 
 class TaskPlan(BaseModel):

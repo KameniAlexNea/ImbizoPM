@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Union
+from typing import Any, Dict, List, Literal
 
 from pydantic import BaseModel, Field
 
@@ -107,7 +107,7 @@ class FeasibilityAssessment(FeasibilityAssessmentBase):
                         "recommendation": "Prioritize differentiating features for initial release and accelerate go-to-market strategy",
                     },
                 ],
-                "dealbreakers": []
+                "dealbreakers": [],
             },
             "not_feasible": {
                 "feasible": False,

@@ -4,7 +4,7 @@ from imbizopm_agents.prompts.utils import prepare_output
 
 def get_validator_output_format() -> str:
     """Return the output format for the validator agent."""
-    return prepare_output(PlanValidation.example(), union=False)
+    return prepare_output(PlanValidation.example(), union=True)
 
 
 def get_validator_prompt() -> str:

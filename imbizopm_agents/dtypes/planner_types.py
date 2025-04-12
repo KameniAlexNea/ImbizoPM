@@ -125,23 +125,23 @@ class ProjectPlanOutput(BaseModel):
                         "Target audience demographics need further specification",
                         "Integration requirements with existing systems",
                         "Scope of project is poorly defined",
-                        "Budget constraints are not specified"
+                        "Budget constraints are not specified",
                     ],
                     "questions": [
                         "What is the exact timeline for delivery of the first MVP?",
                         "Are there regulatory compliance requirements to consider?",
                         "Who are the primary stakeholders for this project?",
-                        "What are the primary success metrics for this initiative?"
+                        "What are the primary success metrics for this initiative?",
                     ],
                     "suggestions": [
                         "Conduct a stakeholder workshop to define target audience",
                         "Request documentation of current system APIs for integration planning",
                         "Create a project charter to formally define scope and objectives",
-                        "Schedule a budget planning meeting with finance team"
+                        "Schedule a budget planning meeting with finance team",
                     ],
                 },
                 "phases": [],
                 "epics": [],
                 "strategies": [],
-            }
+            },
         }

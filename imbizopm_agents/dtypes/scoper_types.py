@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -51,12 +51,13 @@ class ScopeDefinitionBase(BaseModel):
         description="Detailed explanation of any scope overload issues and suggestions",
     )
 
+
 class ScopeDefinition(ScopeDefinitionBase):
     @staticmethod
     def example() -> Dict[str, Any]:
         """Return examples of both no overload and overloaded scope definitions."""
         return {
-            "no_overload_score": {
+            "no_overload_scope": {
                 "overload": False,
                 "mvp_scope": {
                     "features": [
@@ -94,7 +95,7 @@ class ScopeDefinition(ScopeDefinitionBase):
                 ],
                 "overload_details": {"problem_areas": [], "recommendations": []},
             },
-            "overload_score": {
+            "overload_scope": {
                 "overload": True,
                 "mvp_scope": {"features": [], "user_stories": []},
                 "scope_exclusions": [],
