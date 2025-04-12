@@ -4,7 +4,7 @@ from imbizopm_agents.prompts.utils import prepare_output
 
 def get_planner_output_format() -> str:
     """Return the output format for the planner agent."""
-    return prepare_output(ProjectPlanOutput.example(), union=False)
+    return prepare_output(ProjectPlanOutput.example(), union=True)
 
 
 def get_planner_prompt() -> str:

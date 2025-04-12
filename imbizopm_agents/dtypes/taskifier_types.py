@@ -38,94 +38,12 @@ class MissingInfoDetails(BaseModel):
     )
 
 
-class TaskPlanComplete(BaseModel):
-    tasks: List[Task] = Field(
-        default_factory=list, description="List of well-defined tasks"
-    )
-    missing_info: Literal[False] = Field(
-        default=False,
-        description="Flag indicating that no critical information is missing",
-    )
-    missing_info_details: MissingInfoDetails = Field(
-        default_factory=MissingInfoDetails,
-        description="Empty structure when no info is missing",
-    )
 
-    @staticmethod
-    def example() -> dict:
-        """Return an example JSON representation of a complete task plan."""
-        return {
-            "tasks": [
-                {
-                    "id": "TASK-001",
-                    "name": "Create user authentication API",
-                    "description": "Develop RESTful API endpoints for user registration, login, password reset, and account management",
-                    "deliverable": "Authentication Microservice",
-                    "owner_role": "Backend Developer",
-                    "estimated_effort": "Medium",
-                    "epic": "User Authentication System",
-                    "phase": "Development",
-                    "dependencies": [],
-                },
-                {
-                    "id": "TASK-002",
-                    "name": "Design user authentication flows",
-                    "description": "Create wireframes and visual designs for login, registration, and account recovery screens",
-                    "deliverable": "UI Design Package",
-                    "owner_role": "UX Designer",
-                    "estimated_effort": "Low",
-                    "epic": "User Authentication System",
-                    "phase": "Design",
-                    "dependencies": [],
-                },
-                {
-                    "id": "TASK-003",
-                    "name": "Implement frontend authentication components",
-                    "description": "Develop React components for all authentication screens and integrate with authentication API",
-                    "deliverable": "Frontend Authentication Module",
-                    "owner_role": "Frontend Developer",
-                    "estimated_effort": "Medium",
-                    "epic": "User Authentication System",
-                    "phase": "Development",
-                    "dependencies": ["TASK-001", "TASK-002"],
-                },
-                {
-                    "id": "TASK-004",
-                    "name": "Implement user permission system",
-                    "description": "Design and implement role-based access control system with configurable permissions",
-                    "deliverable": "Authorization Microservice",
-                    "owner_role": "Backend Developer",
-                    "estimated_effort": "High",
-                    "epic": "User Authentication System",
-                    "phase": "Development",
-                    "dependencies": ["TASK-001"],
-                },
-                {
-                    "id": "TASK-005",
-                    "name": "Create automated test suite for authentication",
-                    "description": "Develop comprehensive unit and integration tests for all authentication functionality",
-                    "deliverable": "Authentication Test Suite",
-                    "owner_role": "QA Engineer",
-                    "estimated_effort": "Medium",
-                    "epic": "User Authentication System",
-                    "phase": "Testing",
-                    "dependencies": ["TASK-001", "TASK-003", "TASK-004"],
-                },
-            ],
-            "missing_info": False,
-            "missing_info_details": {
-                "unclear_aspects": [],
-                "questions": [],
-                "suggestions": [],
-            },
-        }
-
-
-class TaskPlanMissingInfo(BaseModel):
+class TaskPlan(BaseModel):
     missing_info_details: MissingInfoDetails = Field(
         description="Details about what information is missing and how to address it"
     )
-    missing_info: Literal[True] = Field(
+    missing_info: bool = Field(
         default=True,
         description="Flag indicating that important task-related information is missing",
     )
@@ -136,41 +54,96 @@ class TaskPlanMissingInfo(BaseModel):
 
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of a task plan with missing information."""
         return {
-            "missing_info": True,
-            "missing_info_details": {
-                "unclear_aspects": [
-                    "The project scope does not specify which user roles need to be supported",
-                    "Integration requirements with existing systems are not defined",
-                    "Performance requirements and expected user load are not specified",
-                    "Security requirements and compliance standards are not detailed",
+            "complete_plan_example": {
+                "tasks": [
+                    {
+                        "id": "TASK-001",
+                        "name": "Create user authentication API",
+                        "description": "Develop RESTful API endpoints for user registration, login, password reset, and account management",
+                        "deliverable": "Authentication Microservice",
+                        "owner_role": "Backend Developer",
+                        "estimated_effort": "Medium",
+                        "epic": "User Authentication System",
+                        "phase": "Development",
+                        "dependencies": [],
+                    },
+                    {
+                        "id": "TASK-002",
+                        "name": "Design user authentication flows",
+                        "description": "Create wireframes and visual designs for login, registration, and account recovery screens",
+                        "deliverable": "UI Design Package",
+                        "owner_role": "UX Designer",
+                        "estimated_effort": "Low",
+                        "epic": "User Authentication System",
+                        "phase": "Design",
+                        "dependencies": [],
+                    },
+                    {
+                        "id": "TASK-003",
+                        "name": "Implement frontend authentication components",
+                        "description": "Develop React components for all authentication screens and integrate with authentication API",
+                        "deliverable": "Frontend Authentication Module",
+                        "owner_role": "Frontend Developer",
+                        "estimated_effort": "Medium",
+                        "epic": "User Authentication System",
+                        "phase": "Development",
+                        "dependencies": ["TASK-001", "TASK-002"],
+                    },
+                    {
+                        "id": "TASK-004",
+                        "name": "Implement user permission system",
+                        "description": "Design and implement role-based access control system with configurable permissions",
+                        "deliverable": "Authorization Microservice",
+                        "owner_role": "Backend Developer",
+                        "estimated_effort": "High",
+                        "epic": "User Authentication System",
+                        "phase": "Development",
+                        "dependencies": ["TASK-001"],
+                    },
+                    {
+                        "id": "TASK-005",
+                        "name": "Create automated test suite for authentication",
+                        "description": "Develop comprehensive unit and integration tests for all authentication functionality",
+                        "deliverable": "Authentication Test Suite",
+                        "owner_role": "QA Engineer",
+                        "estimated_effort": "Medium",
+                        "epic": "User Authentication System",
+                        "phase": "Testing",
+                        "dependencies": ["TASK-001", "TASK-003", "TASK-004"],
+                    },
                 ],
-                "questions": [
-                    "What user roles need to be supported in the authentication system?",
-                    "Which existing systems need to integrate with the new authentication service?",
-                    "What is the expected peak user load for authentication services?",
-                    "Are there specific security certifications or compliance standards that must be met?",
-                    "Is single sign-on (SSO) functionality required? If so, which providers?",
-                ],
-                "suggestions": [
-                    "Conduct a stakeholder workshop to define user roles and permissions",
-                    "Request documentation for existing systems that require integration",
-                    "Perform load testing on current systems to establish performance baselines",
-                    "Consult with the security team to identify compliance requirements",
-                    "Create a technical specification document before proceeding with task definition",
-                ],
+                "missing_info": False,
+                "missing_info_details": {
+                    "unclear_aspects": [],
+                    "questions": [],
+                    "suggestions": [],
+                },
             },
-            "tasks": [],
-        }
-
-
-class TaskPlan(BaseModel):
-    result: Union[TaskPlanComplete, TaskPlanMissingInfo]
-
-    @staticmethod
-    def example() -> dict:
-        return {
-            "complete_plan_example": TaskPlanComplete.example(),
-            "missing_plan_example": TaskPlanMissingInfo.example(),
+            "missing_plan_example": {
+                "missing_info": True,
+                "missing_info_details": {
+                    "unclear_aspects": [
+                        "The project scope does not specify which user roles need to be supported",
+                        "Integration requirements with existing systems are not defined",
+                        "Performance requirements and expected user load are not specified",
+                        "Security requirements and compliance standards are not detailed",
+                    ],
+                    "questions": [
+                        "What user roles need to be supported in the authentication system?",
+                        "Which existing systems need to integrate with the new authentication service?",
+                        "What is the expected peak user load for authentication services?",
+                        "Are there specific security certifications or compliance standards that must be met?",
+                        "Is single sign-on (SSO) functionality required? If so, which providers?",
+                    ],
+                    "suggestions": [
+                        "Conduct a stakeholder workshop to define user roles and permissions",
+                        "Request documentation for existing systems that require integration",
+                        "Perform load testing on current systems to establish performance baselines",
+                        "Consult with the security team to identify compliance requirements",
+                        "Create a technical specification document before proceeding with task definition",
+                    ],
+                },
+                "tasks": [],
+            },
         }

@@ -52,77 +52,96 @@ class ProjectPlanOutput(BaseModel):
     def example() -> dict:
         """Return an example JSON representation of the ProjectPlanOutput model."""
         return {
-            "too_vague": False,
-            "vague_details": {
-                "unclear_aspects": [
-                    "Target audience demographics need further specification",
-                    "Integration requirements with existing systems",
+            "not_too_vague_example": {
+                "too_vague": False,
+                "vague_details": {
+                    "unclear_aspects": [],
+                    "questions": [],
+                    "suggestions": [],
+                },
+                "phases": [
+                    {
+                        "name": "Discovery and Planning",
+                        "description": "Research user needs, define requirements, and create detailed project roadmap",
+                    },
+                    {
+                        "name": "Design and Architecture",
+                        "description": "Create UX/UI designs and establish technical architecture for the solution",
+                    },
+                    {
+                        "name": "Development",
+                        "description": "Implement features according to specifications with regular quality checks",
+                    },
+                    {
+                        "name": "Testing and Validation",
+                        "description": "Perform comprehensive testing including unit, integration, and user acceptance testing",
+                    },
+                    {
+                        "name": "Deployment and Launch",
+                        "description": "Release the solution to production and support initial user adoption",
+                    },
                 ],
-                "questions": [
-                    "What is the exact timeline for delivery of the first MVP?",
-                    "Are there regulatory compliance requirements to consider?",
+                "epics": [
+                    {
+                        "name": "User Authentication System",
+                        "description": "Features related to user registration, login, profile management, and access control",
+                    },
+                    {
+                        "name": "Data Management",
+                        "description": "Core functionality for data input, storage, retrieval, and export capabilities",
+                    },
+                    {
+                        "name": "Reporting Dashboard",
+                        "description": "Interactive visualizations and analytics features to provide insights from user data",
+                    },
+                    {
+                        "name": "Mobile Responsiveness",
+                        "description": "Ensuring the application functions well on various mobile devices and screen sizes",
+                    },
                 ],
-                "suggestions": [
-                    "Conduct a stakeholder workshop to define target audience",
-                    "Request documentation of current system APIs for integration planning",
+                "strategies": [
+                    {
+                        "name": "Agile Development",
+                        "description": "Utilizing two-week sprints with daily standups to maintain velocity and address issues quickly",
+                    },
+                    {
+                        "name": "Continuous Integration",
+                        "description": "Implementing automated testing and deployment pipelines to ensure code quality",
+                    },
+                    {
+                        "name": "User-Centered Design",
+                        "description": "Involving target users throughout the design process with regular feedback sessions",
+                    },
+                    {
+                        "name": "Phased Delivery",
+                        "description": "Releasing core functionality first, followed by additional features in prioritized order",
+                    },
                 ],
             },
-            "phases": [
-                {
-                    "name": "Discovery and Planning",
-                    "description": "Research user needs, define requirements, and create detailed project roadmap",
+            "too_vague_example": {
+                "too_vague": True,
+                "vague_details": {
+                    "unclear_aspects": [
+                        "Target audience demographics need further specification",
+                        "Integration requirements with existing systems",
+                        "Scope of project is poorly defined",
+                        "Budget constraints are not specified"
+                    ],
+                    "questions": [
+                        "What is the exact timeline for delivery of the first MVP?",
+                        "Are there regulatory compliance requirements to consider?",
+                        "Who are the primary stakeholders for this project?",
+                        "What are the primary success metrics for this initiative?"
+                    ],
+                    "suggestions": [
+                        "Conduct a stakeholder workshop to define target audience",
+                        "Request documentation of current system APIs for integration planning",
+                        "Create a project charter to formally define scope and objectives",
+                        "Schedule a budget planning meeting with finance team"
+                    ],
                 },
-                {
-                    "name": "Design and Architecture",
-                    "description": "Create UX/UI designs and establish technical architecture for the solution",
-                },
-                {
-                    "name": "Development",
-                    "description": "Implement features according to specifications with regular quality checks",
-                },
-                {
-                    "name": "Testing and Validation",
-                    "description": "Perform comprehensive testing including unit, integration, and user acceptance testing",
-                },
-                {
-                    "name": "Deployment and Launch",
-                    "description": "Release the solution to production and support initial user adoption",
-                },
-            ],
-            "epics": [
-                {
-                    "name": "User Authentication System",
-                    "description": "Features related to user registration, login, profile management, and access control",
-                },
-                {
-                    "name": "Data Management",
-                    "description": "Core functionality for data input, storage, retrieval, and export capabilities",
-                },
-                {
-                    "name": "Reporting Dashboard",
-                    "description": "Interactive visualizations and analytics features to provide insights from user data",
-                },
-                {
-                    "name": "Mobile Responsiveness",
-                    "description": "Ensuring the application functions well on various mobile devices and screen sizes",
-                },
-            ],
-            "strategies": [
-                {
-                    "name": "Agile Development",
-                    "description": "Utilizing two-week sprints with daily standups to maintain velocity and address issues quickly",
-                },
-                {
-                    "name": "Continuous Integration",
-                    "description": "Implementing automated testing and deployment pipelines to ensure code quality",
-                },
-                {
-                    "name": "User-Centered Design",
-                    "description": "Involving target users throughout the design process with regular feedback sessions",
-                },
-                {
-                    "name": "Phased Delivery",
-                    "description": "Releasing core functionality first, followed by additional features in prioritized order",
-                },
-            ],
+                "phases": [],
+                "epics": [],
+                "strategies": [],
+            }
         }

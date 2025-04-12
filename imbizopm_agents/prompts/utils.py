@@ -13,11 +13,7 @@ def prepare_output(data: dict, union=False):
             f"For {k}: \n {json.dumps({'result': v}, indent=2)}"
             for k, v in data.items()
         ]
-        json_data = (
-            "\n".join(raws)
-            + "\n"
-            + "Important Notes: The first key of the dictionary is `result` in all cases."
-        )
+        json_data = "\n".join(raws)
     else:
         json_data = json.dumps(data, indent=2)
 

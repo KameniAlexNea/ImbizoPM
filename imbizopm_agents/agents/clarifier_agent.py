@@ -13,10 +13,6 @@ from ..prompts.clarifier_prompts import (
     get_clarifier_prompt,
 )
 
-CLASSIFIER_OUTPUT = get_clarifier_output_format()
-
-CLASSIFIER_PROMPT = get_clarifier_prompt()
-
 
 class ClarifierAgent(BaseAgent):
     """Agent that refines the idea, extracts goals, scope, and constraints."""
@@ -25,8 +21,8 @@ class ClarifierAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.ClarifierAgent,
-            CLASSIFIER_PROMPT,
-            CLASSIFIER_OUTPUT,
+            get_clarifier_output_format(),
+            get_clarifier_prompt(),
             ProjectPlan if use_structured_output else None,
         )
 

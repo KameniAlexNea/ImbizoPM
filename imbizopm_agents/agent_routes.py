@@ -26,19 +26,6 @@ class AgentRoute:
     END = END
 
 
-# class AgentStateNames:
-#     ClarifierAgent = AgentRoute.ClarifierAgent.lower()
-#     OutcomeAgent = AgentRoute.OutcomeAgent.lower()
-#     PlannerAgent = AgentRoute.PlannerAgent.lower()
-#     ScoperAgent = AgentRoute.ScoperAgent.lower()
-#     TaskifierAgent = AgentRoute.TaskifierAgent.lower()
-#     TimelineAgent = AgentRoute.TimelineAgent.lower()
-#     RiskAgent = AgentRoute.RiskAgent.lower()
-#     ValidatorAgent = AgentRoute.ValidatorAgent.lower()
-#     PMAdapterAgent = AgentRoute.PMAdapterAgent.lower()
-#     NegotiatorAgent = AgentRoute.NegotiatorAgent.lower()
-
-
 class AgentDtypes:
     ClarifierAgent = ProjectPlan
     OutcomeAgent = ProjectSuccessCriteria
