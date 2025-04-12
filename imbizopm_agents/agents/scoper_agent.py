@@ -1,12 +1,12 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.scoper_types import ScopeDefinition
 from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
 )
+from .config import AgentDtypes, AgentRoute
 
 
 class ScoperAgent(BaseAgent):

@@ -1,12 +1,12 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.negotiator_types import ConflictResolution
 from ..prompts.negotiator_prompts import (
     get_negotiator_output_format,
     get_negotiator_prompt,
 )
+from .config import AgentDtypes, AgentRoute
 
 
 class NegotiatorAgent(BaseAgent):

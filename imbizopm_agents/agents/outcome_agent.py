@@ -1,12 +1,12 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentRoute
 from ..base_agent import AgentDtypes, AgentState, BaseAgent
 from ..dtypes.outcome_types import ProjectSuccessCriteria
 from ..prompts.outcome_prompts import (
     get_outcome_output_format,
     get_outcome_prompt,
 )
+from .config import AgentRoute
 
 
 class OutcomeAgent(BaseAgent):

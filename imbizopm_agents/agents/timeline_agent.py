@@ -4,9 +4,9 @@ from imbizopm_agents.prompts.timeline_prompts import (
 )
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.timeline_types import ProjectTimeline
+from .config import AgentDtypes, AgentRoute
 
 TIMELINE_OUTPUT = get_timeline_output_format()
 

@@ -1,12 +1,12 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
 from ..dtypes.validator_types import PlanValidation
 from ..prompts.validator_prompts import (
     get_validator_output_format,
     get_validator_prompt,
 )
+from .config import AgentDtypes, AgentRoute
 
 
 class ValidatorAgent(BaseAgent):

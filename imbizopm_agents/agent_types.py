@@ -1,6 +1,5 @@
 from .agents import NegotiatorAgent  # noqa: F401
 from .agents import (
-    AgentRoute,
     ClarifierAgent,
     OutcomeAgent,
     PlannerAgent,
@@ -16,7 +15,6 @@ from .agents import (
 # All agent implementations are now in the agents/ directory
 
 __all__ = [
-    "AgentRoute",
     "ClarifierAgent",
     "OutcomeAgent",
     "PlannerAgent",

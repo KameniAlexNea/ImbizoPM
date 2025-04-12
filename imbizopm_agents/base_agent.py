@@ -11,7 +11,7 @@ from typing_extensions import TypedDict
 
 from imbizopm_agents.utils import extract_structured_data
 
-from .agent_routes import AgentDtypes
+from .agents.config import AgentDtypes
 
 
 class AgentState(TypedDict):
