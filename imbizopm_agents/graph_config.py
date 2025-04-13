@@ -15,8 +15,7 @@ from .agents import (
 """
 flowchart TD
     A[User Idea] --> B[ClarifierAgent]
-    B --> C[OutcomeAgent]
-    C --> D[PlannerAgent]
+    B --> D[PlannerAgent]
     D --> E[ScoperAgent]
     E --> F[TaskifierAgent]
     F --> G[TimelineAgent]
@@ -38,10 +37,6 @@ DEFAULT_GRAPH_CONFIG = {
             "agent_class": ClarifierAgent,
             "description": "Refines the idea, extracts goals and constraints",
         },
-        # "OutcomeAgent": {
-        #     "agent_class": OutcomeAgent,
-        #     "description": "Defines success metrics and deliverables",
-        # },
         "PlannerAgent": {
             "agent_class": PlannerAgent,
             "description": "Breaks the project into phases, epics, and strategies",
@@ -77,10 +72,6 @@ DEFAULT_GRAPH_CONFIG = {
     },
     "edges": {
         "ClarifierAgent": ["PlannerAgent"],
-        # "OutcomeAgent": {
-        #     "ClarifierAgent": "ClarifierAgent",  # No Clear Outcome path
-        #     "PlannerAgent": "PlannerAgent",
-        # },
         "PlannerAgent": {
             "ClarifierAgent": "ClarifierAgent",  # Too Vague path
             "ScoperAgent": "ScoperAgent",

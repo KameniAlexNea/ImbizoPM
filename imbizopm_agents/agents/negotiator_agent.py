@@ -30,7 +30,7 @@ class NegotiatorAgent(BaseAgent):
 {dumps_to_yaml(state[AgentRoute.ScoperAgent])}
 
 # Planner Agent
-{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent])}
 
 
 Consider the main idea, plan and scope. Identify any conflicts or inconsistencies between them."""
@@ -38,11 +38,6 @@ Consider the main idea, plan and scope. Identify any conflicts or inconsistencie
     def _process_result(
         self, state: AgentState, result: AgentDtypes.NegotiatorAgent
     ) -> AgentState:
-        # Store negotiation details in scope dictionary
-        if result.negotiation_details.proposed_solutions:
-            if "warn_errors" not in state:
-                state["warn_errors"] = {}
-            state["warn_errors"]["negotiation_details"] = result.negotiation_details
         state["forward"] = (
             AgentRoute.ScoperAgent
             if result.conflict_area == "scope"
