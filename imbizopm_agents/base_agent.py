@@ -61,9 +61,7 @@ class BaseAgent:
         messges = [("system", self.system_prompt), ("human", "{messages}")]
         if self.structured_output:
             messges.append(("system", self.format_prompt))
-        prompt = ChatPromptTemplate.from_messages(
-            messges
-        )
+        prompt = ChatPromptTemplate.from_messages(messges)
 
         self.agent: CompiledGraph = create_react_agent(
             self.llm, tools=[], prompt=prompt, response_format=self.model_class

@@ -1,13 +1,11 @@
 import gradio as gr
+from langchain.chat_models import init_chat_model
+from langgraph.graph.graph import CompiledGraph
+
 from imbizopm_agents.graph import (
     create_project_planning_graph,
     run_project_planning_graph,
 )
-from IPython.display import display, Image
-from langgraph.graph.graph import CompiledGraph
-
-from langchain.chat_models import init_chat_model
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 llm = init_chat_model("ollama:cogito:32b")
@@ -31,13 +29,12 @@ def langgraph_chat(user_input, history=None):
     ):
         messages = event["messages"]
         if messages:
-            curr = event[event['backward']]
+            curr = event[event["backward"]]
             responses += "\n" + dumps_to_yaml(curr)
             yield responses
         responses += f"\n# Next Direction: {event['forward']}"
 
     yield responses
-
 
 
 iface = gr.ChatInterface(fn=langgraph_chat)

@@ -59,6 +59,6 @@ From the previous refined idea, goals, constraints, it was not possible to extra
         return state["input"]
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["forward"] = AgentRoute.OutcomeAgent
+        state["forward"] = AgentRoute.PlannerAgent
         state["backward"] = AgentRoute.ClarifierAgent
         return state
