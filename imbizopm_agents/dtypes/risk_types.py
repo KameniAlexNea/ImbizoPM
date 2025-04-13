@@ -12,7 +12,7 @@ class Risk(BaseModel):
         description="Impact level if the risk materializes"
     )
     probability: Literal["High", "Medium", "Low"] = Field(
-        description="Likelihood of the risk occurring"
+        description="Assessed likelihood of the risk occurring (High, Medium, or Low)"
     )
     priority: Literal["High", "Medium", "Low"] = Field(
         description="Risk priority based on impact and probability"
@@ -23,52 +23,26 @@ class Risk(BaseModel):
     contingency_plan: str = Field(description="Backup plan if the risk actually occurs")
 
 
-class FeasibilityConcern(BaseModel):
-    area: str = Field(
-        description="Specific area of concern (e.g., funding, technology, regulations)"
-    )
-    description: str = Field(
-        description="Detailed explanation of why this area is a concern"
-    )
-    recommendation: str = Field(description="Suggested actions to address the concern")
-
-
-class Dealbreaker(BaseModel):
-    description: str = Field(description="Critical issue making the project unfeasible")
-    impact: str = Field(
-        description="Explanation of how this issue threatens feasibility"
-    )
-    potential_solution: str = Field(description="Proposed workaround or fix, if any")
-
-
-class FeasibilityAssessmentBase(BaseModel):
+class FeasibilityAssessment(BaseModel):
     risks: List[Risk] = Field(
-        default_factory=list,
-        description="List of identified risks with mitigation and contingency strategies",
+        description="List of identified risks with mitigation and contingency strategies"
     )
     assumptions: List[str] = Field(
-        default_factory=list,
-        description="List of critical assumptions underlying the feasibility analysis",
+        description="List of critical assumptions underlying the feasibility analysis"
     )
-    feasibility_concerns: List[FeasibilityConcern] = Field(
-        default_factory=list,
-        description="Areas that may threaten feasibility along with recommendations",
+    feasibility_concerns: List[str] = Field(
+        description="Areas that may threaten feasibility along with recommendations"
     )
-    dealbreakers: List[Dealbreaker] = Field(
-        default_factory=list,
-        description="List of critical, blocking issues with possible solutions",
+    dealbreakers: List[str] = Field(
+        description="List of critical, blocking issues with possible solutions"
     )
-    feasible: Literal[True] = Field(
-        default=True, description="Set to True when the project is considered feasible"
-    )
+    feasible: bool = Field(description="Overall feasibility status")
 
-
-class FeasibilityAssessment(FeasibilityAssessmentBase):
     @staticmethod
     def example() -> Dict[str, Any]:
         """Return examples of both feasible and not feasible assessments."""
         return {
-            "feasible": {
+            "feasible_assessment_example": {
                 "feasible": True,
                 "risks": [
                     {
@@ -96,35 +70,19 @@ class FeasibilityAssessment(FeasibilityAssessmentBase):
                     "The target user base has sufficient technical proficiency",
                 ],
                 "feasibility_concerns": [
-                    {
-                        "area": "Technology Integration",
-                        "description": "The new system requires integration with legacy systems that have limited documentation",
-                        "recommendation": "Conduct a technical spike to assess integration complexity and allocate additional time for unexpected issues",
-                    },
-                    {
-                        "area": "Market Timing",
-                        "description": "Competitor products may launch before our release date",
-                        "recommendation": "Prioritize differentiating features for initial release and accelerate go-to-market strategy",
-                    },
+                    "Technology Integration: The new system requires integration with legacy systems that have limited documentation. Recommendation: Conduct a technical spike.",
+                    "Market Timing: Competitor products may launch before our release date. Recommendation: Prioritize differentiating features.",
                 ],
                 "dealbreakers": [],
             },
-            "not_feasible": {
+            "not_feasible_assessment_example": {
                 "feasible": False,
                 "risks": [],
                 "assumptions": [],
                 "feasibility_concerns": [],
                 "dealbreakers": [
-                    {
-                        "description": "Critical dependency on third-party API that is being deprecated",
-                        "impact": "Without this API, core functionality cannot be delivered as specified",
-                        "potential_solution": "Rebuild the required functionality in-house, adding 4-6 months to the timeline",
-                    },
-                    {
-                        "description": "Compliance requirements cannot be met with the current technical approach",
-                        "impact": "Project would violate regulatory requirements in key markets",
-                        "potential_solution": "Redesign architecture to incorporate required security and privacy controls",
-                    },
+                    "Critical dependency on third-party API that is being deprecated. Impact: Core functionality cannot be delivered. Solution: Rebuild in-house (adds 4-6 months).",
+                    "Compliance requirements cannot be met with the current technical approach. Impact: Violates regulations. Solution: Redesign architecture.",
                 ],
             },
         }

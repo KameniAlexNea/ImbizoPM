@@ -1,5 +1,3 @@
-import json
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..base_agent import AgentState, BaseAgent
@@ -27,37 +25,31 @@ class PlannerAgent(BaseAgent):
         prompt_parts = [
             f"""# Clarifier Agent
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
-
-# Outcome Agent
-{dumps_to_yaml(state[AgentRoute.OutcomeAgent], indent=2)}
 """
         ]
         # Check for negotiation details from NegotiatorAgent
         flag = False
-        if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
+        if state.get("backward") == AgentRoute.NegotiatorAgent:
             prompt_parts.append(f"Some issues were raised during negotiation.")
             prompt_parts.append(
-                f"Negotiation details:\n{json.dumps(state['warn_errors'].get('negotiation_details'), indent=2)}"
+                f"Negotiation details:\n{dumps_to_yaml(state[AgentRoute.NegotiatorAgent].negotiation, indent=2)}"
             )
-            state["warn_errors"].pop("negotiation_details")
             flag = True
 
         # Check for risk details from RiskAgent
-        if state.get("warn_errors") and state["warn_errors"].get("dealbreakers"):
-            prompt_parts.append(f"Some issues were raised during risk assessment.")
+        if state.get("backward") == AgentRoute.RiskAgent:
+            prompt_parts.append(f"Some dealbreaks were raised during risk assessment.")
             prompt_parts.append(
-                f"Risks details:\n{json.dumps(state['warn_errors'].get('dealbreakers'), indent=2)}"
+                f"Risks details:\n{dumps_to_yaml(state[AgentRoute.RiskAgent].dealbreakers, indent=2)}"
             )
-            state["warn_errors"].pop("dealbreakers")
             flag = True
 
         # Check for validation details from ValidatorAgent
-        if state.get("forward") == AgentRoute.ValidatorAgent:
+        if state.get("backward") == AgentRoute.ValidatorAgent:
             prompt_parts.append(f"Some issues were raised during validation.")
             prompt_parts.append(
-                f"Validation details:\n{json.dumps(state['validation'], indent=2)}"
+                f"Validation details:\n{dumps_to_yaml(state[AgentRoute.ValidatorAgent].completeness_assessment, indent=2)}"
             )
-            state["validation"] = dict()
             flag = True
 
         if flag:

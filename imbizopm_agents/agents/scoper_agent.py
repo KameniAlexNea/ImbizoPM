@@ -32,30 +32,26 @@ class ScoperAgent(BaseAgent):
         ]
 
         # Check for negotiation details from NegotiatorAgent
-        if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
+        if state.get("backward") == AgentRoute.NegotiatorAgent:
+            prompt_parts.append(f"Some issues were raised during negotiation.")
             prompt_parts.append(
-                f"Negotiation details:\n{dumps_to_yaml(state['warn_errors'].get('negotiation_details'))}"
+                f"Negotiation details:\n{dumps_to_yaml(state[AgentRoute.NegotiatorAgent].negotiation)}"
             )
 
             prompt_parts.append(
                 f"Previous Scope Agent:\n{dumps_to_yaml(state[AgentRoute.ScoperAgent])}"
             )
-            state["warn_errors"].pop("negotiation_details")
 
-        prompt_parts.append("Define MVP scope and resolve overload.")
+        prompt_parts.append("Define scope")
 
         return "\n".join(prompt_parts)
 
     def _process_result(
         self, state: AgentState, result: AgentDtypes.ScoperAgent
     ) -> AgentState:
-        if result.overload:
-            if "scope" not in state:
-                state["scope"] = {}
-            state["scope"]["overload"] = result.overload_details
         state["forward"] = (
             AgentRoute.NegotiatorAgent
-            if result.overload and result.overload_details
+            if result.overload
             else AgentRoute.TaskifierAgent
         )
         state["backward"] = AgentRoute.ScoperAgent

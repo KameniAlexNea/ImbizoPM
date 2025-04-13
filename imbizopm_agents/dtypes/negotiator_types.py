@@ -1,29 +1,34 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 
-class NegotiationDetails(BaseModel):
-    issues: List[str] = Field(
-        default_factory=list,
-        description="A list of specific issues or points of disagreement identified in the project plan",
+# New model to pair issues and solutions
+class ResolutionIssue(BaseModel):
+    issue: str = Field(description="A specific issue or point of disagreement.")
+    proposed_solution: Optional[str] = Field(
+        None,
+        description="A suggested resolution or compromise for this specific issue.",
     )
-    proposed_solutions: List[str] = Field(
-        default_factory=list,
-        description="Suggested resolutions or compromises to address the identified issues",
+
+
+# Modified NegotiationDetails model
+class NegotiationDetails(BaseModel):
+    items: List[ResolutionIssue] = Field(
+        description="A list of issues and their proposed solutions."
     )
     priorities: List[str] = Field(
-        default_factory=list,
-        description="Key aspects that should be prioritized when resolving the conflict (e.g., timeline, value, feasibility)",
+        description="Key aspects that should be prioritized when resolving the conflict (e.g., timeline, value, feasibility)"
     )
 
 
+# Modified ConflictResolution model
 class ConflictResolution(BaseModel):
     conflict_area: Literal["scope", "plan"] = Field(
-        description='The area of conflict being addressed, either "scope" (project boundaries or features) or "plan" (timeline, resources, execution)'
+        description='The area of conflict being addressed, either "scope" or "plan".'
     )
-    negotiation_details: NegotiationDetails = Field(
-        description="Structured details of the conflict, including issues, proposed solutions, and priorities for resolution"
+    negotiation: NegotiationDetails = Field(  # Renamed from negotiation_details
+        description="Structured details of the conflict, including issues, proposed solutions, and priorities."
     )
 
     @staticmethod
@@ -31,16 +36,23 @@ class ConflictResolution(BaseModel):
         """Return an example JSON representation of the ConflictResolution model."""
         return {
             "conflict_area": "scope",
-            "negotiation_details": {
-                "issues": [
-                    "Feature X exceeds original project boundaries",
-                    "Stakeholders disagree on the priority of mobile vs. desktop features",
-                    "Technical limitations make certain requested features difficult to implement",
-                ],
-                "proposed_solutions": [
-                    "Reduce scope of Feature X to core functionality only",
-                    "Phase implementation with mobile features in first release",
-                    "Use alternative technical approach that satisfies 80% of requirements",
+            "negotiation": {  # Updated field name
+                "items": [  # Updated structure for issues/solutions
+                    {
+                        "issue": "Feature X exceeds original project boundaries",
+                        "proposed_solution": "Reduce scope of Feature X to core functionality only",
+                    },
+                    {
+                        "issue": "Stakeholders disagree on the priority of mobile vs. desktop features",
+                        "proposed_solution": "Phase implementation with mobile features in first release",
+                    },
+                    {
+                        "issue": "Technical limitations make certain requested features difficult to implement",
+                        "proposed_solution": "Use alternative technical approach that satisfies 80% of requirements",
+                    },
+                    {
+                        "issue": "Unclear requirements for reporting module"
+                    },  # Example issue without a proposed solution yet
                 ],
                 "priorities": [
                     "Maintaining original timeline",

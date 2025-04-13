@@ -36,9 +36,7 @@ Assess risks and overall feasibility. You should output a JSON format"""
     def _process_result(
         self, state: AgentState, result: AgentDtypes.RiskAgent
     ) -> AgentState:
-        if "warn_errors" not in state:
-            state["warn_errors"] = {}
-        state["warn_errors"]["dealbreakers"] = result.dealbreakers
+        # Move instead of planning to negotiate
         state["forward"] = (
             AgentRoute.ValidatorAgent
             if result.feasible or not result.dealbreakers

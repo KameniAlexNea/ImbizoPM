@@ -25,9 +25,6 @@ class TaskifierAgent(BaseAgent):
         return f"""# Clarifier Agent
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
-# Scoper Agent
-{dumps_to_yaml(state[AgentRoute.ScoperAgent], indent=2)}
-
 # Planner Agent
 {dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
 
@@ -37,13 +34,6 @@ Break into detailed tasks with effort, roles, and dependencies."""
         self, state: AgentState, result: AgentDtypes.TaskifierAgent
     ) -> AgentState:
         tasks = result.tasks
-
-        # If missing info, store feedback in the tasks structure
-        if result.missing_info and result.missing_info_details:
-            # Create a special task to carry the feedback
-            if "warn_errors" not in state:
-                state["warn_errors"] = {}
-            state["warn_errors"]["missing_info"] = result.missing_info_details
 
         state["forward"] = (
             AgentRoute.ClarifierAgent

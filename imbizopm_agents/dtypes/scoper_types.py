@@ -1,21 +1,18 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
 
-class MVPScope(BaseModel):
-    features: List[str] = Field(
-        default_factory=list,
-        description="List of essential features that must be included in the MVP",
-    )
-    user_stories: List[str] = Field(
-        default_factory=list,
-        description="List of user stories in the format: 'As a [user type], I want [capability] so that [benefit]'",
+class MVPItem(BaseModel):
+    feature: str = Field(description="A specific feature included in the MVP.")
+    user_story: Optional[str] = Field(
+        None,
+        description="User story for the feature (e.g., 'As a [user type], I want [capability] so that [benefit]').",
     )
 
 
 class Phase(BaseModel):
-    phase: str = Field(description="Name of the phase (e.g., MVP, Phase 2)")
+    name: str = Field(description="Name of the phase (e.g., MVP, Phase 2)")
     description: str = Field(
         description="Detailed description of this phase's focus and activities"
     )
@@ -32,75 +29,81 @@ class OverloadDetails(BaseModel):
     )
 
 
-class ScopeDefinitionBase(BaseModel):
-    overload: bool = Field(
-        default=False,
-        description="Indicates whether the scope is overloaded or manageable",
+class ScopeDefinition(BaseModel):
+    mvp: List[MVPItem] = Field(
+        description="List of Minimum Viable Product features and their corresponding user stories."
     )
-    mvp_scope: MVPScope = Field(description="Core MVP features and user stories")
-    scope_exclusions: List[str] = Field(
+    exclusions: Optional[List[str]] = Field(
         default_factory=list,
-        description="Capabilities explicitly excluded from MVP to maintain focus",
+        description="List of features or functionalities explicitly excluded from the scope.",
     )
-    phased_approach: List[Phase] = Field(
+    phases: Optional[List[Phase]] = Field(
         default_factory=list,
-        description="Phases for delivering additional capabilities beyond MVP",
+        description="Optional breakdown of the project into phases.",
     )
-    overload_details: OverloadDetails = Field(
-        default_factory=OverloadDetails,
-        description="Detailed explanation of any scope overload issues and suggestions",
+    overload: Optional[OverloadDetails] = Field(
+        description="Details if the scope is considered overloaded, otherwise None.",
     )
 
-
-class ScopeDefinition(ScopeDefinitionBase):
     @staticmethod
     def example() -> Dict[str, Any]:
-        """Return examples of both no overload and overloaded scope definitions."""
+        """Return examples of both manageable and overloaded scope definitions."""
         return {
-            "no_overload_scope": {
-                "overload": False,
-                "mvp_scope": {
-                    "features": [
-                        "User authentication and account management",
-                        "Basic dashboard with key performance metrics",
-                        "Search functionality for main content types",
-                        "Notification system for status updates",
-                    ],
-                    "user_stories": [
-                        "As a customer, I want to create an account so that I can access personalized features",
-                        "As a manager, I want to view key metrics at a glance so that I can make informed decisions quickly",
-                        "As a user, I want to search for content by keyword so that I can find relevant information efficiently",
-                        "As a team member, I want to receive notifications when tasks are assigned to me so that I can prioritize my work",
-                    ],
-                },
-                "scope_exclusions": [
+            "manageable_scope": {
+                "mvp": [
+                    {
+                        "feature": "User authentication and account management",
+                        "user_story": "As a customer, I want to create an account so that I can access personalized features",
+                    },
+                    {
+                        "feature": "Basic dashboard with key performance metrics",
+                        "user_story": "As a manager, I want to view key metrics at a glance so that I can make informed decisions quickly",
+                    },
+                    {
+                        "feature": "Search functionality for main content types",
+                        "user_story": "As a user, I want to search for content by keyword so that I can find relevant information efficiently",
+                    },
+                    {
+                        "feature": "Notification system for status updates",
+                        "user_story": "As a team member, I want to receive notifications when tasks are assigned to me so that I can prioritize my work",
+                    },
+                ],
+                "exclusions": [
                     "Advanced analytics and reporting features",
                     "Integration with third-party platforms",
                     "Mobile application (web responsive only for MVP)",
                     "Real-time collaboration tools",
                 ],
-                "phased_approach": [
+                "phases": [
                     {
-                        "phase": "MVP",
+                        "name": "MVP",
                         "description": "Core functionality focused on user authentication, basic dashboard, search, and notifications",
                     },
                     {
-                        "phase": "Phase 2",
+                        "name": "Phase 2",
                         "description": "Enhanced analytics, reporting capabilities, and initial third-party integrations",
                     },
                     {
-                        "phase": "Phase 3",
+                        "name": "Phase 3",
                         "description": "Mobile application development and advanced collaboration features",
                     },
                 ],
-                "overload_details": {"problem_areas": [], "recommendations": []},
+                "overload": None,
             },
-            "overload_scope": {
-                "overload": True,
-                "mvp_scope": {"features": [], "user_stories": []},
-                "scope_exclusions": [],
-                "phased_approach": [],
-                "overload_details": {
+            "overloaded_scope": {
+                "mvp": [
+                    {
+                        "feature": "User Authentication",
+                        "user_story": "As a user, I want to log in securely.",
+                    },
+                    {
+                        "feature": "Core Data Entry",
+                        "user_story": "As an admin, I want to input basic data.",
+                    },
+                ],
+                "exclusions": None,
+                "phases": None,
+                "overload": {
                     "problem_areas": [
                         "Too many features planned for the MVP given timeline and resources",
                         "Mobile application development requires specialized skills not currently available",

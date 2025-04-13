@@ -3,7 +3,6 @@ from langgraph.graph import END
 from .agents import (
     ClarifierAgent,
     NegotiatorAgent,
-    OutcomeAgent,
     PlannerAgent,
     PMAdapterAgent,
     RiskAgent,
@@ -39,10 +38,10 @@ DEFAULT_GRAPH_CONFIG = {
             "agent_class": ClarifierAgent,
             "description": "Refines the idea, extracts goals and constraints",
         },
-        "OutcomeAgent": {
-            "agent_class": OutcomeAgent,
-            "description": "Defines success metrics and deliverables",
-        },
+        # "OutcomeAgent": {
+        #     "agent_class": OutcomeAgent,
+        #     "description": "Defines success metrics and deliverables",
+        # },
         "PlannerAgent": {
             "agent_class": PlannerAgent,
             "description": "Breaks the project into phases, epics, and strategies",
@@ -77,11 +76,11 @@ DEFAULT_GRAPH_CONFIG = {
         },
     },
     "edges": {
-        "ClarifierAgent": ["OutcomeAgent"],
-        "OutcomeAgent": {
-            "ClarifierAgent": "ClarifierAgent",  # No Clear Outcome path
-            "PlannerAgent": "PlannerAgent",
-        },
+        "ClarifierAgent": ["PlannerAgent"],
+        # "OutcomeAgent": {
+        #     "ClarifierAgent": "ClarifierAgent",  # No Clear Outcome path
+        #     "PlannerAgent": "PlannerAgent",
+        # },
         "PlannerAgent": {
             "ClarifierAgent": "ClarifierAgent",  # Too Vague path
             "ScoperAgent": "ScoperAgent",

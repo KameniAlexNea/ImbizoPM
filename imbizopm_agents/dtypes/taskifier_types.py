@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -18,37 +18,30 @@ class Task(BaseModel):
     )
     epic: str = Field(description="Name of the epic this task belongs to")
     phase: str = Field(description="Phase in which this task is to be executed")
-    dependencies: List[str] = Field(
-        default_factory=list, description="List of task IDs this task depends on"
-    )
+    dependencies: List[str] = Field(description="List of task IDs this task depends on")
 
 
 class MissingInfoDetails(BaseModel):
     unclear_aspects: List[str] = Field(
-        default_factory=list,
-        description="Key points that are unclear and block task definition",
+        description="Key points that are unclear and block task definition"
     )
     questions: List[str] = Field(
-        default_factory=list,
-        description="Questions that must be answered to clarify the scope",
+        description="Questions that must be answered to clarify the scope"
     )
     suggestions: List[str] = Field(
-        default_factory=list,
-        description="Concrete suggestions to resolve ambiguity or missing details",
+        description="Concrete suggestions to resolve ambiguity or missing details"
     )
 
 
 class TaskPlan(BaseModel):
-    missing_info_details: MissingInfoDetails = Field(
+    missing_info_details: Optional[MissingInfoDetails] = Field(
         description="Details about what information is missing and how to address it"
     )
     missing_info: bool = Field(
-        default=True,
         description="Flag indicating that important task-related information is missing",
     )
     tasks: List[Task] = Field(
-        default_factory=list,
-        description="Empty list since tasks can't be defined without resolving issues",
+        description="List of defined tasks",
     )
 
     @staticmethod
