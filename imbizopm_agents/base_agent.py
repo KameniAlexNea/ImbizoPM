@@ -85,7 +85,7 @@ class BaseAgent:
                 raise ValueError(f"Failed to parse output again: {self.name}")
         model_name: BaseModel = getattr(AgentDtypes, self.name)
         try:
-            return model_name.model_validate(parsed_content)
+            return model_name.model_validate(parsed_content, strict=False)
         except Exception as e:
             try:
                 return model_name.model_validate({"result": parsed_content})
