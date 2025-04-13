@@ -9,7 +9,6 @@ def get_negotiator_output_format() -> str:
 
 def get_negotiator_prompt() -> str:
     """Return the system prompt for the negotiator agent."""
-    output_format = get_negotiator_output_format()
     return f"""You are the Negotiator Agent. Your job is to identify and resolve conflicts between different aspects of the project plan and propose balanced solutions.
 
 PROCESS:
