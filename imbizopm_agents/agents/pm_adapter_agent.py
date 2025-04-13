@@ -39,6 +39,9 @@ class PMAdapterAgent(BaseAgent):
 # Project Risks:
 {dumps_to_yaml(state[AgentRoute.RiskAgent], indent=2)}
 
+# Validation:
+{dumps_to_yaml(state[AgentRoute.ValidatorAgent], indent=2)}
+
 Format this project plan for exporting to JSON. Stricly output only the JSON, to the appropriate format."""
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:

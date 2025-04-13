@@ -58,8 +58,11 @@ class BaseAgent:
 
     def _build_agent(self):
         """Build the React agent."""
+        messges = [("system", self.system_prompt), ("human", "{messages}")]
+        if self.structured_output:
+            messges.append(("system", self.format_prompt))
         prompt = ChatPromptTemplate.from_messages(
-            [("system", self.system_prompt), ("human", "{messages}")]
+            messges
         )
 
         self.agent: CompiledGraph = create_react_agent(
