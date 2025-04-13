@@ -30,7 +30,7 @@ class NegotiatorAgent(BaseAgent):
 {dumps_to_yaml(state[AgentRoute.ScoperAgent])}
 
 # Planner Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent])}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components)}
 
 
 Consider the main idea, plan and scope. Identify any conflicts or inconsistencies between them."""

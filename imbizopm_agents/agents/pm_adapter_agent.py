@@ -28,10 +28,10 @@ class PMAdapterAgent(BaseAgent):
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
 # Project Plan:
-{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=2)}
 
 # Project Tasks:
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=2)}
 
 # Project Timeline:
 {dumps_to_yaml(state[AgentRoute.TimelineAgent], indent=2)}

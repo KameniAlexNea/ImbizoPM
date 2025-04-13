@@ -54,7 +54,7 @@ class PlannerAgent(BaseAgent):
 
         if flag:
             prompt_parts.append(
-                f"Previous plan with issue:\n{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}"
+                f"Previous plan with issue:\n{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=2)}"
             )
 
         prompt_parts.append("Break into phases, epics, and strategies.")

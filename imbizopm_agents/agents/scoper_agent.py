@@ -27,7 +27,7 @@ class ScoperAgent(BaseAgent):
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
 # Planner Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=2)}
 """
         ]
 

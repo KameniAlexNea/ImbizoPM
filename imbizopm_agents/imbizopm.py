@@ -1,6 +1,7 @@
 import gradio as gr
 from langchain.chat_models import init_chat_model
 from langgraph.graph.graph import CompiledGraph
+from loguru import logger
 
 from imbizopm_agents.graph import (
     create_project_planning_graph,
@@ -31,11 +32,12 @@ def langgraph_chat(user_input, history=None):
         if messages:
             curr = event[event["backward"]]
             responses += "\n" + dumps_to_yaml(curr)
+            logger.debug(f"Current Agent: {event['backward']}")
             yield responses
         responses += f"\n# Next Direction: {event['forward']}"
 
     yield responses
 
 
-iface = gr.ChatInterface(fn=langgraph_chat)
+iface = gr.ChatInterface(fn=langgraph_chat, )
 iface.launch()

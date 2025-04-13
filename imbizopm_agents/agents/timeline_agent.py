@@ -26,7 +26,7 @@ class TimelineAgent(BaseAgent):
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
         
 Tasks:
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=2)}
 
 Estimate timeline with milestones and critical path."""
 

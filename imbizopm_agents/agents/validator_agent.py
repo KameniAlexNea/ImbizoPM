@@ -26,10 +26,10 @@ class ValidatorAgent(BaseAgent):
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
 
 # Plan Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=2)}
 
 # Taskifier Agent
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=2)}
 
 Validate alignment between the idea, goals, and the resulting plan. Stricly output only the JSON, to the appropriate format."""
 
