@@ -73,7 +73,7 @@ class BaseAgent:
 
     def _build_agent(self):
         """Build the React agent."""
-        messges = [
+        messages = [
             ("system", self.system_prompt),
             (
                 "human",
