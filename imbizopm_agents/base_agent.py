@@ -5,12 +5,12 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph.graph import CompiledGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import create_react_agent
+from llm_output_parser import parse_json
 from loguru import logger
 from pydantic import BaseModel
 from typing_extensions import TypedDict
-from .agents.config import AgentDtypes
 
-from llm_output_parser import parse_json
+from .agents.config import AgentDtypes
 
 
 def extract_structured_data(text: str) -> Dict[str, Any]:
