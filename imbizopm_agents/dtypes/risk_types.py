@@ -2,12 +2,12 @@ from typing import Any, Dict, List, Literal
 
 from pydantic import BaseModel, Field
 
-
+Literal[
+        "Technical", "Resource", "Timeline", "External", "Stakeholder"
+    ]
 class Risk(BaseModel):
     description: str = Field(description="Detailed description of the risk")
-    category: Literal[
-        "Technical", "Resource", "Timeline", "External", "Stakeholder"
-    ] = Field(description="Category of the risk")
+    category: str = Field(description="Category of the risk. E.g., Technical, Resource, Timeline, External, Stakeholder, etc.")
     impact: Literal["High", "Medium", "Low"] = Field(
         description="Impact level if the risk materializes"
     )

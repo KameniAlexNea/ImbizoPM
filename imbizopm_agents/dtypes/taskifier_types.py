@@ -9,27 +9,27 @@ class Task(BaseModel):
     description: str = Field(
         description="Detailed description of what needs to be done"
     )
-    deliverable: str = Field(
+    deliverable: Optional[str] = Field(
         description="Specific deliverable this task contributes to"
     )
     owner_role: str = Field(description="Role responsible for completing this task")
     estimated_effort: Literal["Low", "Medium", "High"] = Field(
         description="Estimated effort required to complete this task"
     )
-    epic: str = Field(description="Name of the epic this task belongs to")
-    phase: str = Field(description="Phase in which this task is to be executed")
-    dependencies: List[str] = Field(description="List of task IDs this task depends on")
+    epic: Optional[str] = Field(description="Name of the epic this task belongs to")
+    phase: Optional[str] = Field(description="Phase in which this task is to be executed")
+    dependencies: List[str] = Field(default_factory=list, description="List of task IDs this task depends on")
 
 
 class MissingInfoDetails(BaseModel):
     unclear_aspects: List[str] = Field(
-        description="Key points that are unclear and block task definition"
+        default_factory=list, description="Key points that are unclear and block task definition"
     )
     questions: List[str] = Field(
-        description="Questions that must be answered to clarify the scope"
+        default_factory=list, description="Questions that must be answered to clarify the scope"
     )
     suggestions: List[str] = Field(
-        description="Concrete suggestions to resolve ambiguity or missing details"
+        default_factory=list, description="Concrete suggestions to resolve ambiguity or missing details"
     )
 
 
@@ -41,7 +41,7 @@ class TaskPlan(BaseModel):
         description="Flag indicating that important task-related information is missing",
     )
     tasks: List[Task] = Field(
-        description="List of defined tasks",
+        default_factory=list, description="List of defined tasks",
     )
 
     @staticmethod
