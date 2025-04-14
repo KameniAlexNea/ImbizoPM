@@ -77,7 +77,7 @@ class BaseAgent:
             ("system", self.system_prompt),
             (
                 "human",
-                "Here is some additionnal information to into account:\n\n{messages}",
+                "Here is some additional information to take into account:\n\n{messages}",
             ),
         ]
         if self.structured_output:
