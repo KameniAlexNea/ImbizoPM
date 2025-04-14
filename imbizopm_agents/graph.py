@@ -86,6 +86,7 @@ def run_project_planning_graph(
     user_input: str,
     thread_id: str = "default",
     recursion_limit: int = 5,
+    print_results: bool = True,
 ):
     """
     Run the project planning graph with the given user input.
@@ -119,16 +120,18 @@ def run_project_planning_graph(
         stream_mode="values",
     )
 
-    results = []
+    # results = []
     for event in events:
-        messages = event["messages"]
-        if messages:
-            message: AIMessage = messages[-1]
-            logger.info(message.pretty_repr())
-        else:
-            logger.info(event)
-        logger.info(f"Next Direction: {event['forward']}")
-        # Store each state update
-        results.append(event)
+        yield event
+        if print_results:
+            messages = event["messages"]
+            if messages:
+                message: AIMessage = messages[-1]
+                logger.info(message.pretty_repr())
+            else:
+                logger.info(event)
+            logger.info(f"Next Direction: {event['forward']}")
+            # Store each state update
+            # results.append(event)
 
-    return results
+    # return results

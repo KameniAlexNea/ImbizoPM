@@ -1,12 +1,12 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.validator_types import PlanValidation
+from ..dtypes import PlanValidation
 from ..prompts.validator_prompts import (
     get_validator_output_format,
     get_validator_prompt,
 )
+from .config import AgentDtypes, AgentRoute
 
 
 class ValidatorAgent(BaseAgent):
@@ -23,12 +23,13 @@ class ValidatorAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""# Clarifier Agent
-{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=4)}
 
-# Plan and Task
-{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+# Plan Agent
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=4)}
 
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
+# Taskifier Agent
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=4)}
 
 Validate alignment between the idea, goals, and the resulting plan. Stricly output only the JSON, to the appropriate format."""
 

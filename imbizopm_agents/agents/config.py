@@ -1,0 +1,62 @@
+from typing import Annotated, Any, TypedDict
+
+from langgraph.graph import END
+from langgraph.graph.message import add_messages
+
+from imbizopm_agents.dtypes.clarifier_types import ProjectPlan
+from imbizopm_agents.dtypes.negotiator_types import ConflictResolution
+from imbizopm_agents.dtypes.outcome_types import ProjectSuccessCriteria
+from imbizopm_agents.dtypes.planner_types import ProjectPlanOutput
+from imbizopm_agents.dtypes.pm_adapter_types import ProjectSummary
+from imbizopm_agents.dtypes.risk_types import FeasibilityAssessment
+from imbizopm_agents.dtypes.scoper_types import ScopeDefinition
+from imbizopm_agents.dtypes.taskifier_types import TaskPlan
+from imbizopm_agents.dtypes.timeline_types import ProjectTimeline
+from imbizopm_agents.dtypes.validator_types import PlanValidation
+
+
+class AgentDtypes:
+    ClarifierAgent = ProjectPlan
+    OutcomeAgent = ProjectSuccessCriteria
+    PlannerAgent = ProjectPlanOutput
+    ScoperAgent = ScopeDefinition
+    TaskifierAgent = TaskPlan
+    TimelineAgent = ProjectTimeline
+    RiskAgent = FeasibilityAssessment
+    ValidatorAgent = PlanValidation
+    PMAdapterAgent = ProjectSummary
+    NegotiatorAgent = ConflictResolution
+
+
+class AgentRoute:
+    ClarifierAgent = "ClarifierAgent"
+    OutcomeAgent = "OutcomeAgent"
+    PlannerAgent = "PlannerAgent"
+    ScoperAgent = "ScoperAgent"
+    TaskifierAgent = "TaskifierAgent"
+    TimelineAgent = "TimelineAgent"
+    RiskAgent = "RiskAgent"
+    ValidatorAgent = "ValidatorAgent"
+    PMAdapterAgent = "PMAdapterAgent"
+    NegotiatorAgent = "NegotiatorAgent"
+    END = END
+
+
+class AgentState(TypedDict):
+    input: str
+    start: str
+    backward: str
+    forward: str
+    warn_errors: dict[str, Any]
+    routes: Annotated[list[str], add_messages]
+    messages: Annotated[list[str], add_messages]
+    ClarifierAgent: AgentDtypes.ClarifierAgent
+    OutcomeAgent: AgentDtypes.OutcomeAgent
+    PlannerAgent: AgentDtypes.PlannerAgent
+    ScoperAgent: AgentDtypes.ScoperAgent
+    TaskifierAgent: AgentDtypes.TaskifierAgent
+    TimelineAgent: AgentDtypes.TimelineAgent
+    RiskAgent: AgentDtypes.RiskAgent
+    ValidatorAgent: AgentDtypes.ValidatorAgent
+    PMAdapterAgent: AgentDtypes.PMAdapterAgent
+    NegotiatorAgent: AgentDtypes.NegotiatorAgent

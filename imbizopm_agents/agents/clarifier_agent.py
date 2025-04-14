@@ -1,21 +1,16 @@
-import json
 from typing import Any, Dict
 
 from langchain_core.language_models import BaseChatModel
 
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentRoute
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.clarifier_types import ProjectPlan
+from ..dtypes import ProjectPlan
 from ..prompts.clarifier_prompts import (
     get_clarifier_output_format,
     get_clarifier_prompt,
 )
-
-CLASSIFIER_OUTPUT = get_clarifier_output_format()
-
-CLASSIFIER_PROMPT = get_clarifier_prompt()
+from .config import AgentRoute
 
 
 class ClarifierAgent(BaseAgent):
@@ -25,8 +20,8 @@ class ClarifierAgent(BaseAgent):
         super().__init__(
             llm,
             AgentRoute.ClarifierAgent,
-            CLASSIFIER_PROMPT,
-            CLASSIFIER_OUTPUT,
+            get_clarifier_output_format(),
+            get_clarifier_prompt(),
             ProjectPlan if use_structured_output else None,
         )
 
@@ -34,27 +29,15 @@ class ClarifierAgent(BaseAgent):
         """Prepare input for the agent."""
         if state.get("backward") is not None:
             backward = state.get("backward")
-            if backward == AgentRoute.OutcomeAgent:  # From outcome agent
-                return f"""
-idea: {state['input']}
-
-# Previous Outcome Agent
-{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
-
-From the previous refined idea, goals, and constraints, it was not possible to extract clear success_metrics and deliverables. Please clarify the project idea, goals, and constraints.
-"""
-            elif backward == AgentRoute.PlannerAgent:  # From planner agent
+            if backward == AgentRoute.PlannerAgent:  # From planner agent
                 return f"""
 idea: {state['input']}
 
 # Previous Clarifier Agent
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent])}
 
-# Previous Outcome Agent
-{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
-
 # Previous Planner Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent])}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].vague_details)}
 
 From the previous refined idea, goals, constraints, it was not possible to extract clear phases, epics, and strategies. Please clarify the project idea, goals, and constraints.
 """
@@ -65,32 +48,17 @@ idea: {state['input']}
 # Previous Clarifier Agent
 {dumps_to_yaml(state[AgentRoute.ClarifierAgent])}
 
-# Previous Outcome Agent
-{dumps_to_yaml(state[AgentRoute.OutcomeAgent])}
-
 # Previous Planner Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent])}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components)}
 
 # Taskifier Agent
-Missing info: {json.dumps(state['warn_errors'].get('missing_info', {}), indent=2)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].missing_info)}
 
 From the previous refined idea, goals, constraints, it was not possible to extract clear tasks. Please clarify the project idea, goals, and constraints.
 """
-        prompt_parts = [state["input"]]
-
-        # Check for TaskifierAgent feedback
-        if (
-            state.get(AgentRoute.TaskifierAgent)
-            and state[AgentRoute.TaskifierAgent].result.tasks
-            and state[AgentRoute.TaskifierAgent].result.missing_info
-        ):
-            prompt_parts.append(
-                f"Some issues when generating tasks: {dumps_to_yaml(state[AgentRoute.TaskifierAgent].result.missing_info)}"
-            )
-
-        return "\n".join(prompt_parts)
+        return state["input"]
 
     def _process_result(self, state: AgentState, result: Dict[str, Any]) -> AgentState:
-        state["forward"] = AgentRoute.OutcomeAgent
+        state["forward"] = AgentRoute.PlannerAgent
         state["backward"] = AgentRoute.ClarifierAgent
         return state

@@ -4,13 +4,9 @@ from imbizopm_agents.prompts.timeline_prompts import (
 )
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.timeline_types import ProjectTimeline
-
-TIMELINE_OUTPUT = get_timeline_output_format()
-
-TIMELINE_PROMPT = get_timeline_prompt()
+from ..dtypes import ProjectTimeline
+from .config import AgentDtypes, AgentRoute
 
 
 class TimelineAgent(BaseAgent):
@@ -27,10 +23,10 @@ class TimelineAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""# Clarifier Agent
-{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=4)}
         
 Tasks:
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=4)}
 
 Estimate timeline with milestones and critical path."""
 

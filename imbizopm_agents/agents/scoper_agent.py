@@ -1,12 +1,12 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..agent_routes import AgentDtypes, AgentRoute
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.scoper_types import ScopeDefinition
+from ..dtypes import ScopeDefinition
 from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
 )
+from .config import AgentDtypes, AgentRoute
 
 
 class ScoperAgent(BaseAgent):
@@ -24,38 +24,34 @@ class ScoperAgent(BaseAgent):
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = [
             f"""# Clarifier Agent
-{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=4)}
 
 # Planner Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=4)}
 """
         ]
 
         # Check for negotiation details from NegotiatorAgent
-        if state.get("warn_errors") and state["warn_errors"].get("negotiation_details"):
+        if state.get("backward") == AgentRoute.NegotiatorAgent:
+            prompt_parts.append(f"Some issues were raised during negotiation.")
             prompt_parts.append(
-                f"Negotiation details:\n{dumps_to_yaml(state['warn_errors'].get('negotiation_details'))}"
+                f"Negotiation details:\n{dumps_to_yaml(state[AgentRoute.NegotiatorAgent].negotiation)}"
             )
 
             prompt_parts.append(
                 f"Previous Scope Agent:\n{dumps_to_yaml(state[AgentRoute.ScoperAgent])}"
             )
-            state["warn_errors"].pop("negotiation_details")
 
-        prompt_parts.append("Define MVP scope and resolve overload.")
+        prompt_parts.append("Define scope")
 
         return "\n".join(prompt_parts)
 
     def _process_result(
         self, state: AgentState, result: AgentDtypes.ScoperAgent
     ) -> AgentState:
-        if result.result.overload:
-            if "scope" not in state:
-                state["scope"] = {}
-            state["scope"]["overload"] = result.result.overload_details
         state["forward"] = (
             AgentRoute.NegotiatorAgent
-            if result.result.overload and result.result.overload_details
+            if result.overload is not None
             else AgentRoute.TaskifierAgent
         )
         state["backward"] = AgentRoute.ScoperAgent

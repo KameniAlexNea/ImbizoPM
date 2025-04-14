@@ -1,4 +1,3 @@
-from ..agent_routes import AgentRoute
 from .clarifier_agent import ClarifierAgent
 from .negotiator_agent import NegotiatorAgent
 from .outcome_agent import OutcomeAgent
@@ -11,7 +10,6 @@ from .timeline_agent import TimelineAgent
 from .validator_agent import ValidatorAgent
 
 __all__ = [
-    "AgentRoute",
     "ClarifierAgent",
     "OutcomeAgent",
     "PlannerAgent",

@@ -1,9 +1,12 @@
+import json
+import os
+
 from langgraph.graph import END
 
-from .agent_types import (
+# Import agent classes directly for mapping
+from .agents import (
     ClarifierAgent,
     NegotiatorAgent,
-    OutcomeAgent,
     PlannerAgent,
     PMAdapterAgent,
     RiskAgent,
@@ -12,105 +15,42 @@ from .agent_types import (
     TimelineAgent,
     ValidatorAgent,
 )
+from .agents.config import AgentRoute
 
-"""
-flowchart TD
-    A[User Idea] --> B[ClarifierAgent]
-    B --> C[OutcomeAgent]
-    C --> D[PlannerAgent]
-    D --> E[ScoperAgent]
-    E --> F[TaskifierAgent]
-    F --> G[TimelineAgent]
-    G --> H[RiskAgent]
-    H --> I[ValidatorAgent]
-    I -->|Valid| J[PMAdapterAgent]
-    I -->|Mismatch| D
-    H -->|Unfeasible| D
-    E -->|Overload| Negotiator[NegotiatorAgent]
-    D -->|Too Vague| B
-    F -->|Missing Info| B
-    C -->|No Clear Outcome| B
-"""
-
-# Default graph configuration
-DEFAULT_GRAPH_CONFIG = {
-    "nodes": {
-        "ClarifierAgent": {
-            "agent_class": ClarifierAgent,
-            "description": "Refines the idea, extracts goals and constraints",
-        },
-        "OutcomeAgent": {
-            "agent_class": OutcomeAgent,
-            "description": "Defines success metrics and deliverables",
-        },
-        "PlannerAgent": {
-            "agent_class": PlannerAgent,
-            "description": "Breaks the project into phases, epics, and strategies",
-        },
-        "ScoperAgent": {
-            "agent_class": ScoperAgent,
-            "description": "Trims the plan into an MVP and resolves overload",
-        },
-        "TaskifierAgent": {
-            "agent_class": TaskifierAgent,
-            "description": "Produces detailed tasks with owners and dependencies",
-        },
-        "RiskAgent": {
-            "agent_class": RiskAgent,
-            "description": "Reviews feasibility and spots contradictions",
-        },
-        "TimelineAgent": {
-            "agent_class": TimelineAgent,
-            "description": "Maps tasks to durations and milestones",
-        },
-        "NegotiatorAgent": {
-            "agent_class": NegotiatorAgent,
-            "description": "Coordinates conflict resolution among agents",
-        },
-        "ValidatorAgent": {
-            "agent_class": ValidatorAgent,
-            "description": "Verifies alignment between idea, plan, and goals",
-        },
-        "PMAdapterAgent": {
-            "agent_class": PMAdapterAgent,
-            "description": "Formats and exports the project plan for external tools",
-        },
-    },
-    "edges": {
-        "ClarifierAgent": ["OutcomeAgent"],
-        "OutcomeAgent": {
-            "ClarifierAgent": "ClarifierAgent",  # No Clear Outcome path
-            "PlannerAgent": "PlannerAgent",
-        },
-        "PlannerAgent": {
-            "ClarifierAgent": "ClarifierAgent",  # Too Vague path
-            "ScoperAgent": "ScoperAgent",
-            "NegotiatorAgent": "NegotiatorAgent",  # If previous plan is negotiated
-        },
-        "ScoperAgent": {
-            "NegotiatorAgent": "NegotiatorAgent",  # Overload path
-            "TaskifierAgent": "TaskifierAgent",
-        },
-        "TaskifierAgent": {
-            "ClarifierAgent": "ClarifierAgent",  # Missing Info path
-            "TimelineAgent": "TimelineAgent",
-        },
-        "TimelineAgent": ["RiskAgent"],
-        "RiskAgent": {
-            "ValidatorAgent": "ValidatorAgent",
-            "PlannerAgent": "PlannerAgent",  # Unfeasible path
-        },
-        "NegotiatorAgent": {
-            "PlannerAgent": "PlannerAgent",
-            "ScoperAgent": "ScoperAgent",
-        },
-        "ValidatorAgent": {
-            "PMAdapterAgent": "PMAdapterAgent",  # Valid path
-            "PlannerAgent": "PlannerAgent",  # Mismatch path
-        },
-        "PMAdapterAgent": [END],
-    },
-    "entry_point": "ClarifierAgent",
+# Map agent class names (strings) to actual classes
+AGENT_CLASSES = {
+    AgentRoute.ClarifierAgent: ClarifierAgent,
+    AgentRoute.NegotiatorAgent: NegotiatorAgent,
+    AgentRoute.PlannerAgent: PlannerAgent,
+    AgentRoute.PMAdapterAgent: PMAdapterAgent,
+    AgentRoute.RiskAgent: RiskAgent,
+    AgentRoute.ScoperAgent: ScoperAgent,
+    AgentRoute.TaskifierAgent: TaskifierAgent,
+    AgentRoute.TimelineAgent: TimelineAgent,
+    AgentRoute.ValidatorAgent: ValidatorAgent,
 }
+
+# Load graph configuration from JSON file
+config_path = os.path.join(os.path.dirname(__file__), "graph_config.json")
+with open(config_path, "r") as f:
+    DEFAULT_GRAPH_CONFIG = json.load(f)
+
+# Resolve agent class strings to actual classes
+for node_name, node_config in DEFAULT_GRAPH_CONFIG["nodes"].items():
+    agent_class_name = node_config.get("agent_class")
+    if agent_class_name and agent_class_name in AGENT_CLASSES:
+        node_config["agent_class"] = AGENT_CLASSES[agent_class_name]
+    else:
+        # Handle cases where agent_class might be missing or not found
+        # You might want to raise an error or log a warning here
+        pass
+
+# Resolve END string in edges
+for source_node, destinations in DEFAULT_GRAPH_CONFIG["edges"].items():
+    if isinstance(destinations, list):
+        DEFAULT_GRAPH_CONFIG["edges"][source_node] = [
+            END if dest == "END" else dest for dest in destinations
+        ]
+    # No change needed for dictionary-based destinations as END is not expected there
 
 NodeSuffix = "Node"

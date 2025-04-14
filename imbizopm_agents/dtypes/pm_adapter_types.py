@@ -1,7 +1,6 @@
-from typing import Any, List
+from typing import List
 
 from pydantic import BaseModel, Field
-
 
 class ProjectOverview(BaseModel):
     name: str = Field(description="Project name")
@@ -42,22 +41,52 @@ class ResourceRequirement(BaseModel):
     )
 
 
+class Task(BaseModel):
+    id: str = Field(description="Unique identifier for the task")
+    title: str = Field(description="Title or name of the task")
+    description: str = Field(description="Detailed description of the task")
+    assignees: List[str] = Field(
+        default_factory=list, description="People responsible for this task"
+    )
+    due_date: str = Field(description="Expected due date for this task")
+
+
+class Dependency(BaseModel):
+    from_task: str = Field(description="Task ID that this task depends on")
+    to_task: str = Field(description="Task ID that is dependent")
+
+
+class ResourceLink(BaseModel):
+    name: str = Field(description="Name of the resource")
+    type: str = Field(description="Type of the resource, e.g., tool, person")
+    linked_task_ids: List[str] = Field(
+        default_factory=list,
+        description="IDs of tasks/milestones associated with this resource",
+    )
+
+
 class PMToolExport(BaseModel):
-    tasks: List[Any] = Field(
+    tasks: List[Task] = Field(
         default_factory=list,
         description="List of tasks for project tracking in a PM tool",
     )
-    milestones: List[Any] = Field(
+    milestones: List[Milestone] = Field(
         default_factory=list,
         description="List of milestones formatted for PM tool import",
     )
-    dependencies: List[Any] = Field(
+    dependencies: List[Dependency] = Field(
         default_factory=list, description="List of task dependencies"
     )
-    resources: List[Any] = Field(
+    resources: List[ResourceLink] = Field(
         default_factory=list,
         description="List of resources (people, tools, etc.) linked to tasks or milestones",
     )
+
+
+class RiskAssessment(BaseModel):
+    name: str = Field(description="Name of the risk")
+    impact: str = Field(description="Impact level of the risk")
+    mitigation_strategy: str = Field(description="Mitigation plan for this risk")
 
 
 class ProjectSummary(BaseModel):
@@ -75,7 +104,7 @@ class ProjectSummary(BaseModel):
         default_factory=list,
         description="List of required roles, their allocations, and key skills needed for the project",
     )
-    top_risks: List[Any] = Field(
+    top_risks: List[RiskAssessment] = Field(
         default_factory=list,
         description="List of major risks, their impact level, and mitigation strategies",
     )
@@ -201,19 +230,19 @@ class ProjectSummary(BaseModel):
             ],
             "top_risks": [
                 {
-                    "description": "Integration with legacy systems may be more complex than anticipated",
+                    "name": "Integration with legacy systems complexity",
                     "impact": "High",
-                    "mitigation": "Early technical spike to assess integration points; allocate additional buffer for integration work",
+                    "mitigation_strategy": "Early technical spike to assess integration points; allocate additional buffer for integration work",
                 },
                 {
-                    "description": "User adoption may be slow due to resistance to change",
+                    "name": "Slow user adoption due to change resistance",
                     "impact": "Medium",
-                    "mitigation": "Develop comprehensive change management plan; involve customer representatives early in the process",
+                    "mitigation_strategy": "Develop comprehensive change management plan; involve customer representatives early in the process",
                 },
                 {
-                    "description": "Security vulnerabilities in new architecture",
+                    "name": "Security vulnerabilities in new architecture",
                     "impact": "High",
-                    "mitigation": "Conduct security review at architecture phase; implement regular penetration testing",
+                    "mitigation_strategy": "Conduct security review at architecture phase; implement regular penetration testing",
                 },
             ],
             "next_steps": [
@@ -226,62 +255,68 @@ class ProjectSummary(BaseModel):
                 "tasks": [
                     {
                         "id": "TASK-001",
-                        "name": "User Research",
-                        "owner": "UX Team",
-                        "start_date": "2023-01-20",
-                        "end_date": "2023-02-10",
-                        "status": "Not Started",
+                        "title": "User Research",
+                        "description": "Conduct interviews and surveys to understand user needs for the new portal.",
+                        "assignees": ["UX Team"],
+                        "due_date": "2023-02-10",
                     },
                     {
                         "id": "TASK-002",
-                        "name": "Wireframe Creation",
-                        "owner": "UX Team",
-                        "start_date": "2023-02-11",
-                        "end_date": "2023-02-25",
-                        "status": "Not Started",
+                        "title": "Wireframe Creation",
+                        "description": "Develop low-fidelity wireframes based on user research.",
+                        "assignees": ["UX Team"],
+                        "due_date": "2023-02-25",
                     },
                     {
                         "id": "TASK-003",
-                        "name": "Technical Architecture",
-                        "owner": "Tech Lead",
-                        "start_date": "2023-02-01",
-                        "end_date": "2023-02-20",
-                        "status": "Not Started",
+                        "title": "Technical Architecture Design",
+                        "description": "Define the technical stack, data models, and integration points.",
+                        "assignees": ["Tech Lead"],
+                        "due_date": "2023-02-20",
                     },
                 ],
                 "milestones": [
                     {
-                        "id": "MS-001",
                         "name": "Requirements & Design Approval",
                         "date": "2023-02-28",
+                        "deliverables": ["Approved requirements", "Signed-off designs"],
                     },
-                    {"id": "MS-002", "name": "Alpha Release", "date": "2023-04-30"},
-                    {"id": "MS-003", "name": "Beta Release", "date": "2023-06-15"},
-                    {"id": "MS-004", "name": "Production Launch", "date": "2023-07-15"},
+                    {
+                        "name": "Alpha Release",
+                        "date": "2023-04-30",
+                        "deliverables": ["Functioning prototype"],
+                    },
+                    {
+                        "name": "Beta Release",
+                        "date": "2023-06-15",
+                        "deliverables": ["Complete feature set", "UAT results"],
+                    },
+                    {
+                        "name": "Production Launch",
+                        "date": "2023-07-15",
+                        "deliverables": ["Live portal", "Support docs"],
+                    },
                 ],
                 "dependencies": [
-                    {"from": "TASK-001", "to": "TASK-002", "type": "Finish-to-Start"},
-                    {"from": "TASK-002", "to": "MS-001", "type": "Finish-to-Start"},
-                    {"from": "TASK-003", "to": "MS-001", "type": "Finish-to-Start"},
+                    {"from_task": "TASK-001", "to_task": "TASK-002"},
+                    {"from_task": "TASK-002", "to_task": "MS-001"},
+                    {"from_task": "TASK-003", "to_task": "MS-001"},
                 ],
                 "resources": [
                     {
-                        "id": "RES-001",
-                        "name": "John Smith",
-                        "role": "Project Manager",
-                        "availability": "100%",
+                        "name": "John Smith (PM)",
+                        "type": "person",
+                        "linked_task_ids": ["TASK-001", "TASK-002", "TASK-003"],
                     },
                     {
-                        "id": "RES-002",
-                        "name": "Sarah Jones",
-                        "role": "UX/UI Designer",
-                        "availability": "100%",
+                        "name": "UX Team",
+                        "type": "team",
+                        "linked_task_ids": ["TASK-001", "TASK-002"],
                     },
                     {
-                        "id": "RES-003",
-                        "name": "Michael Lee",
-                        "role": "Frontend Developer",
-                        "availability": "100%",
+                        "name": "Jira",
+                        "type": "tool",
+                        "linked_task_ids": ["TASK-001", "TASK-002", "TASK-003"],
                     },
                 ],
             },
