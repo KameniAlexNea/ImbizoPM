@@ -1,3 +1,7 @@
+"""
+This class is now merged with Clarifier Agent
+"""
+
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..base_agent import AgentDtypes, AgentState, BaseAgent

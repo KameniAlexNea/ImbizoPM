@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.timeline_types import ProjectTimeline
+from imbizopm_agents.dtypes import ProjectTimeline
 from imbizopm_agents.prompts.utils import prepare_output
 
 

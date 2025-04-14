@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.scoper_types import ScopeDefinition
+from imbizopm_agents.dtypes import ScopeDefinition
 from imbizopm_agents.prompts.utils import prepare_output
 
 

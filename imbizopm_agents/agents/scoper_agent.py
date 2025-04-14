@@ -1,7 +1,7 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.scoper_types import ScopeDefinition
+from ..dtypes import ScopeDefinition
 from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
@@ -24,10 +24,10 @@ class ScoperAgent(BaseAgent):
     def _prepare_input(self, state: AgentState) -> str:
         prompt_parts = [
             f"""# Clarifier Agent
-{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=4)}
 
 # Planner Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=4)}
 """
         ]
 

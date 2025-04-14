@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.taskifier_types import TaskPlan
+from imbizopm_agents.dtypes import TaskPlan
 from imbizopm_agents.prompts.utils import prepare_output
 
 

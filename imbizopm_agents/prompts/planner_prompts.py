@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.planner_types import ProjectPlanOutput
+from imbizopm_agents.dtypes import ProjectPlanOutput
 from imbizopm_agents.prompts.utils import prepare_output
 
 

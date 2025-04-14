@@ -1,4 +1,4 @@
-from ..dtypes.clarifier_types import ProjectPlan
+from ..dtypes import ProjectPlan
 from .utils import prepare_output
 
 

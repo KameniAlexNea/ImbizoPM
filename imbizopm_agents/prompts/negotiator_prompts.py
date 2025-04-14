@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.negotiator_types import ConflictResolution
+from imbizopm_agents.dtypes import ConflictResolution
 from imbizopm_agents.prompts.utils import prepare_output
 
 

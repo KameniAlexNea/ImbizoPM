@@ -39,5 +39,7 @@ def langgraph_chat(user_input, history=None):
     yield responses
 
 
-iface = gr.ChatInterface(fn=langgraph_chat, )
+iface = gr.ChatInterface(
+    fn=langgraph_chat,
+)
 iface.launch()

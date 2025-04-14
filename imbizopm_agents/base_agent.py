@@ -8,10 +8,25 @@ from langgraph.prebuilt import create_react_agent
 from loguru import logger
 from pydantic import BaseModel
 from typing_extensions import TypedDict
-
-from imbizopm_agents.utils import extract_structured_data
-
 from .agents.config import AgentDtypes
+
+from llm_output_parser import parse_json
+
+
+def extract_structured_data(text: str) -> Dict[str, Any]:
+    """
+    Extract structured data from agent response text.
+
+    Args:
+        text: The text output from an agent
+
+    Returns:
+        Dict with extracted structured data
+    """
+    try:
+        return parse_json(text)
+    except Exception as e:
+        return {"text": text, "error": str(e)}
 
 
 class AgentState(TypedDict):
@@ -58,9 +73,21 @@ class BaseAgent:
 
     def _build_agent(self):
         """Build the React agent."""
-        messges = [("system", self.system_prompt), ("human", "{messages}")]
+        messges = [
+            ("system", self.system_prompt),
+            (
+                "human",
+                "Here is some additionnal information to into account:\n\n{messages}",
+            ),
+        ]
         if self.structured_output:
-            messges.append(("system", self.format_prompt))
+            messges.append(
+                (
+                    "system",
+                    self.format_prompt
+                    + "\n\nFormat your response as JSON (strictly output only the JSON, choose the appropriate format)",
+                )
+            )
         prompt = ChatPromptTemplate.from_messages(messges)
 
         self.agent: CompiledGraph = create_react_agent(
@@ -72,15 +99,14 @@ class BaseAgent:
         retry_text = None
         if "error" in parsed_content:
             logger.warning(f"Errors found in output: {self.name}")
-            retry_text = self.llm.invoke(
-                [
-                    {
-                        "role": "human",
-                        "content": f"Format the following text as JSON (strictly output only the JSON, choose the appropriate format):\n{content}"
-                        + self.format_prompt,
-                    }
-                ]
-            ).content
+            messages = [
+                {
+                    "role": "human",
+                    "content": f"Format the following text as JSON (strictly output only the JSON, choose the appropriate format):\n{content}"
+                    + self.format_prompt,
+                }
+            ]
+            retry_text = self.llm.invoke(messages).content
             parsed_content = extract_structured_data(retry_text)
             if "error" in parsed_content:
                 raise ValueError(f"Failed to parse output again: {self.name}")
@@ -88,10 +114,6 @@ class BaseAgent:
         try:
             return model_name.model_validate(parsed_content, strict=False)
         except Exception as e:
-            try:
-                return model_name.model_validate({"result": parsed_content})
-            except:
-                pass
             logger.warning(f"Failed to validate output: {self.name}")
             logger.warning(f"Error: {e}")
             logger.warning(f"Parsed content: {parsed_content}")

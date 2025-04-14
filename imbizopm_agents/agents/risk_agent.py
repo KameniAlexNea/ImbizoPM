@@ -1,7 +1,7 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..base_agent import AgentDtypes, AgentState, BaseAgent
-from ..dtypes.risk_types import FeasibilityAssessment
+from ..dtypes import FeasibilityAssessment
 from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
 from .config import AgentRoute
 
@@ -20,16 +20,16 @@ class RiskAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""# Clarifier Agent
-{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=4)}
 
 # Plan Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=4)}
 
 # Taskifier Agent
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=2)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=4)}
 
 # Timeline Agent
-{dumps_to_yaml(state[AgentRoute.TimelineAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.TimelineAgent], indent=4)}
 
 Assess risks and overall feasibility. You should output a JSON format"""
 

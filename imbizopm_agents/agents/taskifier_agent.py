@@ -1,7 +1,7 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.taskifier_types import TaskPlan
+from ..dtypes import TaskPlan
 from ..prompts.taskifier_prompts import (
     get_taskifier_output_format,
     get_taskifier_prompt,
@@ -23,10 +23,10 @@ class TaskifierAgent(BaseAgent):
 
     def _prepare_input(self, state: AgentState) -> str:
         return f"""# Clarifier Agent
-{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=2)}
+{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=4)}
 
 # Planner Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=2)}
+{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=4)}
 
 Break into detailed tasks with effort, roles, and dependencies."""
 

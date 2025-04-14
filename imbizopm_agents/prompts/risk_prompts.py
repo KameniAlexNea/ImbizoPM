@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.risk_types import FeasibilityAssessment
+from imbizopm_agents.dtypes import FeasibilityAssessment
 from imbizopm_agents.prompts.utils import prepare_output
 
 

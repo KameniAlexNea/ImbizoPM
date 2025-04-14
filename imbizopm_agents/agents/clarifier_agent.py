@@ -5,7 +5,7 @@ from langchain_core.language_models import BaseChatModel
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..base_agent import AgentState, BaseAgent
-from ..dtypes.clarifier_types import ProjectPlan
+from ..dtypes import ProjectPlan
 from ..prompts.clarifier_prompts import (
     get_clarifier_output_format,
     get_clarifier_prompt,

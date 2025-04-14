@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.validator_types import PlanValidation
+from imbizopm_agents.dtypes import PlanValidation
 from imbizopm_agents.prompts.utils import prepare_output
 
 

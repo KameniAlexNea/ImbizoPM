@@ -1,4 +1,4 @@
-from imbizopm_agents.dtypes.pm_adapter_types import ProjectSummary
+from imbizopm_agents.dtypes import ProjectSummary
 from imbizopm_agents.prompts.utils import prepare_output
 
 
