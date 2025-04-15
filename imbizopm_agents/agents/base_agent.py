@@ -1,15 +1,13 @@
-from typing import Annotated, Any, Callable, Dict, Optional, TypedDict
+from typing import Any, Callable, Dict, Optional
 
 from langchain_core.language_models import BaseChatModel
 from langgraph.graph.graph import CompiledGraph
-from langgraph.graph.message import add_messages
 from langgraph.prebuilt import create_react_agent
 from llm_output_parser import parse_json
 from loguru import logger
 from pydantic import BaseModel
-from typing_extensions import TypedDict
 
-from .agents.config import AgentDtypes
+from .config import AgentDtypes, AgentState
 
 
 def extract_structured_data(text: str) -> Dict[str, Any]:
@@ -28,26 +26,6 @@ def extract_structured_data(text: str) -> Dict[str, Any]:
         return {"text": text, "error": str(e)}
 
 
-class AgentState(TypedDict):
-    input: str
-    start: str
-    backward: str
-    forward: str
-    warn_errors: dict[str, Any]
-    routes: Annotated[list[str], add_messages]
-    messages: Annotated[list[str], add_messages]
-    ClarifierAgent: AgentDtypes.ClarifierAgent
-    # OutcomeAgent: AgentDtypes.OutcomeAgent
-    PlannerAgent: AgentDtypes.PlannerAgent
-    ScoperAgent: AgentDtypes.ScoperAgent
-    TaskifierAgent: AgentDtypes.TaskifierAgent
-    TimelineAgent: AgentDtypes.TimelineAgent
-    RiskAgent: AgentDtypes.RiskAgent
-    ValidatorAgent: AgentDtypes.ValidatorAgent
-    PMAdapterAgent: AgentDtypes.PMAdapterAgent
-    NegotiatorAgent: AgentDtypes.NegotiatorAgent
-
-
 class BaseAgent:
     """Base agent class with React pattern support."""
 
@@ -55,8 +33,8 @@ class BaseAgent:
         self,
         llm: BaseChatModel,
         name: str,
-        system_prompt: str,
         format_prompt: str,
+        system_prompt: str,
         model_class: Optional[Callable] = None,
         description: str = "",
     ):
@@ -71,17 +49,14 @@ class BaseAgent:
         self._build_agent()
 
     def _format_input(self, content: str) -> str:
+        text = f"======= Input Data =======\n{content}" + (
+            ""
+            if self.structured_output
+            else f"\n\n\n======= Output Data =======\n{self.format_prompt}"
+        )
         return [
-            ("system", self.system_prompt),
-            (
-                "human",
-                f"======= Input Data =======\n{content}"
-                + (
-                    ""
-                    if self.structured_output
-                    else f"\n\n\n======= Output Data =======\n{self.format_prompt}"
-                ),
-            ),
+            {"role": "system", "content": self.system_prompt},
+            {"role": "human", "content": text},
         ]
 
     def _build_agent(self):

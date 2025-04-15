@@ -13,14 +13,6 @@ class MVPItem(BaseModel):
     )
 
 
-class Phase(BaseModel):
-    name: str = Field(default="", description="Name of the phase (e.g., MVP, Phase 2)")
-    description: str = Field(
-        default="",
-        description="Detailed description of this phase's focus and activities",
-    )
-
-
 class OverloadDetails(BaseModel):
     problem_areas: List[str] = Field(
         default_factory=list,
@@ -41,9 +33,9 @@ class ScopeDefinition(BaseModel):
         default_factory=list,
         description="List of features or functionalities explicitly excluded from the scope.",
     )
-    phases: Optional[List[Phase]] = Field(
+    phases: Optional[List[str]] = Field(
         default_factory=list,
-        description="Optional breakdown of the project into phases.",
+        description="Optional breakdown of the project into phases, described as strings.",
     )
     overload: Optional[OverloadDetails] = Field(
         default=None,
@@ -85,8 +77,8 @@ class ScopeDefinition(BaseModel):
 
             if self.phases:
                 output += "**Project Phases:**\n"
-                for phase in self.phases:
-                    output += f"- **{phase.name}:** {phase.description}\n"
+                for i, phase_description in enumerate(self.phases):
+                    output += f"- **Phase {i+1}:** {phase_description}\n"
                 output += "\n"
 
         return output.strip()
@@ -121,18 +113,9 @@ class ScopeDefinition(BaseModel):
                     "Real-time collaboration tools",
                 ],
                 "phases": [
-                    {
-                        "name": "MVP",
-                        "description": "Core functionality focused on user authentication, basic dashboard, search, and notifications",
-                    },
-                    {
-                        "name": "Phase 2",
-                        "description": "Enhanced analytics, reporting capabilities, and initial third-party integrations",
-                    },
-                    {
-                        "name": "Phase 3",
-                        "description": "Mobile application development and advanced collaboration features",
-                    },
+                    "Core functionality focused on user authentication, basic dashboard, search, and notifications",
+                    "Enhanced analytics, reporting capabilities, and initial third-party integrations",
+                    "Mobile application development and advanced collaboration features",
                 ],
                 "overload": None,
             },

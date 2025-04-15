@@ -20,17 +20,39 @@ def prepare_output(data: dict, union=False, indent=4):
 {output}"""
 
 
-def dumps_to_yaml(data: Union[dict, BaseModel], indent=4) -> str:
-    # Convert a dictionary or BaseModel to a structured string or YAML string
-    if isinstance(data, BaseModel):
+def _convert_basemodel(item):
+    """Recursively convert BaseModel instances within lists and dicts."""
+    if isinstance(item, BaseModel):
         # Check if the BaseModel has a 'to_structured_string' method
-        if hasattr(data, "to_structured_string") and callable(
-            getattr(data, "to_structured_string")
+        if hasattr(item, "to_structured_string") and callable(
+            getattr(item, "to_structured_string")
         ):
-            return data.to_structured_string()
+            # Prefer the custom string representation if available
+            return item.to_structured_string()
         else:
-            # Fallback to model_dump if the method doesn't exist
-            data = data.model_dump()
+            # Fallback to model_dump
+            return item.model_dump()
+    elif isinstance(item, list):
+        return [_convert_basemodel(i) for i in item]
+    elif isinstance(item, dict):
+        return {k: _convert_basemodel(v) for k, v in item.items()}
+    else:
+        return item
 
-    # Dump dictionary to YAML
-    return yaml.dump(data, default_flow_style=False, allow_unicode=True, indent=indent)
+
+def dumps_to_yaml(data: Union[dict, list, BaseModel], indent=4) -> str:
+    # Convert a dictionary, list, or BaseModel to a structured string or YAML string
+    processed_data = _convert_basemodel(data)
+
+    # Dump the processed data to YAML
+    # Note: If a BaseModel had a to_structured_string method,
+    # it would have returned a string directly from _convert_basemodel.
+    # Otherwise, we dump the potentially modified dict/list structure.
+    if isinstance(processed_data, str):
+        # If _convert_basemodel returned a string (from to_structured_string), return it directly
+        return processed_data
+    else:
+        # Dump dictionary or list to YAML
+        return yaml.dump(
+            processed_data, default_flow_style=False, allow_unicode=True, indent=indent
+        )

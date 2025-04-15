@@ -3,13 +3,6 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
-class Deliverable(BaseModel):
-    name: str = Field(default="", description="Clear name of the deliverable")
-    description: str = Field(
-        default="", description="Detailed description of what this deliverable includes"
-    )
-
-
 class ProjectPlan(BaseModel):
     refined_idea: str = Field(
         default="",
@@ -27,9 +20,9 @@ class ProjectPlan(BaseModel):
         default_factory=list,
         description="List of specific measurements that indicate goal achievement (e.g., target value, method of measurement)",
     )
-    deliverables: List[Deliverable] = Field(
+    deliverables: List[str] = Field(
         default_factory=list,
-        description="List of key deliverables, each defined by a name and detailed description",
+        description="List of key deliverables, described as strings",
     )
 
     def to_structured_string(self) -> str:
@@ -57,7 +50,7 @@ class ProjectPlan(BaseModel):
         if self.deliverables:
             output += "**Key Deliverables:**\n"
             for deliverable in self.deliverables:
-                output += f"- **{deliverable.name}:** {deliverable.description}\n"
+                output += f"- {deliverable}\n"
             output += "\n"
 
         return output.strip()
@@ -86,21 +79,9 @@ class ProjectPlan(BaseModel):
                 "Zero critical security vulnerabilities in penetration testing",
             ],
             "deliverables": [
-                {
-                    "name": "User Authentication System",
-                    "description": "A secure login system with multi-factor authentication capability and password recovery functionality",
-                },
-                {
-                    "name": "Analytics Dashboard",
-                    "description": "An interactive dashboard displaying key performance metrics with customizable views and export capabilities",
-                },
-                {
-                    "name": "API Documentation",
-                    "description": "Comprehensive documentation of all API endpoints including request/response formats, authentication requirements, and example code",
-                },
-                {
-                    "name": "Deployment Guide",
-                    "description": "Step-by-step instructions for system deployment in various environments with troubleshooting information",
-                },
+                "User Authentication System: A secure login system with multi-factor authentication capability and password recovery functionality",
+                "Analytics Dashboard: An interactive dashboard displaying key performance metrics with customizable views and export capabilities",
+                "API Documentation: Comprehensive documentation of all API endpoints including request/response formats, authentication requirements, and example code",
+                "Deployment Guide: Step-by-step instructions for system deployment in various environments with troubleshooting information",
             ],
         }

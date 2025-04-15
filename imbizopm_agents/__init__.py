@@ -1,5 +1,5 @@
+from imbizopm_agents.agents import ClarifierAgent  # OutcomeAgent,
 from imbizopm_agents.agents import (
-    ClarifierAgent,  # OutcomeAgent,
     NegotiatorAgent,
     PlannerAgent,
     PMAdapterAgent,
