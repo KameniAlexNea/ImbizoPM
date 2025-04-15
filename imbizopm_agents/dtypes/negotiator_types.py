@@ -31,6 +31,31 @@ class ConflictResolution(BaseModel):
         description="Structured details of the conflict, including issues, proposed solutions, and priorities."
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the conflict resolution details into a structured string."""
+        output = f"**Conflict Area:** {self.conflict_area.capitalize()}\n\n"
+
+        output += "**Negotiation Details:**\n"
+
+        if self.negotiation.items:
+            output += "*   **Issues & Proposed Solutions:**\n"
+            for item in self.negotiation.items:
+                solution_text = (
+                    f" -> Proposed Solution: {item.proposed_solution}"
+                    if item.proposed_solution
+                    else " -> No solution proposed yet"
+                )
+                output += f"    - Issue: {item.issue}{solution_text}\n"
+            output += "\n"
+
+        if self.negotiation.priorities:
+            output += "*   **Priorities:**\n"
+            for priority in self.negotiation.priorities:
+                output += f"    - {priority}\n"
+            output += "\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of the ConflictResolution model."""

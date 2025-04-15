@@ -68,6 +68,73 @@ class PlanValidation(BaseModel):
         description="Summary of what's missing and how the plan could be improved",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the plan validation results into a structured string."""
+        validation_status = "Validated" if self.overall_validation else "Not Validated"
+        output = f"**Plan Validation Status: {validation_status}**\n"
+        output += f"**Overall Alignment Score:** {self.alignment_score}\n\n"
+
+        if not self.overall_validation:
+            output += "**Completeness Assessment (Issues Found):**\n"
+            if self.completeness_assessment.missing_elements:
+                output += "*   **Missing Elements:**\n"
+                for element in self.completeness_assessment.missing_elements:
+                    output += f"    - {element}\n"
+            if self.completeness_assessment.improvement_suggestions:
+                output += "*   **Improvement Suggestions:**\n"
+                for suggestion in self.completeness_assessment.improvement_suggestions:
+                    output += f"    - {suggestion}\n"
+            output += "\n"
+            # Optionally add details from other sections even if not validated overall
+            # For brevity, we focus on completeness when not validated.
+
+        else:
+            if self.goals_alignment:
+                output += "**Goals Alignment:**\n"
+                for goal, alignment in self.goals_alignment.items():
+                    output += f"- **Goal:** {goal}\n"
+                    output += f"  - **Alignment:** {alignment.aligned}\n"
+                    output += f"  - **Evidence:** {alignment.evidence}\n"
+                    if alignment.gaps:
+                        output += f"  - **Gaps:** {'; '.join(alignment.gaps)}\n"
+                output += "\n"
+
+            if self.constraints_respected:
+                output += "**Constraints Respected:**\n"
+                for constraint, respect in self.constraints_respected.items():
+                    output += f"- **Constraint:** {constraint}\n"
+                    output += f"  - **Respected:** {respect.respected}\n"
+                    output += f"  - **Evidence:** {respect.evidence}\n"
+                    if respect.concerns:
+                        output += f"  - **Concerns:** {'; '.join(respect.concerns)}\n"
+                output += "\n"
+
+            if self.outcomes_achievable:
+                output += "**Outcomes Achievability:**\n"
+                for outcome, achievability in self.outcomes_achievable.items():
+                    output += f"- **Outcome:** {outcome}\n"
+                    output += f"  - **Achievable:** {achievability.achievable}\n"
+                    output += f"  - **Evidence:** {achievability.evidence}\n"
+                    if achievability.risks:
+                        output += f"  - **Risks:** {'; '.join(achievability.risks)}\n"
+                output += "\n"
+
+            # Include completeness even if validated, if there are items
+            if self.completeness_assessment.missing_elements or self.completeness_assessment.improvement_suggestions:
+                 output += "**Completeness Assessment:**\n"
+                 if self.completeness_assessment.missing_elements:
+                     output += "*   **Missing Elements:**\n"
+                     for element in self.completeness_assessment.missing_elements:
+                         output += f"    - {element}\n"
+                 if self.completeness_assessment.improvement_suggestions:
+                     output += "*   **Improvement Suggestions:**\n"
+                     for suggestion in self.completeness_assessment.improvement_suggestions:
+                         output += f"    - {suggestion}\n"
+                 output += "\n"
+
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of the PlanValidation model."""

@@ -71,27 +71,24 @@ class BaseAgent:
         self.agent: CompiledGraph = None
         self._build_agent()
 
-    def _build_agent(self):
-        """Build the React agent."""
-        messages = [
+    def _format_input(self, content: str) -> str:
+        return [
             ("system", self.system_prompt),
             (
                 "human",
-                "Here is some additional information to take into account:\n\n{messages}",
+                f"======= Input Data =======\n{content}"
+                + (
+                    ""
+                    if self.structured_output
+                    else f"\n\n\n======= Output Data =======\n{self.format_prompt}"
+                ),
             ),
         ]
-        if self.structured_output:
-            messges.append(
-                (
-                    "system",
-                    self.format_prompt
-                    + "\n\nFormat your response as JSON (strictly output only the JSON, choose the appropriate format)",
-                )
-            )
-        prompt = ChatPromptTemplate.from_messages(messges)
 
+    def _build_agent(self):
+        """Build the React agent."""
         self.agent: CompiledGraph = create_react_agent(
-            self.llm, tools=[], prompt=prompt, response_format=self.model_class
+            self.llm, tools=[], prompt=None, response_format=self.model_class
         )
 
     def _parse_content(self, content: str):
@@ -123,7 +120,9 @@ class BaseAgent:
             raise ValueError(f"Failed to validate output: {self.name}")
 
     def run(self, state: AgentState) -> AgentState:
-        raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
+        raw_output = self.agent.invoke(
+            {"messages": self._format_input(self._prepare_input(state))}
+        )
         if self.structured_output:
             parsed_content: BaseModel = raw_output["structured_response"]
             logger.debug(parsed_content)

@@ -31,6 +31,36 @@ class ProjectPlan(BaseModel):
         description="List of key deliverables, each defined by a name and detailed description",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the project plan into a structured string for the next agent."""
+        output = f"**Refined Project Idea:**\n{self.refined_idea}\n\n"
+
+        if self.goals:
+            output += "**Goals:**\n"
+            for goal in self.goals:
+                output += f"- {goal}\n"
+            output += "\n"
+
+        if self.constraints:
+            output += "**Constraints:**\n"
+            for constraint in self.constraints:
+                output += f"- {constraint}\n"
+            output += "\n"
+
+        if self.success_metrics:
+            output += "**Success Metrics:**\n"
+            for metric in self.success_metrics:
+                output += f"- {metric}\n"
+            output += "\n"
+
+        if self.deliverables:
+            output += "**Key Deliverables:**\n"
+            for deliverable in self.deliverables:
+                output += f"- **{deliverable.name}:** {deliverable.description}\n"
+            output += "\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of the ProjectPlan model."""

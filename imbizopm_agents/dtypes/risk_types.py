@@ -38,6 +38,45 @@ class FeasibilityAssessment(BaseModel):
     )
     feasible: bool = Field(description="Overall feasibility status")
 
+    def to_structured_string(self) -> str:
+        """Formats the feasibility assessment into a structured string."""
+        if self.feasible:
+            output = "**Feasibility Assessment: Feasible**\n\n"
+
+            if self.risks:
+                output += "**Identified Risks:**\n"
+                for risk in self.risks:
+                    output += f"- **Description:** {risk.description}\n"
+                    output += f"  - **Category:** {risk.category}\n"
+                    output += f"  - **Impact:** {risk.impact}, **Probability:** {risk.probability}, **Priority:** {risk.priority}\n"
+                    output += f"  - **Mitigation:** {risk.mitigation_strategy}\n"
+                    output += f"  - **Contingency:** {risk.contingency_plan}\n"
+                output += "\n"
+
+            if self.assumptions:
+                output += "**Critical Assumptions:**\n"
+                for assumption in self.assumptions:
+                    output += f"- {assumption}\n"
+                output += "\n"
+
+            if self.feasibility_concerns:
+                output += "**Feasibility Concerns & Recommendations:**\n"
+                for concern in self.feasibility_concerns:
+                    output += f"- {concern}\n"
+                output += "\n"
+
+        else:
+            output = "**Feasibility Assessment: Not Feasible**\n\n"
+            if self.dealbreakers:
+                output += "**Dealbreakers (Blocking Issues):**\n"
+                for dealbreaker in self.dealbreakers:
+                    output += f"- {dealbreaker}\n"
+                output += "\n"
+            else:
+                output += "No specific dealbreakers listed, but the project is deemed not feasible based on overall assessment.\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> Dict[str, Any]:
         """Return examples of both feasible and not feasible assessments."""

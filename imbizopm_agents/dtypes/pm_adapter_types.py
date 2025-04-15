@@ -117,6 +117,57 @@ class ProjectSummary(BaseModel):
         description="Exportable structure for project management tools including tasks, milestones, dependencies, and resources",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the project summary into a structured string."""
+        output = f"**Executive Summary:**\n{self.executive_summary}\n\n"
+
+        output += "**Project Overview:**\n"
+        output += f"- **Name:** {self.project_overview.name}\n"
+        output += f"- **Description:** {self.project_overview.description}\n"
+        output += f"- **Timeline:** {self.project_overview.timeline}\n"
+        if self.project_overview.objectives:
+            output += "- **Objectives:**\n"
+            for objective in self.project_overview.objectives:
+                output += f"  - {objective}\n"
+        if self.project_overview.key_stakeholders:
+            output += "- **Key Stakeholders:**\n"
+            for stakeholder in self.project_overview.key_stakeholders:
+                output += f"  - {stakeholder}\n"
+        output += "\n"
+
+        if self.key_milestones:
+            output += "**Key Milestones:**\n"
+            for milestone in self.key_milestones:
+                output += f"- **{milestone.name} ({milestone.date}):**\n"
+                if milestone.deliverables:
+                    for deliverable in milestone.deliverables:
+                        output += f"  - {deliverable}\n"
+            output += "\n"
+
+        if self.resource_requirements:
+            output += "**Resource Requirements:**\n"
+            for req in self.resource_requirements:
+                output += f"- **Role:** {req.role} ({req.allocation})\n"
+                if req.skills:
+                    output += f"  - **Skills:** {', '.join(req.skills)}\n"
+            output += "\n"
+
+        if self.top_risks:
+            output += "**Top Risks:**\n"
+            for risk in self.top_risks:
+                output += f"- **{risk.name} (Impact: {risk.impact}):** {risk.mitigation_strategy}\n"
+            output += "\n"
+
+        if self.next_steps:
+            output += "**Next Steps:**\n"
+            for step in self.next_steps:
+                output += f"- {step}\n"
+            output += "\n"
+
+        # Note: pm_tool_export is intentionally omitted for brevity in the summary string.
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of the ProjectSummary model."""

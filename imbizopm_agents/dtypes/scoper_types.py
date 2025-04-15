@@ -45,6 +45,47 @@ class ScopeDefinition(BaseModel):
         description="Details if the scope is considered overloaded, otherwise None.",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the scope definition into a structured string."""
+        if self.overload:
+            output = "**Scope Status: Overloaded**\n\n"
+            output += "The proposed scope exceeds feasible limits. Please review the following:\n\n"
+
+            if self.overload.problem_areas:
+                output += "**Problem Areas:**\n"
+                for area in self.overload.problem_areas:
+                    output += f"- {area}\n"
+                output += "\n"
+
+            if self.overload.recommendations:
+                output += "**Recommendations for Scope Reduction:**\n"
+                for rec in self.overload.recommendations:
+                    output += f"- {rec}\n"
+                output += "\n"
+        else:
+            output = "**Scope Definition:**\n\n"
+
+            if self.mvp:
+                output += "**Minimum Viable Product (MVP):**\n"
+                for item in self.mvp:
+                    user_story_text = f" ({item.user_story})" if item.user_story else ""
+                    output += f"- **Feature:** {item.feature}{user_story_text}\n"
+                output += "\n"
+
+            if self.exclusions:
+                output += "**Exclusions (Out of Scope):**\n"
+                for exclusion in self.exclusions:
+                    output += f"- {exclusion}\n"
+                output += "\n"
+
+            if self.phases:
+                output += "**Project Phases:**\n"
+                for phase in self.phases:
+                    output += f"- **{phase.name}:** {phase.description}\n"
+                output += "\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> Dict[str, Any]:
         """Return examples of both manageable and overloaded scope definitions."""

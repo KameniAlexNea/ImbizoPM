@@ -1,6 +1,7 @@
-from typing import List, Literal
+from typing import List, Literal, Dict
 
 from pydantic import BaseModel, Field
+from collections import defaultdict
 
 
 class NamedItem(BaseModel):
@@ -42,6 +43,51 @@ class ProjectPlanOutput(BaseModel):
         default_factory=list,
         description="Collection of items which can be phases, epics, or strategies, providing an integrated view of all planning elements",
     )
+
+    def to_structured_string(self) -> str:
+        """Formats the project plan output into a structured string."""
+        if self.too_vague:
+            output = "**Project Plan Status: Too Vague**\n\n"
+            output += "The project description lacks sufficient detail for planning. Please address the following:\n\n"
+
+            if self.vague_details.unclear_aspects:
+                output += "**Unclear Aspects:**\n"
+                for aspect in self.vague_details.unclear_aspects:
+                    output += f"- {aspect}\n"
+                output += "\n"
+
+            if self.vague_details.questions:
+                output += "**Questions to Address:**\n"
+                for question in self.vague_details.questions:
+                    output += f"- {question}\n"
+                output += "\n"
+
+            if self.vague_details.suggestions:
+                output += "**Suggestions for Clarification:**\n"
+                for suggestion in self.vague_details.suggestions:
+                    output += f"- {suggestion}\n"
+                output += "\n"
+        else:
+            output = "**Project Plan Components:**\n\n"
+            if not self.components:
+                output += "No specific components were generated.\n"
+            else:
+                # Group components by kind
+                grouped_components: Dict[str, List[NamedItem]] = defaultdict(list)
+                for component in self.components:
+                    grouped_components[component.kind].append(component)
+
+                # Define the order for display
+                kind_order = ["phase", "epic", "strategy"]
+
+                for kind in kind_order:
+                    if kind in grouped_components:
+                        output += f"**{kind.capitalize()}s:**\n"
+                        for item in grouped_components[kind]:
+                            output += f"- **{item.name}:** {item.description}\n"
+                        output += "\n"
+
+        return output.strip()
 
     @staticmethod
     def example() -> dict:

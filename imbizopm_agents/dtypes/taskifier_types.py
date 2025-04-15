@@ -44,6 +44,53 @@ class TaskPlan(BaseModel):
         default_factory=list, description="List of defined tasks",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the task plan into a structured string."""
+        if self.missing_info and self.missing_info_details:
+            output = "**Task Plan Status: Missing Information**\n\n"
+            output += "Cannot define tasks due to missing information. Please address the following:\n\n"
+
+            if self.missing_info_details.unclear_aspects:
+                output += "**Unclear Aspects:**\n"
+                for aspect in self.missing_info_details.unclear_aspects:
+                    output += f"- {aspect}\n"
+                output += "\n"
+
+            if self.missing_info_details.questions:
+                output += "**Questions to Address:**\n"
+                for question in self.missing_info_details.questions:
+                    output += f"- {question}\n"
+                output += "\n"
+
+            if self.missing_info_details.suggestions:
+                output += "**Suggestions for Clarification:**\n"
+                for suggestion in self.missing_info_details.suggestions:
+                    output += f"- {suggestion}\n"
+                output += "\n"
+        elif not self.tasks:
+             output = "**Task Plan:**\n\nNo tasks defined.\n"
+        else:
+            output = "**Task Plan:**\n\n"
+            for task in self.tasks:
+                output += f"**Task ID:** {task.id}\n"
+                output += f"- **Name:** {task.name}\n"
+                output += f"- **Description:** {task.description}\n"
+                if task.deliverable:
+                    output += f"- **Deliverable:** {task.deliverable}\n"
+                output += f"- **Owner Role:** {task.owner_role}\n"
+                output += f"- **Estimated Effort:** {task.estimated_effort}\n"
+                if task.epic:
+                    output += f"- **Epic:** {task.epic}\n"
+                if task.phase:
+                    output += f"- **Phase:** {task.phase}\n"
+                if task.dependencies:
+                    output += f"- **Dependencies:** {', '.join(task.dependencies)}\n"
+                else:
+                    output += "- **Dependencies:** None\n"
+                output += "\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
         return {

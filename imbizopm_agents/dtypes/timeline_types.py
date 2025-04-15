@@ -22,6 +22,37 @@ class ProjectTimeline(BaseModel):
         description="Ordered list of task IDs forming the critical path",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the project timeline into a structured string."""
+        output = "**Project Timeline:**\n\n"
+
+        if self.task_durations:
+            output += "**Task Durations (Relative):**\n"
+            # Sort tasks by start time for better readability
+            sorted_tasks = sorted(self.task_durations.items(), key=lambda item: int(item[1].start.split('+')[1]) if 'T+' in item[1].start else 0)
+            for task_id, duration in sorted_tasks:
+                output += f"- **{task_id}:** Start: {duration.start}, End: {duration.end}\n"
+            output += "\n"
+        else:
+            output += "No task durations defined.\n\n"
+
+        if self.milestones:
+            output += "**Key Milestones:**\n"
+            for milestone in self.milestones:
+                output += f"- {milestone}\n"
+            output += "\n"
+        else:
+            output += "No milestones defined.\n\n"
+
+        if self.critical_path:
+            output += "**Critical Path (Task IDs):**\n"
+            output += f"- {' -> '.join(self.critical_path)}\n"
+            output += "\n"
+        else:
+            output += "Critical path not identified.\n\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
         """Return an example JSON representation of the ProjectTimeline model."""
