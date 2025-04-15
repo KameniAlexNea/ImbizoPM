@@ -4,19 +4,25 @@ from pydantic import BaseModel, Field
 
 
 class Task(BaseModel):
-    id: str = Field(default="", description="Unique identifier for the task")  # Added default
-    name: str = Field(default="", description="Brief, descriptive name of the task")  # Added default
+    id: str = Field(
+        default="", description="Unique identifier for the task"
+    )  # Added default
+    name: str = Field(
+        default="", description="Brief, descriptive name of the task"
+    )  # Added default
     description: str = Field(
         default="",  # Added default
-        description="Detailed description of what needs to be done"
+        description="Detailed description of what needs to be done",
     )
     deliverable: Optional[str] = Field(
         description="Specific deliverable this task contributes to"
     )
-    owner_role: str = Field(default="", description="Role responsible for completing this task")  # Added default
+    owner_role: str = Field(
+        default="", description="Role responsible for completing this task"
+    )  # Added default
     estimated_effort: Literal["Low", "Medium", "High"] = Field(
         default="Medium",  # Added default
-        description="Estimated effort required to complete this task"
+        description="Estimated effort required to complete this task",
     )
     epic: Optional[str] = Field(description="Name of the epic this task belongs to")
     phase: Optional[str] = Field(
@@ -45,7 +51,7 @@ class MissingInfoDetails(BaseModel):
 class TaskPlan(BaseModel):
     missing_info_details: Optional[MissingInfoDetails] = Field(
         default=None,
-        description="Details about what information is missing and how to address it"
+        description="Details about what information is missing and how to address it",
     )
     missing_info: Optional[bool] = Field(
         default=False,

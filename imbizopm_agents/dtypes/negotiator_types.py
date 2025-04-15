@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 
 # New model to pair issues and solutions
 class ResolutionIssue(BaseModel):
-    issue: str = Field(default="", description="A specific issue or point of disagreement.")  # Added default
+    issue: str = Field(
+        default="", description="A specific issue or point of disagreement."
+    )  # Added default
     proposed_solution: Optional[str] = Field(
         None,
         description="A suggested resolution or compromise for this specific issue.",
@@ -16,11 +18,11 @@ class ResolutionIssue(BaseModel):
 class NegotiationDetails(BaseModel):
     items: List[ResolutionIssue] = Field(
         default_factory=list,  # Added default_factory
-        description="A list of issues and their proposed solutions."
+        description="A list of issues and their proposed solutions.",
     )
     priorities: List[str] = Field(
         default_factory=list,  # Added default_factory
-        description="Key aspects that should be prioritized when resolving the conflict (e.g., timeline, value, feasibility)"
+        description="Key aspects that should be prioritized when resolving the conflict (e.g., timeline, value, feasibility)",
     )
 
 
@@ -28,11 +30,11 @@ class NegotiationDetails(BaseModel):
 class ConflictResolution(BaseModel):
     conflict_area: Literal["scope", "plan"] = Field(
         default="scope",  # Added default
-        description='The area of conflict being addressed, either "scope" or "plan".'
+        description='The area of conflict being addressed, either "scope" or "plan".',
     )
     negotiation: NegotiationDetails = Field(  # Renamed from negotiation_details
         default_factory=NegotiationDetails,  # Added default_factory
-        description="Structured details of the conflict, including issues, proposed solutions, and priorities."
+        description="Structured details of the conflict, including issues, proposed solutions, and priorities.",
     )
 
     def to_structured_string(self) -> str:

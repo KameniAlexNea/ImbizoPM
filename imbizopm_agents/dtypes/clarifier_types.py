@@ -6,15 +6,14 @@ from pydantic import BaseModel, Field
 class Deliverable(BaseModel):
     name: str = Field(default="", description="Clear name of the deliverable")
     description: str = Field(
-        default="",
-        description="Detailed description of what this deliverable includes"
+        default="", description="Detailed description of what this deliverable includes"
     )
 
 
 class ProjectPlan(BaseModel):
     refined_idea: str = Field(
         default="",
-        description="A clear, concise statement of what the project aims to accomplish"
+        description="A clear, concise statement of what the project aims to accomplish",
     )
     goals: List[str] = Field(
         default_factory=list,

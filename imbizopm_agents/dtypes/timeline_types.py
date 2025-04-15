@@ -4,8 +4,12 @@ from pydantic import BaseModel, Field
 
 
 class TaskDuration(BaseModel):
-    start: str = Field(default="", description='Relative start time of the task (e.g., "T+0")')
-    end: str = Field(default="", description='Relative end time of the task (e.g., "T+2")')
+    start: str = Field(
+        default="", description='Relative start time of the task (e.g., "T+0")'
+    )
+    end: str = Field(
+        default="", description='Relative end time of the task (e.g., "T+2")'
+    )
 
 
 class ProjectTimeline(BaseModel):

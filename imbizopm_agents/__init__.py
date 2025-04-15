@@ -1,7 +1,6 @@
 from imbizopm_agents.agents import (
-    ClarifierAgent,
+    ClarifierAgent,  # OutcomeAgent,
     NegotiatorAgent,
-    # OutcomeAgent,
     PlannerAgent,
     PMAdapterAgent,
     RiskAgent,

@@ -9,7 +9,8 @@ class ProjectOverview(BaseModel):
         default="", description="Brief description of the project's purpose and scope"
     )
     timeline: str = Field(
-        default="", description="Overall timeline of the project, e.g., 'Start date to end date (X weeks/months)'"
+        default="",
+        description="Overall timeline of the project, e.g., 'Start date to end date (X weeks/months)'",
     )
     objectives: List[str] = Field(
         default_factory=list, description="List of specific project objectives"
@@ -22,7 +23,9 @@ class ProjectOverview(BaseModel):
 
 class Milestone(BaseModel):
     name: str = Field(default="", description="Name of the milestone")
-    date: str = Field(default="", description="Expected date or timeframe for the milestone")
+    date: str = Field(
+        default="", description="Expected date or timeframe for the milestone"
+    )
     deliverables: List[str] = Field(
         default_factory=list,
         description="List of deliverables associated with this milestone",
@@ -31,10 +34,12 @@ class Milestone(BaseModel):
 
 class ResourceRequirement(BaseModel):
     role: str = Field(
-        default="", description="Name or title of the required role (e.g., Developer, QA Analyst)"
+        default="",
+        description="Name or title of the required role (e.g., Developer, QA Analyst)",
     )
     allocation: str = Field(
-        default="", description="Level of effort or time commitment (e.g., Full-time, Part-time)"
+        default="",
+        description="Level of effort or time commitment (e.g., Full-time, Part-time)",
     )
     skills: List[str] = Field(
         default_factory=list,
@@ -59,7 +64,9 @@ class Dependency(BaseModel):
 
 class ResourceLink(BaseModel):
     name: str = Field(default="", description="Name of the resource")
-    type: str = Field(default="", description="Type of the resource, e.g., tool, person")
+    type: str = Field(
+        default="", description="Type of the resource, e.g., tool, person"
+    )
     linked_task_ids: List[str] = Field(
         default_factory=list,
         description="IDs of tasks/milestones associated with this resource",
@@ -87,16 +94,19 @@ class PMToolExport(BaseModel):
 class RiskAssessment(BaseModel):
     name: str = Field(default="", description="Name of the risk")
     impact: str = Field(default="", description="Impact level of the risk")
-    mitigation_strategy: str = Field(default="", description="Mitigation plan for this risk")
+    mitigation_strategy: str = Field(
+        default="", description="Mitigation plan for this risk"
+    )
 
 
 class ProjectSummary(BaseModel):
     executive_summary: str = Field(
-        default="", description="Concise overview of the project purpose, approach, and expected outcomes"
+        default="",
+        description="Concise overview of the project purpose, approach, and expected outcomes",
     )
     project_overview: ProjectOverview = Field(
         default_factory=ProjectOverview,
-        description="General overview including name, description, timeline, objectives, and stakeholders"
+        description="General overview including name, description, timeline, objectives, and stakeholders",
     )
     key_milestones: List[Milestone] = Field(
         default_factory=list,

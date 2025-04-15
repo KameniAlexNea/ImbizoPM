@@ -4,7 +4,9 @@ from pydantic import BaseModel, Field
 
 
 class MVPItem(BaseModel):
-    feature: str = Field(default="", description="A specific feature included in the MVP.")
+    feature: str = Field(
+        default="", description="A specific feature included in the MVP."
+    )
     user_story: Optional[str] = Field(
         None,
         description="User story for the feature (e.g., 'As a [user type], I want [capability] so that [benefit]').",
@@ -15,7 +17,7 @@ class Phase(BaseModel):
     name: str = Field(default="", description="Name of the phase (e.g., MVP, Phase 2)")
     description: str = Field(
         default="",
-        description="Detailed description of this phase's focus and activities"
+        description="Detailed description of this phase's focus and activities",
     )
 
 
@@ -33,7 +35,7 @@ class OverloadDetails(BaseModel):
 class ScopeDefinition(BaseModel):
     mvp: List[MVPItem] = Field(
         default_factory=list,
-        description="List of Minimum Viable Product features and their corresponding user stories."
+        description="List of Minimum Viable Product features and their corresponding user stories.",
     )
     exclusions: Optional[List[str]] = Field(
         default_factory=list,

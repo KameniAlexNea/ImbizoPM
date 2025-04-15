@@ -6,11 +6,11 @@ from pydantic import BaseModel, Field
 class GoalAlignment(BaseModel):
     aligned: Literal["Yes", "Partial", "No"] = Field(
         default="No",  # Added default
-        description="Whether the goal is fully, partially, or not aligned at all"
+        description="Whether the goal is fully, partially, or not aligned at all",
     )
     evidence: str = Field(
         default="",  # Added default
-        description="Concrete elements of the plan showing alignment with the goal"
+        description="Concrete elements of the plan showing alignment with the goal",
     )
     gaps: Optional[list[str]] = Field(
         default_factory=list,
@@ -21,11 +21,11 @@ class GoalAlignment(BaseModel):
 class ConstraintRespect(BaseModel):
     respected: Literal["Yes", "Partial", "No"] = Field(
         default="No",  # Added default
-        description="Level to which the constraint is respected"
+        description="Level to which the constraint is respected",
     )
     evidence: str = Field(
         default="",  # Added default
-        description="Proof or reasoning showing respect for the constraint"
+        description="Proof or reasoning showing respect for the constraint",
     )
     concerns: Optional[list[str]] = Field(
         default_factory=list,
@@ -36,11 +36,11 @@ class ConstraintRespect(BaseModel):
 class OutcomeAchievability(BaseModel):
     achievable: Literal["Yes", "Partial", "No"] = Field(
         default="No",  # Added default
-        description="Whether the outcome can reasonably be achieved"
+        description="Whether the outcome can reasonably be achieved",
     )
     evidence: str = Field(
         default="",  # Added default
-        description="Justification for achievability based on the plan"
+        description="Justification for achievability based on the plan",
     )
     risks: Optional[list[str]] = Field(
         default_factory=list,
@@ -61,12 +61,11 @@ class CompletenessAssessment(BaseModel):
 
 class PlanValidation(BaseModel):
     overall_validation: bool = Field(
-        default=False,
-        description="True if the plan is validated overall, else False"
+        default=False, description="True if the plan is validated overall, else False"
     )
     alignment_score: str = Field(
         default="",
-        description='Score between "0%" and "100%" indicating alignment strength'
+        description='Score between "0%" and "100%" indicating alignment strength',
     )
     goals_alignment: Dict[str, GoalAlignment] = Field(
         default_factory=dict,
