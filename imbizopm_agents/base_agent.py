@@ -94,7 +94,8 @@ class BaseAgent:
         parsed_content = extract_structured_data(content)
         retry_text = None
         if "error" in parsed_content:
-            logger.warning(f"Errors found in output: {self.name}")
+            logger.error(f"Errors found in output: {self.name}. Retrying...")
+            logger.error(f"Error: {parsed_content['error']}")
             messages = [
                 {
                     "role": "human",

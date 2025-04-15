@@ -46,6 +46,7 @@ class ScopeDefinition(BaseModel):
         description="Optional breakdown of the project into phases.",
     )
     overload: Optional[OverloadDetails] = Field(
+        default=None,
         description="Details if the scope is considered overloaded, otherwise None.",
     )
 
