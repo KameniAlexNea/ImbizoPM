@@ -17,19 +17,26 @@ class Task(BaseModel):
         description="Estimated effort required to complete this task"
     )
     epic: Optional[str] = Field(description="Name of the epic this task belongs to")
-    phase: Optional[str] = Field(description="Phase in which this task is to be executed")
-    dependencies: List[str] = Field(default_factory=list, description="List of task IDs this task depends on")
+    phase: Optional[str] = Field(
+        description="Phase in which this task is to be executed"
+    )
+    dependencies: List[str] = Field(
+        default_factory=list, description="List of task IDs this task depends on"
+    )
 
 
 class MissingInfoDetails(BaseModel):
     unclear_aspects: List[str] = Field(
-        default_factory=list, description="Key points that are unclear and block task definition"
+        default_factory=list,
+        description="Key points that are unclear and block task definition",
     )
     questions: List[str] = Field(
-        default_factory=list, description="Questions that must be answered to clarify the scope"
+        default_factory=list,
+        description="Questions that must be answered to clarify the scope",
     )
     suggestions: List[str] = Field(
-        default_factory=list, description="Concrete suggestions to resolve ambiguity or missing details"
+        default_factory=list,
+        description="Concrete suggestions to resolve ambiguity or missing details",
     )
 
 
@@ -41,7 +48,8 @@ class TaskPlan(BaseModel):
         description="Flag indicating that important task-related information is missing",
     )
     tasks: List[Task] = Field(
-        default_factory=list, description="List of defined tasks",
+        default_factory=list,
+        description="List of defined tasks",
     )
 
     def to_structured_string(self) -> str:
@@ -68,7 +76,7 @@ class TaskPlan(BaseModel):
                     output += f"- {suggestion}\n"
                 output += "\n"
         elif not self.tasks:
-             output = "**Task Plan:**\n\nNo tasks defined.\n"
+            output = "**Task Plan:**\n\nNo tasks defined.\n"
         else:
             output = "**Task Plan:**\n\n"
             for task in self.tasks:

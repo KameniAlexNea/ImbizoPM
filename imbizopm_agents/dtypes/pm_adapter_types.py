@@ -2,6 +2,7 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
+
 class ProjectOverview(BaseModel):
     name: str = Field(description="Project name")
     description: str = Field(

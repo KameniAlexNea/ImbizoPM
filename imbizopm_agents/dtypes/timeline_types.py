@@ -29,9 +29,16 @@ class ProjectTimeline(BaseModel):
         if self.task_durations:
             output += "**Task Durations (Relative):**\n"
             # Sort tasks by start time for better readability
-            sorted_tasks = sorted(self.task_durations.items(), key=lambda item: int(item[1].start.split('+')[1]) if 'T+' in item[1].start else 0)
+            sorted_tasks = sorted(
+                self.task_durations.items(),
+                key=lambda item: (
+                    int(item[1].start.split("+")[1]) if "T+" in item[1].start else 0
+                ),
+            )
             for task_id, duration in sorted_tasks:
-                output += f"- **{task_id}:** Start: {duration.start}, End: {duration.end}\n"
+                output += (
+                    f"- **{task_id}:** Start: {duration.start}, End: {duration.end}\n"
+                )
             output += "\n"
         else:
             output += "No task durations defined.\n\n"

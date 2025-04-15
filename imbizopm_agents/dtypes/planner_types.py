@@ -1,7 +1,7 @@
-from typing import List, Literal, Dict
+from collections import defaultdict
+from typing import Dict, List, Literal
 
 from pydantic import BaseModel, Field
-from collections import defaultdict
 
 
 class NamedItem(BaseModel):

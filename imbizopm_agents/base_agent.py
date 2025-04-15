@@ -1,7 +1,6 @@
 from typing import Annotated, Any, Callable, Dict, Optional, TypedDict
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph.graph import CompiledGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import create_react_agent

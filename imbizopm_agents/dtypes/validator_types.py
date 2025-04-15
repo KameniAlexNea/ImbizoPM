@@ -11,7 +11,8 @@ class GoalAlignment(BaseModel):
         description="Concrete elements of the plan showing alignment with the goal"
     )
     gaps: Optional[list[str]] = Field(
-        default_factory=list, description="Aspects of the goal not addressed in the current plan"
+        default_factory=list,
+        description="Aspects of the goal not addressed in the current plan",
     )
 
 
@@ -23,7 +24,8 @@ class ConstraintRespect(BaseModel):
         description="Proof or reasoning showing respect for the constraint"
     )
     concerns: Optional[list[str]] = Field(
-        default_factory=list, description="Concerns or potential issues in respecting this constraint"
+        default_factory=list,
+        description="Concerns or potential issues in respecting this constraint",
     )
 
 
@@ -35,7 +37,8 @@ class OutcomeAchievability(BaseModel):
         description="Justification for achievability based on the plan"
     )
     risks: Optional[list[str]] = Field(
-        default_factory=list, description="Risks or blockers that could hinder achieving the outcome"
+        default_factory=list,
+        description="Risks or blockers that could hinder achieving the outcome",
     )
 
 
@@ -120,18 +123,22 @@ class PlanValidation(BaseModel):
                 output += "\n"
 
             # Include completeness even if validated, if there are items
-            if self.completeness_assessment.missing_elements or self.completeness_assessment.improvement_suggestions:
-                 output += "**Completeness Assessment:**\n"
-                 if self.completeness_assessment.missing_elements:
-                     output += "*   **Missing Elements:**\n"
-                     for element in self.completeness_assessment.missing_elements:
-                         output += f"    - {element}\n"
-                 if self.completeness_assessment.improvement_suggestions:
-                     output += "*   **Improvement Suggestions:**\n"
-                     for suggestion in self.completeness_assessment.improvement_suggestions:
-                         output += f"    - {suggestion}\n"
-                 output += "\n"
-
+            if (
+                self.completeness_assessment.missing_elements
+                or self.completeness_assessment.improvement_suggestions
+            ):
+                output += "**Completeness Assessment:**\n"
+                if self.completeness_assessment.missing_elements:
+                    output += "*   **Missing Elements:**\n"
+                    for element in self.completeness_assessment.missing_elements:
+                        output += f"    - {element}\n"
+                if self.completeness_assessment.improvement_suggestions:
+                    output += "*   **Improvement Suggestions:**\n"
+                    for (
+                        suggestion
+                    ) in self.completeness_assessment.improvement_suggestions:
+                        output += f"    - {suggestion}\n"
+                output += "\n"
 
         return output.strip()
 
@@ -146,51 +153,69 @@ class PlanValidation(BaseModel):
                     "Increase user engagement by 30%": {
                         "aligned": "Yes",
                         "evidence": "The plan includes multiple features specifically designed to boost engagement, such as a gamification system, personalized notifications, and social sharing capabilities",
-                        "gaps": ["No specific metrics tracking mechanism is defined to measure the 30% improvement target"],
+                        "gaps": [
+                            "No specific metrics tracking mechanism is defined to measure the 30% improvement target"
+                        ],
                     },
                     "Reduce customer support inquiries by 50%": {
                         "aligned": "Partial",
                         "evidence": "The knowledge base and self-service troubleshooting tools will help users solve issues independently",
-                        "gaps": ["The plan lacks comprehensive user education components and proactive issue detection that would further reduce support needs"],
+                        "gaps": [
+                            "The plan lacks comprehensive user education components and proactive issue detection that would further reduce support needs"
+                        ],
                     },
                     "Launch in international markets within 6 months": {
                         "aligned": "No",
                         "evidence": "The current timeline shows domestic launch at month 5 with no explicit internationalization work",
-                        "gaps": ["The plan needs localization tasks, international payment processing, and regional compliance considerations"],
+                        "gaps": [
+                            "The plan needs localization tasks, international payment processing, and regional compliance considerations"
+                        ],
                     },
                 },
                 "constraints_respected": {
                     "Maximum budget of $500,000": {
                         "respected": "Yes",
                         "evidence": "The resource allocation and cost projections total $475,000 including a 10% contingency buffer",
-                        "concerns": ["Integration costs with third-party services may fluctuate based on usage"],
+                        "concerns": [
+                            "Integration costs with third-party services may fluctuate based on usage"
+                        ],
                     },
                     "Must comply with GDPR and CCPA regulations": {
                         "respected": "Partial",
                         "evidence": "Basic compliance features are included such as consent management and data export",
-                        "concerns": ["The plan doesn't address data retention policies or the right to be forgotten implementation details"],
+                        "concerns": [
+                            "The plan doesn't address data retention policies or the right to be forgotten implementation details"
+                        ],
                     },
                     "Must integrate with existing ERP system": {
                         "respected": "Yes",
                         "evidence": "API integration tasks are explicitly included with appropriate time allocation",
-                        "concerns": ["The plan assumes current ERP API documentation is accurate and complete"],
+                        "concerns": [
+                            "The plan assumes current ERP API documentation is accurate and complete"
+                        ],
                     },
                 },
                 "outcomes_achievable": {
                     "Fully functional user dashboard": {
                         "achievable": "Yes",
                         "evidence": "The dashboard components are well-defined with dedicated development resources assigned",
-                        "risks": ["Timeline may be affected if design approval process takes longer than anticipated"],
+                        "risks": [
+                            "Timeline may be affected if design approval process takes longer than anticipated"
+                        ],
                     },
                     "Mobile application on iOS and Android": {
                         "achievable": "Partial",
                         "evidence": "Development resources are allocated for both platforms but may be stretched thin",
-                        "risks": ["Cross-platform compatibility issues may require additional testing time not fully accounted for"],
+                        "risks": [
+                            "Cross-platform compatibility issues may require additional testing time not fully accounted for"
+                        ],
                     },
                     "Integration with social media platforms": {
                         "achievable": "No",
                         "evidence": "The current resource allocation doesn't include specialized social media integration expertise",
-                        "risks": ["API changes from social platforms could introduce unexpected complexity and delays"],
+                        "risks": [
+                            "API changes from social platforms could introduce unexpected complexity and delays"
+                        ],
                     },
                 },
                 "completeness_assessment": {
