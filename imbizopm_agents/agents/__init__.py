@@ -1,6 +1,6 @@
 from .clarifier_agent import ClarifierAgent
 from .negotiator_agent import NegotiatorAgent
-from .outcome_agent import OutcomeAgent
+# from .outcome_agent import OutcomeAgent
 from .planner_agent import PlannerAgent
 from .pm_adapter_agent import PMAdapterAgent
 from .risk_agent import RiskAgent
@@ -11,7 +11,7 @@ from .validator_agent import ValidatorAgent
 
 __all__ = [
     "ClarifierAgent",
-    "OutcomeAgent",
+    # "OutcomeAgent",
     "PlannerAgent",
     "ScoperAgent",
     "TaskifierAgent",

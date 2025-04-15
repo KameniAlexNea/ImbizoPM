@@ -37,7 +37,7 @@ class AgentState(TypedDict):
     routes: Annotated[list[str], add_messages]
     messages: Annotated[list[str], add_messages]
     ClarifierAgent: AgentDtypes.ClarifierAgent
-    OutcomeAgent: AgentDtypes.OutcomeAgent
+    # OutcomeAgent: AgentDtypes.OutcomeAgent
     PlannerAgent: AgentDtypes.PlannerAgent
     ScoperAgent: AgentDtypes.ScoperAgent
     TaskifierAgent: AgentDtypes.TaskifierAgent

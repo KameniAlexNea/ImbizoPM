@@ -6,39 +6,48 @@ Literal["Technical", "Resource", "Timeline", "External", "Stakeholder"]
 
 
 class Risk(BaseModel):
-    description: str = Field(description="Detailed description of the risk")
+    description: str = Field(default="", description="Detailed description of the risk")
     category: str = Field(
+        default="",
         description="Category of the risk. E.g., Technical, Resource, Timeline, External, Stakeholder, etc."
     )
     impact: Literal["High", "Medium", "Low"] = Field(
+        default="Low",
         description="Impact level if the risk materializes"
     )
     probability: Literal["High", "Medium", "Low"] = Field(
+        default="Low",
         description="Assessed likelihood of the risk occurring (High, Medium, or Low)"
     )
     priority: Literal["High", "Medium", "Low"] = Field(
+        default="Low",
         description="Risk priority based on impact and probability"
     )
     mitigation_strategy: str = Field(
+        default="",
         description="Specific actions to reduce or prevent the risk"
     )
-    contingency_plan: str = Field(description="Backup plan if the risk actually occurs")
+    contingency_plan: str = Field(default="", description="Backup plan if the risk actually occurs")
 
 
 class FeasibilityAssessment(BaseModel):
     risks: List[Risk] = Field(
+        default_factory=list,
         description="List of identified risks with mitigation and contingency strategies"
     )
     assumptions: List[str] = Field(
+        default_factory=list,
         description="List of critical assumptions underlying the feasibility analysis"
     )
     feasibility_concerns: List[str] = Field(
+        default_factory=list,
         description="Areas that may threaten feasibility along with recommendations"
     )
     dealbreakers: List[str] = Field(
+        default_factory=list,
         description="List of critical, blocking issues with possible solutions"
     )
-    feasible: bool = Field(description="Overall feasibility status")
+    feasible: bool = Field(default=False, description="Overall feasibility status")
 
     def to_structured_string(self) -> str:
         """Formats the feasibility assessment into a structured string."""
