@@ -46,6 +46,7 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
         submit_button = gr.Button("🚀 Run Planning", scale=1)
 
     status_output = gr.Markdown("Waiting for input...")
+    route_info_output = gr.Markdown("Execution path will appear here.")  # Added route info output
 
     # Agent output tabs
     md_outputs = {}
@@ -69,6 +70,7 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
 
         initial = {
             status_output: gr.update(value="⏳ Running agent pipeline..."),
+            route_info_output: gr.update(value="Execution path will appear here."),  # Initialize route info
             **{
                 md: gr.update(value=f"### {name}\nProcessing...")
                 for name, md in md_outputs.items()
@@ -86,13 +88,22 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
                 recursion_limit=30,
                 print_results=False,
             ):
-                agent_name = event.get("backward")
+                # Print backward and forward node names
+                backward_node = event.get("backward")
+                forward_node = event.get("forward")
+
+                agent_name = backward_node  # Use the already fetched backward_node
                 if agent_name and agent_name in md_outputs:
                     agent_data = event.get(agent_name)
                     if agent_data:
                         formatted = f"### {agent_name}\n```yaml\n{dumps_to_yaml(agent_data)}\n```"
                         updates[md_outputs[agent_name]] = gr.update(value=formatted)
-                        yield updates
+
+                # Add this for route visualization
+                route_info = f"📍 **Executed:** `{event.get('backward', 'N/A')}` → **Next:** `{event.get('forward', 'N/A')}`"
+                updates[route_info_output] = gr.update(value=route_info)
+
+                yield updates  # Yield all updates for this step together
 
             updates[status_output] = gr.update(value="✅ Planning complete!")
             logger.info(f"Finished planning run: {thread_id}")
@@ -102,6 +113,7 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
             logger.error(f"Graph error: {e}", exc_info=True)
             error_updates = {
                 status_output: gr.update(value=f"❌ Error occurred: {e}"),
+                route_info_output: gr.update(value="Error during execution."),  # Update route info on error
                 **{
                     md: gr.update(value=f"### {name}\n❌ Error processing.")
                     for name, md in md_outputs.items()
@@ -112,7 +124,7 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
     submit_button.click(
         fn=process_input,
         inputs=[input_textbox],
-        outputs=[status_output] + list(md_outputs.values()),
+        outputs=[status_output, route_info_output] + list(md_outputs.values()),  # Added route_info_output
     )
 
 # Run
