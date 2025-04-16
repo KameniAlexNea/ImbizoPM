@@ -40,6 +40,8 @@ Validate alignment between the idea, goals, and the resulting plan. Stricly outp
         state["forward"] = (
             AgentRoute.PMAdapterAgent
             if result.overall_validation
+            or result.completeness_assessment is None
+            or (not result.completeness_assessment.missing_elements)
             else AgentRoute.PlannerAgent
         )
         state["backward"] = AgentRoute.ValidatorAgent

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Literal
+from typing import Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -13,9 +13,9 @@ class NamedItem(BaseModel):
         default="",  # Added default
         description="Detailed explanation providing context, objectives, or value of the named item",
     )
-    kind: Literal["phase", "epic", "strategy"] = Field(
+    kind: str = Field(
         default="phase",  # Added default
-        description="Type of item, indicating whether it is a phase, epic, or strategy",
+        description="Type of item, indicating whether it is a phase, epic, or strategy. (phase, epic, strategy)",
     )
 
 

@@ -1,12 +1,12 @@
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
 
 class GoalAlignment(BaseModel):
-    aligned: Literal["Yes", "Partial", "No"] = Field(
+    aligned: str = Field(
         default="No",  # Added default
-        description="Whether the goal is fully, partially, or not aligned at all",
+        description="Whether the goal is fully, partially, or not aligned at all. (Yes, Partial, No)",
     )
     evidence: str = Field(
         default="",  # Added default
@@ -19,9 +19,9 @@ class GoalAlignment(BaseModel):
 
 
 class ConstraintRespect(BaseModel):
-    respected: Literal["Yes", "Partial", "No"] = Field(
+    respected: str = Field(
         default="No",  # Added default
-        description="Level to which the constraint is respected",
+        description="Level to which the constraint is respected. (Yes, Partial, No)",
     )
     evidence: str = Field(
         default="",  # Added default
@@ -34,9 +34,9 @@ class ConstraintRespect(BaseModel):
 
 
 class OutcomeAchievability(BaseModel):
-    achievable: Literal["Yes", "Partial", "No"] = Field(
+    achievable: str = Field(
         default="No",  # Added default
-        description="Whether the outcome can reasonably be achieved",
+        description="Whether the outcome can reasonably be achieved. (Yes, Partial, No)",
     )
     evidence: str = Field(
         default="",  # Added default

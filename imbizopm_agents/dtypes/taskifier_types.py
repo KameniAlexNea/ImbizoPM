@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,9 +20,9 @@ class Task(BaseModel):
     owner_role: str = Field(
         default="", description="Role responsible for completing this task"
     )  # Added default
-    estimated_effort: Literal["Low", "Medium", "High"] = Field(
+    estimated_effort: str = Field(
         default="Medium",  # Added default
-        description="Estimated effort required to complete this task",
+        description="Estimated effort required to complete this task. (Low, Medium, High)",
     )
     epic: Optional[str] = Field(description="Name of the epic this task belongs to")
     phase: Optional[str] = Field(

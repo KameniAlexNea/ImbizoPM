@@ -1,8 +1,6 @@
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
-
-Literal["Technical", "Resource", "Timeline", "External", "Stakeholder"]
 
 
 class Risk(BaseModel):
@@ -11,14 +9,14 @@ class Risk(BaseModel):
         default="",
         description="Category of the risk. E.g., Technical, Resource, Timeline, External, Stakeholder, etc.",
     )
-    impact: Literal["High", "Medium", "Low"] = Field(
-        default="Low", description="Impact level if the risk materializes"
+    impact: str = Field(
+        default="Low", description="Impact level if the risk materializes. (High, Medium, Low)"
     )
-    probability: Literal["High", "Medium", "Low"] = Field(
+    probability: str = Field(
         default="Low",
         description="Assessed likelihood of the risk occurring (High, Medium, or Low)",
     )
-    priority: Literal["High", "Medium", "Low"] = Field(
+    priority: str = Field(
         default="Low", description="Risk priority based on impact and probability"
     )
     mitigation_strategy: str = Field(
