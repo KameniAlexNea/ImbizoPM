@@ -12,6 +12,13 @@ class MVPItem(BaseModel):
         description="User story for the feature (e.g., 'As a [user type], I want [capability] so that [benefit]').",
     )
 
+class Phase(BaseModel):
+    name: str = Field(
+        default="", description="Name of the project phase."
+    )
+    features: List[str] = Field(
+        default_factory=list, description="List of features included in this project phase."
+    )
 
 class OverloadDetails(BaseModel):
     problem_areas: List[str] = Field(
@@ -33,9 +40,9 @@ class ScopeDefinition(BaseModel):
         default_factory=list,
         description="List of features or functionalities explicitly excluded from the scope.",
     )
-    phases: Optional[List[str]] = Field(
+    phases: Optional[List[Phase]] = Field(
         default_factory=list,
-        description="Optional breakdown of the project into phases, described as strings.",
+        description="Optional breakdown of the project into phases, each with a name and a list of features.",
     )
     overload: Optional[OverloadDetails] = Field(
         default=None,
@@ -77,8 +84,10 @@ class ScopeDefinition(BaseModel):
 
             if self.phases:
                 output += "**Project Phases:**\n"
-                for i, phase_description in enumerate(self.phases):
-                    output += f"- **Phase {i+1}:** {phase_description}\n"
+                for phase in self.phases:
+                    output += f"- **{phase.name}:**\n"
+                    for feature in phase.features:
+                        output += f"  - {feature}\n"
                 output += "\n"
 
         return output.strip()
@@ -113,9 +122,30 @@ class ScopeDefinition(BaseModel):
                     "Real-time collaboration tools",
                 ],
                 "phases": [
-                    "Core functionality focused on user authentication, basic dashboard, search, and notifications",
-                    "Enhanced analytics, reporting capabilities, and initial third-party integrations",
-                    "Mobile application development and advanced collaboration features",
+                    {
+                        "name": "Phase 1: Foundation",
+                        "features": [
+                            "User authentication and account management",
+                            "Basic dashboard with key performance metrics",
+                            "Search functionality for main content types",
+                            "Notification system for status updates",
+                        ],
+                    },
+                    {
+                        "name": "Phase 2: Expansion",
+                        "features": [
+                            "Enhanced analytics and reporting capabilities",
+                            "Initial integration with third-party platforms",
+                        ],
+                    },
+                    {
+                        "name": "Phase 3: Mobility & Collaboration",
+                        "features": [
+                            "Mobile application development (responsive web first)",
+                            "Advanced collaboration tools",
+                            "Further third-party integrations",
+                        ],
+                    },
                 ],
                 "overload": None,
             },
