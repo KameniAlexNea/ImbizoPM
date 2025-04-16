@@ -28,7 +28,7 @@ class NegotiationDetails(BaseModel):
 
 # Modified ConflictResolution model
 class ConflictResolution(BaseModel):
-    conflict_area: Literal["scope", "plan"] = Field(
+    conflict_area: str = Field(
         default="scope",  # Added default
         description='The area of conflict being addressed, either "scope" or "plan".',
     )

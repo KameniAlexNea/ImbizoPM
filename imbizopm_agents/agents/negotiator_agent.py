@@ -40,7 +40,7 @@ Consider the main idea, plan and scope. Identify any conflicts or inconsistencie
     ) -> AgentState:
         state["forward"] = (
             AgentRoute.ScoperAgent
-            if result.conflict_area == "scope"
+            if "scope" in result.conflict_area
             else AgentRoute.PlannerAgent
         )
         state["backward"] = AgentRoute.NegotiatorAgent
