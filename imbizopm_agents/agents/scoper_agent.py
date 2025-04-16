@@ -51,7 +51,7 @@ class ScoperAgent(BaseAgent):
     ) -> AgentState:
         state["forward"] = (
             AgentRoute.NegotiatorAgent
-            if result.overload is not None
+            if result.overload is not None and result.overload.problem_areas
             else AgentRoute.TaskifierAgent
         )
         state["backward"] = AgentRoute.ScoperAgent
