@@ -59,59 +59,33 @@ class ProjectPlan(BaseModel):
 
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of the ProjectPlan model."""
+        """Return a simpler example JSON representation of the ProjectPlan model."""
         return {
-            "refined_idea": "Develop a mobile application that helps users track and reduce their carbon footprint through daily habit changes",
+            "refined_idea": "Develop a simple website for a local bakery.",
             "constraints": [
-                "The application must be completed within a 4-month timeframe",
-                "The development budget is limited to $50,000",
-                "The app must comply with GDPR and other data privacy regulations",
-                "Must be compatible with both iOS and Android platforms",
+                "Budget: $1000",
+                "Timeline: 4 weeks",
+                "Must include an online menu page.",
             ],
             "objectives": [
                 {
-                    "goal": "Create a user-friendly interface that allows users to log daily activities",
+                    "goal": "Launch a basic informational website.",
                     "success_metrics": [
-                        "User Satisfaction Rate: Target 95%, Measured via post-launch surveys",
-                        "Task Completion Time: Average time to log an activity < 30 seconds, Measured via usability testing",
+                        "Website is live and accessible by the deadline.",
+                        "Menu page accurately reflects current offerings.",
                     ],
                     "deliverables": [
-                        "UI/UX Design Mockups: High-fidelity mockups for all user interface screens.",
-                        "Frontend Application Code: Implemented frontend code for the user interface.",
+                        "Website design mock-up.",
+                        "Deployed website.",
+                        "Content for the menu page.",
                     ],
                 },
                 {
-                    "goal": "Implement a carbon footprint calculator that provides real-time feedback",
+                    "goal": "Ensure the website is mobile-friendly.",
                     "success_metrics": [
-                        "Calculator Accuracy: Within 5% of established benchmarks, Measured via validation tests",
-                        "Feedback Latency: Real-time feedback displayed < 1 second after input, Measured via performance testing",
+                        "Website renders correctly on common mobile devices (iOS/Android).",
                     ],
-                    "deliverables": [
-                        "Carbon Footprint Calculation Engine: Backend service that calculates carbon footprint based on user inputs.",
-                        "API for Calculator: API endpoint for the frontend to interact with the calculation engine.",
-                    ],
-                },
-                {
-                    "goal": "Design a gamified reward system to incentivize sustainable behaviors",
-                    "success_metrics": [
-                        "User Engagement Increase: Target 20% increase in daily active users within 3 months, Measured via analytics platform",
-                        "Reward Redemption Rate: Target 15% of eligible users redeem rewards monthly, Measured via system logs",
-                    ],
-                    "deliverables": [
-                        "Gamification Logic Design: Document outlining points, badges, leaderboards, and reward structure.",
-                        "Reward System Implementation: Backend and frontend code for the gamified reward system.",
-                    ],
-                },
-                {
-                    "goal": "Achieve 10,000 active users within 6 months of launch",
-                    "success_metrics": [
-                        "Active User Count: Reach 10,000 monthly active users, Measured via analytics platform",
-                        "User Acquisition Cost: Maintain average CAC below $2, Measured via marketing campaign data",
-                    ],
-                    "deliverables": [
-                        "Marketing and Launch Plan: Strategy document for user acquisition and app launch.",
-                        "Deployed Application (iOS & Android): The final application available on app stores.",
-                    ],
+                    "deliverables": ["Responsive website code."],
                 },
             ],
         }

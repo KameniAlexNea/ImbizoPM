@@ -94,86 +94,66 @@ class ScopeDefinition(BaseModel):
 
     @staticmethod
     def example() -> Dict[str, Any]:
-        """Return examples of both manageable and overloaded scope definitions."""
+        """Return simpler examples of both manageable and overloaded scope definitions."""
         return {
             "manageable_scope": {
                 "mvp": [
                     {
-                        "feature": "User authentication and account management",
-                        "user_story": "As a customer, I want to create an account so that I can access personalized features",
+                        "feature": "Display Menu Page",
+                        "user_story": "As a customer, I want to see the bakery's menu online so I know what they offer.",
                     },
                     {
-                        "feature": "Basic dashboard with key performance metrics",
-                        "user_story": "As a manager, I want to view key metrics at a glance so that I can make informed decisions quickly",
+                        "feature": "Display Contact Information",
+                        "user_story": "As a customer, I want to find the bakery's address and phone number easily.",
                     },
                     {
-                        "feature": "Search functionality for main content types",
-                        "user_story": "As a user, I want to search for content by keyword so that I can find relevant information efficiently",
-                    },
-                    {
-                        "feature": "Notification system for status updates",
-                        "user_story": "As a team member, I want to receive notifications when tasks are assigned to me so that I can prioritize my work",
+                        "feature": "Mobile Responsiveness",
+                        "user_story": "As a customer, I want the website to look good on my phone.",
                     },
                 ],
                 "exclusions": [
-                    "Advanced analytics and reporting features",
-                    "Integration with third-party platforms",
-                    "Mobile application (web responsive only for MVP)",
-                    "Real-time collaboration tools",
+                    "Online ordering system",
+                    "User accounts or login",
+                    "Blog or news section",
+                    "Photo gallery (beyond menu items)",
                 ],
                 "phases": [
                     {
-                        "name": "Phase 1: Foundation",
+                        "name": "Phase 1: Launch Basic Site",
                         "features": [
-                            "User authentication and account management",
-                            "Basic dashboard with key performance metrics",
-                            "Search functionality for main content types",
-                            "Notification system for status updates",
+                            "Display Menu Page",
+                            "Display Contact Information",
+                            "Mobile Responsiveness",
                         ],
                     },
                     {
-                        "name": "Phase 2: Expansion",
-                        "features": [
-                            "Enhanced analytics and reporting capabilities",
-                            "Initial integration with third-party platforms",
-                        ],
-                    },
-                    {
-                        "name": "Phase 3: Mobility & Collaboration",
-                        "features": [
-                            "Mobile application development (responsive web first)",
-                            "Advanced collaboration tools",
-                            "Further third-party integrations",
-                        ],
+                        "name": "Phase 2: Potential Enhancements (Future)",
+                        "features": ["Online ordering system", "Photo gallery"],
                     },
                 ],
                 "overload": None,
             },
             "overloaded_scope": {
                 "mvp": [
-                    {
-                        "feature": "User Authentication",
-                        "user_story": "As a user, I want to log in securely.",
-                    },
-                    {
-                        "feature": "Core Data Entry",
-                        "user_story": "As an admin, I want to input basic data.",
-                    },
+                    {"feature": "Display Menu"},
+                    {"feature": "Contact Form"},
+                    {"feature": "Online Ordering"},
+                    {"feature": "User Accounts"},
+                    {"feature": "Blog"},
+                    {"feature": "Admin Dashboard"},
                 ],
                 "exclusions": None,
                 "phases": None,
                 "overload": {
                     "problem_areas": [
-                        "Too many features planned for the MVP given timeline and resources",
-                        "Mobile application development requires specialized skills not currently available",
-                        "Integration with multiple systems significantly increases complexity and testing requirements",
-                        "Real-time analytics requires substantial backend infrastructure not accounted for in initial planning",
+                        "Online ordering and user accounts add significant complexity.",
+                        "Blog requires ongoing content creation effort.",
+                        "Scope exceeds the typical budget/timeline for a simple bakery site.",
                     ],
                     "recommendations": [
-                        "Reduce MVP to core authentication, basic dashboard, simple search, and essential notifications only",
-                        "Move all integrations to Phase 2 to reduce initial complexity",
-                        "Develop responsive web application first and defer native mobile apps to Phase 3",
-                        "Simplify analytics to basic reporting in MVP and add real-time capabilities in later phases",
+                        "Focus MVP on Menu, Contact Info, and Mobile Responsiveness.",
+                        "Defer online ordering, user accounts, and blog to future phases.",
+                        "Re-evaluate budget and timeline if advanced features are critical for launch.",
                     ],
                 },
             },

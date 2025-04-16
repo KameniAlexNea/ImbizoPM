@@ -64,31 +64,28 @@ class ConflictResolution(BaseModel):
 
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of the ConflictResolution model."""
+        """Return a simpler example JSON representation of the ConflictResolution model."""
         return {
-            "conflict_area": "scope",
-            "negotiation": {  # Updated field name
-                "items": [  # Updated structure for issues/solutions
+            "conflict_area": "plan",
+            "negotiation": {
+                "items": [
                     {
-                        "issue": "Feature X exceeds original project boundaries",
-                        "proposed_solution": "Reduce scope of Feature X to core functionality only",
+                        "issue": "The proposed timeline for Phase 1 is too short.",
+                        "proposed_solution": "Extend Phase 1 deadline by two weeks and reduce scope slightly.",
                     },
                     {
-                        "issue": "Stakeholders disagree on the priority of mobile vs. desktop features",
-                        "proposed_solution": "Phase implementation with mobile features in first release",
+                        "issue": "Budget allocation for testing seems insufficient.",
+                        "proposed_solution": "Reallocate $500 from the design budget to testing.",
                     },
                     {
-                        "issue": "Technical limitations make certain requested features difficult to implement",
-                        "proposed_solution": "Use alternative technical approach that satisfies 80% of requirements",
+                        "issue": "Resource availability conflict for the lead developer in week 3."
+                        # No proposed solution yet
                     },
-                    {
-                        "issue": "Unclear requirements for reporting module"
-                    },  # Example issue without a proposed solution yet
                 ],
                 "priorities": [
-                    "Maintaining original timeline",
-                    "Ensuring core user needs are addressed",
-                    "Balancing technical feasibility with stakeholder expectations",
+                    "Meeting the overall project deadline.",
+                    "Ensuring product quality through adequate testing.",
+                    "Keeping the project within the allocated budget.",
                 ],
             },
         }

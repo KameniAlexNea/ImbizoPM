@@ -95,7 +95,7 @@ class ProjectPlanOutput(BaseModel):
 
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of the ProjectPlanOutput model."""
+        """Return a simpler example JSON representation of the ProjectPlanOutput model."""
         return {
             "not_too_vague_project": {
                 "too_vague": False,
@@ -106,68 +106,38 @@ class ProjectPlanOutput(BaseModel):
                 },
                 "components": [
                     {
-                        "name": "Discovery and Planning",
-                        "description": "Research user needs, define requirements, and create detailed project roadmap",
+                        "name": "Phase 1: Setup",
+                        "description": "Initial project setup and requirement gathering.",
                         "kind": "phase",
                     },
                     {
-                        "name": "Design and Architecture",
-                        "description": "Create UX/UI designs and establish technical architecture for the solution",
+                        "name": "Phase 2: Development",
+                        "description": "Build the core features.",
                         "kind": "phase",
                     },
                     {
-                        "name": "Development",
-                        "description": "Implement features according to specifications with regular quality checks",
+                        "name": "Phase 3: Launch",
+                        "description": "Testing and deployment.",
                         "kind": "phase",
                     },
                     {
-                        "name": "Testing and Validation",
-                        "description": "Perform comprehensive testing including unit, integration, and user acceptance testing",
-                        "kind": "phase",
-                    },
-                    {
-                        "name": "Deployment and Launch",
-                        "description": "Release the solution to production and support initial user adoption",
-                        "kind": "phase",
-                    },
-                    {
-                        "name": "User Authentication System",
-                        "description": "Features related to user registration, login, profile management, and access control",
+                        "name": "User Login",
+                        "description": "Allow users to sign in.",
                         "kind": "epic",
                     },
                     {
-                        "name": "Data Management",
-                        "description": "Core functionality for data input, storage, retrieval, and export capabilities",
+                        "name": "Product Catalog",
+                        "description": "Display products to users.",
                         "kind": "epic",
                     },
                     {
-                        "name": "Reporting Dashboard",
-                        "description": "Interactive visualizations and analytics features to provide insights from user data",
-                        "kind": "epic",
-                    },
-                    {
-                        "name": "Mobile Responsiveness",
-                        "description": "Ensuring the application functions well on various mobile devices and screen sizes",
-                        "kind": "epic",
-                    },
-                    {
-                        "name": "Agile Development",
-                        "description": "Utilizing two-week sprints with daily standups to maintain velocity and address issues quickly",
+                        "name": "Iterative Development",
+                        "description": "Use sprints for development cycles.",
                         "kind": "strategy",
                     },
                     {
-                        "name": "Continuous Integration",
-                        "description": "Implementing automated testing and deployment pipelines to ensure code quality",
-                        "kind": "strategy",
-                    },
-                    {
-                        "name": "User-Centered Design",
-                        "description": "Involving target users throughout the design process with regular feedback sessions",
-                        "kind": "strategy",
-                    },
-                    {
-                        "name": "Phased Delivery",
-                        "description": "Releasing core functionality first, followed by additional features in prioritized order",
+                        "name": "Cloud Hosting",
+                        "description": "Deploy the application on a cloud platform.",
                         "kind": "strategy",
                     },
                 ],
@@ -176,22 +146,17 @@ class ProjectPlanOutput(BaseModel):
                 "too_vague": True,
                 "vague_details": {
                     "unclear_aspects": [
-                        "Target audience demographics need further specification",
-                        "Integration requirements with existing systems",
-                        "Scope of project is poorly defined",
-                        "Budget constraints are not specified",
+                        "Specific features are not defined.",
+                        "Budget is unknown.",
                     ],
                     "questions": [
-                        "What is the exact timeline for delivery of the first MVP?",
-                        "Are there regulatory compliance requirements to consider?",
-                        "Who are the primary stakeholders for this project?",
-                        "What are the primary success metrics for this initiative?",
+                        "What are the key features required?",
+                        "What is the allocated budget?",
+                        "What is the project deadline?",
                     ],
                     "suggestions": [
-                        "Conduct a stakeholder workshop to define target audience",
-                        "Request documentation of current system APIs for integration planning",
-                        "Create a project charter to formally define scope and objectives",
-                        "Schedule a budget planning meeting with finance team",
+                        "Hold a meeting to define the feature list.",
+                        "Clarify budget constraints with stakeholders.",
                     ],
                 },
                 "components": [],
