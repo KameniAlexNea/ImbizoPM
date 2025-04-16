@@ -9,15 +9,20 @@ def prepare_output(data: dict, union=False, indent=4):
     # Convert the data to a JSON string
     json_data = ""
     if union:
-        raws = [f"If {k}:\n {json.dumps(v, indent=indent)}" for k, v in data.items()]
+        raws = [f"""If {k}:\n ```json\n{json.dumps(v, indent=indent)}\n```""" for k, v in data.items()]
         json_data = "\n".join(raws)
     else:
-        json_data = json.dumps(data, indent=indent)
+        json_data = f"""```json
+{json.dumps(data, indent=indent)}
+```json"""
 
     # Format the output
     # output = json_data.replace("{", "{{").replace("}", "}}")
     return f"""Here is an example of the output format you should use:
-{json_data}"""
+
+```json	
+{json_data}
+```"""
 
 
 def _convert_basemodel(item):
