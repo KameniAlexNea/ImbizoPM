@@ -21,9 +21,7 @@ graph: CompiledGraph = create_project_planning_graph(
 with gr.Blocks() as demo:
     md_outputs = {}
     agent_names = [
-        name
-        for name in dir(AgentRoute)
-        if not name.startswith("__") and name != "END"
+        name for name in dir(AgentRoute) if not name.startswith("__") and name != "END"
     ]
 
     with gr.Row():
@@ -70,9 +68,7 @@ with gr.Blocks() as demo:
                 if agent_name and agent_name in md_outputs:
                     agent_data = event.get(agent_name)
                     if agent_data:
-                        formatted_output = (
-                            f"### {agent_name}\n```yaml\n{dumps_to_yaml(agent_data)}\n```"
-                        )
+                        formatted_output = f"### {agent_name}\n```yaml\n{dumps_to_yaml(agent_data)}\n```"
                         logger.debug(f"Updating Markdown for: {agent_name}")
                         updates[md_outputs[agent_name]] = gr.update(
                             value=formatted_output

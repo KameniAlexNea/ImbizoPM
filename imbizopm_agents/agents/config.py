@@ -5,7 +5,6 @@ from langgraph.graph.message import add_messages
 
 from imbizopm_agents.dtypes.clarifier_types import ProjectPlan
 from imbizopm_agents.dtypes.negotiator_types import ConflictResolution
-
 from imbizopm_agents.dtypes.planner_types import ProjectPlanOutput
 from imbizopm_agents.dtypes.pm_adapter_types import ProjectSummary
 from imbizopm_agents.dtypes.risk_types import FeasibilityAssessment

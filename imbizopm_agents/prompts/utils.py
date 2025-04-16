@@ -50,9 +50,22 @@ def dumps_to_yaml(data: Union[dict, list, BaseModel], indent=4) -> str:
     # Otherwise, we dump the potentially modified dict/list structure.
     if isinstance(processed_data, str):
         # If _convert_basemodel returned a string (from to_structured_string), return it directly
-        return processed_data
+        output = processed_data
     else:
         # Dump dictionary or list to YAML
-        return yaml.dump(
+        output = yaml.dump(
             processed_data, default_flow_style=False, allow_unicode=True, indent=indent
         )
+    if isinstance(data, BaseModel):
+        output = (
+            "<"
+            + data.__class__.__name__
+            + ">\n"
+            + output
+            + "\n</"
+            + data.__class__.__name__
+            + ">"
+        )
+    else:
+        output = f"<start>\n{output}\n</end>"
+    return output
