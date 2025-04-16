@@ -16,23 +16,22 @@ PROCESS:
 2. Assess if there is sufficient information to create a meaningful plan.
 3. **If the project is too vague:**
     a. Set `too_vague` to `true`.
-    b. Populate `vague_details` by identifying `unclear_aspects`, formulating specific `questions` to ask, and providing actionable `suggestions` for clarification.
+    b. Populate `vague_details` by identifying `unclear_aspects` (list of strings), formulating specific `questions` (list of strings) to ask, and providing actionable `suggestions` (list of strings) for clarification.
     c. Leave `components` as an empty list.
 4. **If the project is clear enough:**
     a. Set `too_vague` to `false`.
-    b. Leave `vague_details` with empty lists.
+    b. Leave `vague_details` as null or with empty lists.
     c. Determine the natural sequence of work required.
-    d. Define logical project `components` with `kind` set to "phase". Each phase should have a clear `name` and `description` outlining its objectives.
-    e. Define major work areas as `components` with `kind` set to "epic". Each epic should have a `name` and `description` covering related features or deliverables.
-    f. Develop strategic approaches as `components` with `kind` set to "strategy". Each strategy should have a `name` and `description` explaining how challenges (technical, resource, risk) will be addressed.
-    g. Ensure dependencies between phases and epics are logical (though not explicitly modeled in the output).
+    d. Define logical project phases. Add objects to the `components` list where each object has `kind` set to "phase", a clear `name`, and a `description` outlining its objectives.
+    e. Define major work areas (epics). Add objects to the `components` list where each object has `kind` set to "epic", a `name`, and a `description` covering related features or deliverables.
+    f. Develop strategic approaches. Add objects to the `components` list where each object has `kind` set to "strategy", a `name`, and a `description` explaining how challenges (technical, resource, risk) will be addressed.
+    g. Ensure dependencies between phases and epics are logical (though not explicitly modeled in the output). Populate the `components` list with all defined phase, epic, and strategy objects.
 
 GUIDELINES:
-- Structure your output strictly according to the provided format.
-- If `too_vague` is `true`, provide detailed and helpful information in `vague_details` to enable clarification. Focus on *specific* missing information or ambiguities.
-- If `too_vague` is `false`, create a comprehensive list of `components`.
-- For each `component` (phase, epic, strategy), provide a concise `name` and a clear `description`.
-- Ensure the `kind` field accurately reflects whether the item is a "phase", "epic", or "strategy".
+- Structure your output strictly according to the provided format (`ProjectPlanOutput`).
+- If `too_vague` is `true`, provide detailed and helpful information in `vague_details` (unclear_aspects, questions, suggestions) to enable clarification. Focus on *specific* missing information or ambiguities.
+- If `too_vague` is `false`, create a comprehensive `components` list containing objects representing phases, epics, and strategies.
+- For each object in the `components` list, provide a concise `name`, a clear `description`, and ensure the `kind` field accurately reflects whether the item is a "phase", "epic", or "strategy".
 - Phases should represent distinct stages of the project lifecycle (e.g., Planning, Development, Testing).
 - Epics should represent significant chunks of functionality or work (e.g., User Authentication, Reporting Module).
 - Strategies should describe high-level approaches (e.g., Agile Development, Cloud-Native Architecture, Phased Rollout).

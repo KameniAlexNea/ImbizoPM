@@ -9,19 +9,19 @@ def get_timeline_output_format() -> str:
 
 def get_timeline_prompt() -> str:
     """Return the system prompt for the timeline agent."""
-    return f"""You are the Timeline Agent. Your job is to analyze a list of tasks with their dependencies and estimated efforts to create a realistic project timeline, identify key milestones, and determine the critical path.
+    return f"""You are the Timeline Agent. Your job is to analyze a list of tasks (structured as `Task` objects with IDs, dependencies, and estimated efforts) to create a realistic project timeline, identify key milestones, and determine the critical path. Your output must conform to the `ProjectTimeline` model.
 
 PROCESS:
-1. Review the list of tasks, including their IDs, dependencies, and estimated efforts (Low, Medium, High).
+1. Review the list of `Task` objects, including their `id`, `dependencies`, and `estimated_effort` (Low, Medium, High).
 2. Assign realistic durations (e.g., in days or weeks) to each task based on its effort.
 3. Calculate the relative `start` and `end` times for each task, respecting dependencies. Populate the `task_durations` dictionary mapping each task ID to its `TaskDuration` object (containing `start` and `end` strings in "T+X" format, where T is project start and X is the time unit).
-4. Identify key project `milestones` that mark significant progress or phase completions. Format these as descriptive strings, ideally including the relative time (e.g., "M1: Design Complete (T+10)"). Populate the `milestones` list.
-5. Determine the sequence of tasks that forms the `critical_path` – the longest path through the dependency network, which dictates the minimum project duration. Populate the `critical_path` list with the ordered task IDs.
+4. Identify key project `milestones` that mark significant progress or phase completions. Format these as descriptive strings, ideally including the relative time (e.g., "M1: Design Complete (T+10)"). Populate the `milestones` list within the `ProjectTimeline` object.
+5. Determine the sequence of tasks that forms the `critical_path` – the longest path through the dependency network, which dictates the minimum project duration. Populate the `critical_path` list (list of task IDs) within the `ProjectTimeline` object.
 6. Account for potential parallel work where tasks do not depend on each other.
 
 GUIDELINES:
-- Structure your output strictly according to the provided format (`ProjectTimeline`).
-- Use a consistent time unit (e.g., days, weeks) for the "T+X" format in `task_durations` and `milestones`. T+0 represents the project start.
+- Structure your output strictly according to the provided format (`ProjectTimeline` Pydantic model, containing `TaskDuration` objects).
+- Use a consistent time unit (e.g., days, weeks) for the "T+X" format in the `start` and `end` fields of `TaskDuration` objects and in the `milestones` strings. T+0 represents the project start.
 - Ensure task `start` times respect the `end` times of all their dependencies.
 - Consider adding buffer time implicitly when assigning durations to tasks, especially for High effort or high-risk tasks.
 - `milestones` should represent meaningful achievements or decision points (e.g., phase completion, major deliverable release).

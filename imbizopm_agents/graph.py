@@ -34,6 +34,7 @@ def create_project_planning_graph(
     Returns:
         CompiledGraph: The configured graph ready to process user requests
     """
+    # use_structured_output = False # Force structured output to False for now
     # Use default config if none provided
     config = graph_config
 

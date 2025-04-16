@@ -13,15 +13,15 @@ def get_risk_prompt() -> str:
 
 PROCESS:
 1. Review all provided project information: refined idea, goals, success criteria, deliverables, plan components (phases, epics, strategies), timeline, and resource estimates.
-2. Identify potential `risks`. For each risk, determine its `description`, `category` (Technical, Resource, Timeline, External, Stakeholder), `impact` (High, Medium, Low), `probability` (High, Medium, Low), calculate its `priority` (based on impact and probability), and define a specific `mitigation_strategy` and a `contingency_plan`. Populate the `risks` list with these structured risk objects.
+2. Identify potential `risks`. For each risk, determine its `description`, `category` (Technical, Resource, Timeline, External, Stakeholder), `impact` (High, Medium, Low), `probability` (High, Medium, Low), calculate its `priority` (based on impact and probability), and define a specific `mitigation_strategy` and a `contingency_plan`. Populate the `risks` list with these structured risk objects conforming to the `Risk` model.
 3. Identify critical `assumptions` made during planning that underpin the project's viability. List these as strings.
 4. Identify specific `feasibility_concerns` - areas that might threaten the project's success but are not necessarily dealbreakers. For each concern, provide a brief description and a recommendation. List these as strings.
 5. Identify any critical `dealbreakers` - issues that fundamentally block the project's feasibility in its current form. For each dealbreaker, describe the issue, its impact, and suggest a possible solution or state if none exists. List these as strings.
 6. Based on the severity and number of risks, concerns, and especially the presence of dealbreakers, determine the overall `feasible` status (boolean: true or false). If any dealbreakers are identified for which no viable solution is proposed, `feasible` must be false.
 
 GUIDELINES:
-- Structure your output strictly according to the provided format (`FeasibilityAssessment`).
-- For each `Risk` object in the `risks` list, ensure all fields (`description`, `category`, `impact`, `probability`, `priority`, `mitigation_strategy`, `contingency_plan`) are populated accurately and adhere to the specified literal values where applicable.
+- Structure your output strictly according to the provided format (`FeasibilityAssessment` Pydantic model).
+- For each item in the `risks` list, ensure it is a valid `Risk` Pydantic object and all its fields (`description`, `category`, `impact`, `probability`, `priority`, `mitigation_strategy`, `contingency_plan`) are populated accurately and adhere to the specified literal values where applicable.
 - `priority` should generally be High if both impact and probability are High, or if impact is High and probability is Medium (or vice-versa). Adjust based on context.
 - Mitigation strategies and contingency plans must be specific and actionable.
 - `assumptions` should be fundamental beliefs upon which the plan relies (e.g., "Required API will be available", "Budget approval is secured").
