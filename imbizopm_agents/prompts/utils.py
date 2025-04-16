@@ -15,9 +15,9 @@ def prepare_output(data: dict, union=False, indent=4):
         json_data = json.dumps(data, indent=indent)
 
     # Format the output
-    output = json_data.replace("{", "{{").replace("}", "}}")
+    # output = json_data.replace("{", "{{").replace("}", "}}")
     return f"""Here is an example of the output format you should use:
-{output}"""
+{json_data}"""
 
 
 def _convert_basemodel(item):
