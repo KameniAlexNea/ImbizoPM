@@ -36,28 +36,38 @@ def main(share, server_name, server_port):
     with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
         gr.Markdown("## 🤖 ImbizoPM - AI-Powered Project Planner")
 
-        with gr.Row():
-            input_textbox = gr.Textbox(
-                label="💡 Enter Project Idea",
-                placeholder="e.g., Build an app for rural education...",
-                lines=3,
-                scale=4,
-            )
-            submit_button = gr.Button("🚀 Run Planning", scale=1)
+        with gr.Row(equal_height=True):
+            with gr.Column(scale=6):
+                input_textbox = gr.Textbox(
+                    label="💡 Enter Project Idea",
+                    placeholder="e.g., Build an app for rural education...",
+                    lines=3,
+                    scale=4,
+                )
+                submit_button = gr.Button("🚀 Run Planning", scale=1)
 
-        with gr.Row():
-            model_name_input = gr.Textbox(
-                label="⚙️ Model Name",
-                placeholder="e.g., ollama:cogito:32b, openai:gpt-4o, anthropic:claude-3-5-sonnet-latest",
-                value="ollama:cogito:32b",  # Default value
-                scale=3,
-            )
-            api_key_input = gr.Textbox(
-                label="🔑 API Key (Optional)",
-                placeholder="Enter API key if required by the model provider",
-                type="password",
-                scale=2,
-            )
+            with gr.Column(scale=2):
+                model_name_input = gr.Textbox(
+                    label="⚙️ Model Name",
+                    placeholder="e.g., ollama:cogito:32b, openai:gpt-4o, anthropic:claude-3-5-sonnet-latest",
+                    value="ollama:cogito:32b",  # Default value
+                    scale=3,
+                )
+                api_key_input = gr.Textbox(
+                    label="🔑 API Key (Optional)",
+                    placeholder="Enter API key if required by the model provider",
+                    type="password",
+                    scale=2,
+                )
+            with gr.Column(scale=1):
+                gr.Image(
+                    "examples/image.png",
+                    # width=100,
+                    height=100,
+                    label="ImbizoPM Logo",
+                    show_label=False,
+                    container=False,
+                )  # Add the image here
 
         status_output = gr.Markdown("Waiting for input...")
         route_info_output = gr.Markdown(
@@ -114,12 +124,12 @@ def main(share, server_name, server_port):
                 if api_key:
                     # Heuristic: Set common env vars or pass directly if init_chat_model supports it
                     # This might need adjustment based on specific provider needs in init_chat_model
-                    if "openai" in model_name or "azure" in model_name:
-                        model_kwargs["api_key"] = api_key
-                    elif "anthropic" in model_name:
-                        model_kwargs["api_key"] = api_key
-                    else:
-                        model_kwargs["api_key"] = api_key
+                    # if "openai" in model_name or "azure" in model_name:
+                    #     model_kwargs["api_key"] = api_key
+                    # elif "anthropic" in model_name:
+                    #     model_kwargs["api_key"] = api_key
+                    # else:
+                    model_kwargs["api_key"] = api_key
 
                 llm = init_chat_model(model_name, **model_kwargs)
                 graph: CompiledGraph = create_project_planning_graph(

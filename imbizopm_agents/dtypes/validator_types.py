@@ -1,15 +1,18 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 
 class GoalAlignment(BaseModel):
+    name: str = Field(
+        description="The name or description of the goal"
+    )  # Added name field
     aligned: str = Field(
-        default="No",  # Added default
+        default="No",
         description="Whether the goal is fully, partially, or not aligned at all. (Yes, Partial, No)",
     )
     evidence: str = Field(
-        default="",  # Added default
+        default="",
         description="Concrete elements of the plan showing alignment with the goal",
     )
     gaps: Optional[list[str]] = Field(
@@ -19,12 +22,15 @@ class GoalAlignment(BaseModel):
 
 
 class ConstraintRespect(BaseModel):
+    name: str = Field(
+        description="The name or description of the constraint"
+    )  # Added name field
     respected: str = Field(
-        default="No",  # Added default
+        default="No",
         description="Level to which the constraint is respected. (Yes, Partial, No)",
     )
     evidence: str = Field(
-        default="",  # Added default
+        default="",
         description="Proof or reasoning showing respect for the constraint",
     )
     concerns: Optional[list[str]] = Field(
@@ -34,12 +40,15 @@ class ConstraintRespect(BaseModel):
 
 
 class OutcomeAchievability(BaseModel):
+    name: str = Field(
+        description="The name or description of the outcome"
+    )  # Added name field
     achievable: str = Field(
-        default="No",  # Added default
+        default="No",
         description="Whether the outcome can reasonably be achieved. (Yes, Partial, No)",
     )
     evidence: str = Field(
-        default="",  # Added default
+        default="",
         description="Justification for achievability based on the plan",
     )
     risks: Optional[list[str]] = Field(
@@ -67,17 +76,19 @@ class PlanValidation(BaseModel):
         default="",
         description='Score between "0%" and "100%" indicating alignment strength',
     )
-    goals_alignment: Dict[str, GoalAlignment] = Field(
-        default_factory=dict,
-        description="Mapping from goal names to their alignment evaluation",
+    goals_alignment: List[GoalAlignment] = Field(  # Changed from Dict to List
+        default_factory=list,
+        description="List of goal alignment evaluations",
     )
-    constraints_respected: Dict[str, ConstraintRespect] = Field(
-        default_factory=dict,
-        description="Mapping from constraint names to their respect status",
+    constraints_respected: List[ConstraintRespect] = Field(  # Changed from Dict to List
+        default_factory=list,
+        description="List of constraint respect statuses",
     )
-    outcomes_achievable: Dict[str, OutcomeAchievability] = Field(
-        default_factory=dict,
-        description="Mapping from outcome names to achievability assessment",
+    outcomes_achievable: List[OutcomeAchievability] = (
+        Field(  # Changed from Dict to List
+            default_factory=list,
+            description="List of outcome achievability assessments",
+        )
     )
     completeness_assessment: CompletenessAssessment = Field(
         default_factory=CompletenessAssessment,
@@ -108,14 +119,12 @@ class PlanValidation(BaseModel):
                 for suggestion in self.completeness_assessment.improvement_suggestions:
                     output += f"    - {suggestion}\n"
             output += "\n"
-            # Optionally add details from other sections even if not validated overall
-            # For brevity, we focus on completeness when not validated.
 
         else:
             if self.goals_alignment:
                 output += "**Goals Alignment:**\n"
-                for goal, alignment in self.goals_alignment.items():
-                    output += f"- **Goal:** {goal}\n"
+                for alignment in self.goals_alignment:  # Iterate over list
+                    output += f"- **Goal:** {alignment.name}\n"  # Access name field
                     output += f"  - **Alignment:** {alignment.aligned}\n"
                     output += f"  - **Evidence:** {alignment.evidence}\n"
                     if alignment.gaps:
@@ -124,8 +133,8 @@ class PlanValidation(BaseModel):
 
             if self.constraints_respected:
                 output += "**Constraints Respected:**\n"
-                for constraint, respect in self.constraints_respected.items():
-                    output += f"- **Constraint:** {constraint}\n"
+                for respect in self.constraints_respected:  # Iterate over list
+                    output += f"- **Constraint:** {respect.name}\n"  # Access name field
                     output += f"  - **Respected:** {respect.respected}\n"
                     output += f"  - **Evidence:** {respect.evidence}\n"
                     if respect.concerns:
@@ -134,15 +143,16 @@ class PlanValidation(BaseModel):
 
             if self.outcomes_achievable:
                 output += "**Outcomes Achievability:**\n"
-                for outcome, achievability in self.outcomes_achievable.items():
-                    output += f"- **Outcome:** {outcome}\n"
+                for achievability in self.outcomes_achievable:  # Iterate over list
+                    output += (
+                        f"- **Outcome:** {achievability.name}\n"  # Access name field
+                    )
                     output += f"  - **Achievable:** {achievability.achievable}\n"
                     output += f"  - **Evidence:** {achievability.evidence}\n"
                     if achievability.risks:
                         output += f"  - **Risks:** {'; '.join(achievability.risks)}\n"
                 output += "\n"
 
-            # Include completeness even if validated, if there are items
             if (
                 self.completeness_assessment.missing_elements
                 or self.completeness_assessment.improvement_suggestions
@@ -169,37 +179,42 @@ class PlanValidation(BaseModel):
             "validated": {
                 "overall_validation": True,
                 "alignment_score": "90%",
-                "goals_alignment": {
-                    "Launch a basic informational website": {
+                "goals_alignment": [  # Changed to list
+                    {
+                        "name": "Launch a basic informational website",  # Added name
                         "aligned": "Yes",
                         "evidence": "Plan includes tasks for design, content, development, and deployment of core pages (menu, contact).",
                         "gaps": [],
                     },
-                    "Ensure the website is mobile-friendly": {
+                    {
+                        "name": "Ensure the website is mobile-friendly",  # Added name
                         "aligned": "Yes",
                         "evidence": "Task T4 specifically addresses mobile responsiveness.",
                         "gaps": [],
                     },
-                },
-                "constraints_respected": {
-                    "Budget: $1000": {
+                ],
+                "constraints_respected": [  # Changed to list
+                    {
+                        "name": "Budget: $1000",  # Added name
                         "respected": "Yes",
                         "evidence": "Estimated effort for tasks aligns with typical costs for a simple site within this budget.",
                         "concerns": ["Assumes no major scope changes."],
                     },
-                    "Timeline: 4 weeks": {
+                    {
+                        "name": "Timeline: 4 weeks",  # Added name
                         "respected": "Yes",
                         "evidence": "Timeline estimates T+20 days for launch, fitting within 4 weeks.",
                         "concerns": ["Dependent on timely content delivery (Task T2)."],
                     },
-                },
-                "outcomes_achievable": {
-                    "Live website with menu and contact info": {
+                ],
+                "outcomes_achievable": [  # Changed to list
+                    {
+                        "name": "Live website with menu and contact info",  # Added name
                         "achievable": "Yes",
                         "evidence": "Tasks cover all necessary steps from design to deployment.",
                         "risks": ["Potential delays if content (T2) is late."],
                     },
-                },
+                ],
                 "completeness_assessment": {
                     "missing_elements": [],
                     "improvement_suggestions": [
@@ -211,29 +226,32 @@ class PlanValidation(BaseModel):
             "not_validated": {
                 "overall_validation": False,
                 "alignment_score": "40%",
-                "goals_alignment": {
-                    "Launch a basic informational website": {
+                "goals_alignment": [  # Changed to list
+                    {
+                        "name": "Launch a basic informational website",  # Added name
                         "aligned": "Partial",
                         "evidence": "Tasks exist, but key dependencies are missing.",
                         "gaps": ["No task for acquiring hosting or domain."],
                     }
-                },
-                "constraints_respected": {
-                    "Budget: $1000": {
+                ],
+                "constraints_respected": [  # Changed to list
+                    {
+                        "name": "Budget: $1000",  # Added name
                         "respected": "No",
                         "evidence": "Plan lacks cost estimation for hosting/domain.",
                         "concerns": [
                             "Budget likely insufficient if hosting costs are high."
                         ],
                     }
-                },
-                "outcomes_achievable": {
-                    "Live website with menu and contact info": {
+                ],
+                "outcomes_achievable": [  # Changed to list
+                    {
+                        "name": "Live website with menu and contact info",  # Added name
                         "achievable": "No",
                         "evidence": "Cannot launch without hosting/domain.",
                         "risks": ["Project blocked until hosting/domain are secured."],
                     }
-                },
+                ],
                 "completeness_assessment": {
                     "missing_elements": [
                         "Task for selecting and purchasing hosting.",
