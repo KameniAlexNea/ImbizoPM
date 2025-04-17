@@ -77,7 +77,9 @@ def main(share, server_name, server_port):
         [md_outputs[name] for name in agent_names]
 
         # Processing function
-        def process_input(user_input: str, model_name: str, api_key: str):  # Added model_name, api_key
+        def process_input(
+            user_input: str, model_name: str, api_key: str
+        ):  # Added model_name, api_key
             user_input = user_input.strip()
             model_name = model_name.strip()
 

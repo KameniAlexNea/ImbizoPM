@@ -34,7 +34,9 @@ Break into detailed tasks with effort, roles, and dependencies."""
         self, state: AgentState, result: AgentDtypes.TaskifierAgent
     ) -> AgentState:
         state["forward"] = (
-            AgentRoute.ClarifierAgent if result.is_valid() else AgentRoute.TimelineAgent
+            AgentRoute.ClarifierAgent
+            if not result.is_valid()
+            else AgentRoute.TimelineAgent
         )
         state["backward"] = AgentRoute.TaskifierAgent
         return state
