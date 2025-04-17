@@ -78,8 +78,8 @@ class ConflictResolution(BaseModel):
                         "proposed_solution": "Reallocate $500 from the design budget to testing.",
                     },
                     {
-                        "issue": "Resource availability conflict for the lead developer in week 3."
-                        # No proposed solution yet
+                        "issue": "Resource availability conflict for the lead developer in week 3.",
+                        "proposed_solution": None,  # No proposed solution yet
                     },
                 ],
                 "priorities": [

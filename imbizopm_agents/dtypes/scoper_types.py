@@ -12,13 +12,14 @@ class MVPItem(BaseModel):
         description="User story for the feature (e.g., 'As a [user type], I want [capability] so that [benefit]').",
     )
 
+
 class Phase(BaseModel):
-    name: str = Field(
-        default="", description="Name of the project phase."
-    )
+    name: str = Field(default="", description="Name of the project phase.")
     features: List[str] = Field(
-        default_factory=list, description="List of features included in this project phase."
+        default_factory=list,
+        description="List of features included in this project phase.",
     )
+
 
 class OverloadDetails(BaseModel):
     problem_areas: List[str] = Field(

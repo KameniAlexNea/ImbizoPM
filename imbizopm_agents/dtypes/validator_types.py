@@ -215,7 +215,9 @@ class PlanValidation(BaseModel):
                     "Budget: $1000": {
                         "respected": "No",
                         "evidence": "Plan lacks cost estimation for hosting/domain.",
-                        "concerns": ["Budget likely insufficient if hosting costs are high."],
+                        "concerns": [
+                            "Budget likely insufficient if hosting costs are high."
+                        ],
                     }
                 },
                 "outcomes_achievable": {

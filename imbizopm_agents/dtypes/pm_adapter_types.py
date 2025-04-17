@@ -48,18 +48,28 @@ class ResourceRequirement(BaseModel):
 
 
 class Task(BaseModel):
-    id: Optional[str] = Field(default=None, description="Unique identifier for the task")
+    id: Optional[str] = Field(
+        default=None, description="Unique identifier for the task"
+    )
     title: Optional[str] = Field(default=None, description="Title or name of the task")
-    description: Optional[str] = Field(default=None, description="Detailed description of the task")
+    description: Optional[str] = Field(
+        default=None, description="Detailed description of the task"
+    )
     assignees: List[str] = Field(
         default_factory=list, description="People responsible for this task"
     )
-    due_date: Optional[str] = Field(default=None, description="Expected due date for this task")
+    due_date: Optional[str] = Field(
+        default=None, description="Expected due date for this task"
+    )
 
 
 class Dependency(BaseModel):
-    from_task: Optional[str] = Field(default=None, description="Task ID that this task depends on")
-    to_task: Optional[str] = Field(default=None, description="Task ID that is dependent")
+    from_task: Optional[str] = Field(
+        default=None, description="Task ID that this task depends on"
+    )
+    to_task: Optional[str] = Field(
+        default=None, description="Task ID that is dependent"
+    )
 
 
 class ResourceLink(BaseModel):

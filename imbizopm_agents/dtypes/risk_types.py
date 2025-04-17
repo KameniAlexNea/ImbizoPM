@@ -10,7 +10,8 @@ class Risk(BaseModel):
         description="Category of the risk. E.g., Technical, Resource, Timeline, External, Stakeholder, etc.",
     )
     impact: str = Field(
-        default="Low", description="Impact level if the risk materializes. (High, Medium, Low)"
+        default="Low",
+        description="Impact level if the risk materializes. (High, Medium, Low)",
     )
     probability: str = Field(
         default="Low",

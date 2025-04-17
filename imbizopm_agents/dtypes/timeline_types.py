@@ -71,25 +71,28 @@ class ProjectTimeline(BaseModel):
         return {
             "task_durations": {
                 "T1": {"start": "T+0", "end": "T+5"},  # Design Mock-up (5 days)
-                "T2": {"start": "T+0", "end": "T+10"}, # Gather Content (10 days, parallel)
+                "T2": {
+                    "start": "T+0",
+                    "end": "T+10",
+                },  # Gather Content (10 days, parallel)
                 "T3": {
                     "start": "T+5",
                     "end": "T+15",
-                }, # Develop HTML/CSS (10 days, depends on T1)
+                },  # Develop HTML/CSS (10 days, depends on T1)
                 "T4": {
                     "start": "T+15",
                     "end": "T+18",
-                }, # Mobile Responsiveness (3 days, depends on T3)
+                },  # Mobile Responsiveness (3 days, depends on T3)
                 "T5": {
                     "start": "T+18",
                     "end": "T+20",
-                }, # Deploy Website (2 days, depends on T4)
+                },  # Deploy Website (2 days, depends on T4)
             },
             "milestones": [
                 "M1: Design Approved (T+5)",
                 "M2: Content Received (T+10)",
                 "M3: Development Complete (T+18)",
-                "M4: Website Launch (T+20)", # Corresponds to approx. July 21st
+                "M4: Website Launch (T+20)",  # Corresponds to approx. July 21st
             ],
-            "critical_path": ["T1", "T3", "T4", "T5"], # Longest path to completion
+            "critical_path": ["T1", "T3", "T4", "T5"],  # Longest path to completion
         }
