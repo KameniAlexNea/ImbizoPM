@@ -27,7 +27,7 @@ TabsName = [
 ]
 
 
-def main():
+def main(share, server_name, server_port):
     supported_names = {
         name for name in dir(AgentRoute) if not name.startswith("__") and name != "END"
     }
@@ -77,7 +77,7 @@ def main():
         [md_outputs[name] for name in agent_names]
 
         # Processing function
-        def process_input(user_input, model_name, api_key):  # Added model_name, api_key
+        def process_input(user_input: str, model_name: str, api_key: str):  # Added model_name, api_key
             user_input = user_input.strip()
             model_name = model_name.strip()
 
@@ -237,11 +237,4 @@ def main():
             ],  # Added model inputs
             outputs=[status_output, route_info_output] + list(md_outputs.values()),
         )
-    return demo
-
-
-# Run
-
-if __name__ == "__main__":
-    demo = main()
-    demo.launch()
+    demo.launch(share=share, server_name=server_name, server_port=server_port)
