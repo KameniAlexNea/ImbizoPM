@@ -1,8 +1,9 @@
+import os  # Import os to potentially set API keys as environment variables
+
 import gradio as gr
 from langchain.chat_models import init_chat_model
 from langgraph.graph.graph import CompiledGraph
 from loguru import logger
-import os  # Import os to potentially set API keys as environment variables
 
 # Imports
 from imbizopm_agents.agents.config import AgentRoute
@@ -155,9 +156,7 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
         # Initialize the state dictionary that will be yielded
         current_updates = {
             status_output: gr.update(value="⏳ Running agent pipeline..."),
-            route_info_output: gr.update(
-                value="Execution path starting..."
-            ),
+            route_info_output: gr.update(value="Execution path starting..."),
             **{
                 md: gr.update(value=f"### {name}\nProcessing...")
                 for name, md in md_outputs.items()
@@ -185,7 +184,9 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
                     if agent_data:
                         formatted = f"### {agent_name}\n```yaml\n{dumps_to_yaml(agent_data)}\n```"
                         # Update the specific agent's markdown in current_updates
-                        current_updates[md_outputs[agent_name]] = gr.update(value=formatted)
+                        current_updates[md_outputs[agent_name]] = gr.update(
+                            value=formatted
+                        )
 
                 # Update execution path history
                 if backward_node:  # Only add steps where a node executed
@@ -206,14 +207,16 @@ with gr.Blocks(title="ImbizoPM: Project Planner") as demo:
         except Exception as e:
             logger.error(f"Graph error during run {thread_id}: {e}", exc_info=True)
             # Append error to history if possible
-            if 'execution_path_history' not in locals():
+            if "execution_path_history" not in locals():
                 execution_path_history = ["Execution failed before starting."]
             execution_path_history.append(f"❌ **Error:** {e}")
             # Create a full error update dictionary
             final_error_updates = {
                 status_output: gr.update(value=f"❌ Error occurred: {e}"),
                 route_info_output: gr.update(
-                    value="<br>".join(execution_path_history)  # Show history up to the error
+                    value="<br>".join(
+                        execution_path_history
+                    )  # Show history up to the error
                 ),
                 **{
                     md: gr.update(value=f"### {name}\n❌ Error processing.")

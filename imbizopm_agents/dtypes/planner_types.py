@@ -50,7 +50,11 @@ class ProjectPlanOutput(BaseModel):
 
     def is_valid(self) -> bool:
         """Check if the project plan is valid."""
-        return not self.too_vague or self.components is None and not self.vague_details.unclear_aspects
+        return (
+            not self.too_vague
+            or self.components is None
+            and not self.vague_details.unclear_aspects
+        )
 
     def to_structured_string(self) -> str:
         """Formats the project plan output into a structured string."""

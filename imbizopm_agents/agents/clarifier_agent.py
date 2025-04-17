@@ -55,7 +55,7 @@ idea: {state['input']}
 {dumps_to_yaml(state[AgentRoute.PlannerAgent].components)}
 
 # Taskifier Agent
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent].missing_info)}
+{dumps_to_yaml(state[AgentRoute.TaskifierAgent].missing_info_details)}
 
 From the previous refined idea, goals, constraints, it was not possible to extract clear tasks. Please clarify the project idea, goals, and constraints.
 """

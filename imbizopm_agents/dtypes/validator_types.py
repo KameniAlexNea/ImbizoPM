@@ -93,11 +93,7 @@ class PlanValidation(BaseModel):
 
     def to_structured_string(self) -> str:
         """Formats the plan validation results into a structured string."""
-        validation_status = (
-            "Validated"
-            if self.is_valid()
-            else "Not Validated"
-        )
+        validation_status = "Validated" if self.is_valid() else "Not Validated"
         output = f"**Plan Validation Status: {validation_status}**\n"
         output += f"**Overall Alignment Score:** {self.alignment_score}\n\n"
 

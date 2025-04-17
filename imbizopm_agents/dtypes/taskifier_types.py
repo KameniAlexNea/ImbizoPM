@@ -62,9 +62,17 @@ class TaskPlan(BaseModel):
         description="List of defined tasks",
     )
 
+    def is_valid(self) -> bool:
+        """Check if the task plan is valid."""
+        return (
+            not self.missing_info
+            or self.tasks is None
+            and not self.missing_info_details.unclear_aspects
+        )
+
     def to_structured_string(self) -> str:
         """Formats the task plan into a structured string."""
-        if self.missing_info and self.missing_info_details:
+        if not self.is_valid():
             output = "**Task Plan Status: Missing Information**\n\n"
             output += "Cannot define tasks due to missing information. Please address the following:\n\n"
 
