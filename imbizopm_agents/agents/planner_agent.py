@@ -66,7 +66,7 @@ class PlannerAgent(BaseAgent):
     ) -> AgentState:
         state["forward"] = (
             AgentRoute.ClarifierAgent
-            if result.too_vague and result.vague_details.unclear_aspects
+            if result.is_valid()
             else (
                 AgentRoute.ScoperAgent
                 if state["backward"] != AgentRoute.NegotiatorAgent
