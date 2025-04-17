@@ -1,139 +1,196 @@
-from typing import List, Literal, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 
 class Task(BaseModel):
-    id: str = Field(description="Unique identifier for the task")
-    name: str = Field(description="Brief, descriptive name of the task")
+    id: str = Field(
+        default="", description="Unique identifier for the task"
+    )  # Added default
+    name: str = Field(
+        default="", description="Brief, descriptive name of the task"
+    )  # Added default
     description: str = Field(
-        description="Detailed description of what needs to be done"
+        default="",  # Added default
+        description="Detailed description of what needs to be done",
     )
     deliverable: Optional[str] = Field(
         description="Specific deliverable this task contributes to"
     )
-    owner_role: str = Field(description="Role responsible for completing this task")
-    estimated_effort: Literal["Low", "Medium", "High"] = Field(
-        description="Estimated effort required to complete this task"
+    owner_role: str = Field(
+        default="", description="Role responsible for completing this task"
+    )  # Added default
+    estimated_effort: str = Field(
+        default="Medium",  # Added default
+        description="Estimated effort required to complete this task. (Low, Medium, High)",
     )
     epic: Optional[str] = Field(description="Name of the epic this task belongs to")
-    phase: Optional[str] = Field(description="Phase in which this task is to be executed")
-    dependencies: List[str] = Field(default_factory=list, description="List of task IDs this task depends on")
+    phase: Optional[str] = Field(
+        description="Phase in which this task is to be executed"
+    )
+    dependencies: List[str] = Field(
+        default_factory=list, description="List of task IDs this task depends on"
+    )
 
 
 class MissingInfoDetails(BaseModel):
     unclear_aspects: List[str] = Field(
-        default_factory=list, description="Key points that are unclear and block task definition"
+        default_factory=list,
+        description="Key points that are unclear and block task definition",
     )
     questions: List[str] = Field(
-        default_factory=list, description="Questions that must be answered to clarify the scope"
+        default_factory=list,
+        description="Questions that must be answered to clarify the scope",
     )
     suggestions: List[str] = Field(
-        default_factory=list, description="Concrete suggestions to resolve ambiguity or missing details"
+        default_factory=list,
+        description="Concrete suggestions to resolve ambiguity or missing details",
     )
 
 
 class TaskPlan(BaseModel):
     missing_info_details: Optional[MissingInfoDetails] = Field(
-        description="Details about what information is missing and how to address it"
+        default=None,
+        description="Details about what information is missing and how to address it",
     )
-    missing_info: bool = Field(
+    missing_info: Optional[bool] = Field(
+        default=False,
         description="Flag indicating that important task-related information is missing",
     )
     tasks: List[Task] = Field(
-        default_factory=list, description="List of defined tasks",
+        default_factory=list,
+        description="List of defined tasks",
     )
+
+    def to_structured_string(self) -> str:
+        """Formats the task plan into a structured string."""
+        if self.missing_info and self.missing_info_details:
+            output = "**Task Plan Status: Missing Information**\n\n"
+            output += "Cannot define tasks due to missing information. Please address the following:\n\n"
+
+            if self.missing_info_details.unclear_aspects:
+                output += "**Unclear Aspects:**\n"
+                for aspect in self.missing_info_details.unclear_aspects:
+                    output += f"- {aspect}\n"
+                output += "\n"
+
+            if self.missing_info_details.questions:
+                output += "**Questions to Address:**\n"
+                for question in self.missing_info_details.questions:
+                    output += f"- {question}\n"
+                output += "\n"
+
+            if self.missing_info_details.suggestions:
+                output += "**Suggestions for Clarification:**\n"
+                for suggestion in self.missing_info_details.suggestions:
+                    output += f"- {suggestion}\n"
+                output += "\n"
+        elif not self.tasks:
+            output = "**Task Plan:**\n\nNo tasks defined.\n"
+        else:
+            output = "**Task Plan:**\n\n"
+            for task in self.tasks:
+                output += f"**Task ID:** {task.id}\n"
+                output += f"- **Name:** {task.name}\n"
+                output += f"- **Description:** {task.description}\n"
+                if task.deliverable:
+                    output += f"- **Deliverable:** {task.deliverable}\n"
+                output += f"- **Owner Role:** {task.owner_role}\n"
+                output += f"- **Estimated Effort:** {task.estimated_effort}\n"
+                if task.epic:
+                    output += f"- **Epic:** {task.epic}\n"
+                if task.phase:
+                    output += f"- **Phase:** {task.phase}\n"
+                if task.dependencies:
+                    output += f"- **Dependencies:** {', '.join(task.dependencies)}\n"
+                else:
+                    output += "- **Dependencies:** None\n"
+                output += "\n"
+
+        return output.strip()
 
     @staticmethod
     def example() -> dict:
+        """Return simpler examples of both a complete and missing info task plan."""
         return {
             "complete_plan": {
                 "tasks": [
                     {
-                        "id": "TASK-001",
-                        "name": "Create user authentication API",
-                        "description": "Develop RESTful API endpoints for user registration, login, password reset, and account management",
-                        "deliverable": "Authentication Microservice",
-                        "owner_role": "Backend Developer",
-                        "estimated_effort": "Medium",
-                        "epic": "User Authentication System",
-                        "phase": "Development",
-                        "dependencies": [],
-                    },
-                    {
-                        "id": "TASK-002",
-                        "name": "Design user authentication flows",
-                        "description": "Create wireframes and visual designs for login, registration, and account recovery screens",
-                        "deliverable": "UI Design Package",
-                        "owner_role": "UX Designer",
+                        "id": "T1",
+                        "name": "Design Website Mock-up",
+                        "description": "Create a visual design concept for the bakery website.",
+                        "deliverable": "Website Mock-up",
+                        "owner_role": "Web Designer",
                         "estimated_effort": "Low",
-                        "epic": "User Authentication System",
-                        "phase": "Design",
+                        "epic": "Website Visuals",
+                        "phase": "Phase 1: Launch Basic Site",
                         "dependencies": [],
                     },
                     {
-                        "id": "TASK-003",
-                        "name": "Implement frontend authentication components",
-                        "description": "Develop React components for all authentication screens and integrate with authentication API",
-                        "deliverable": "Frontend Authentication Module",
-                        "owner_role": "Frontend Developer",
-                        "estimated_effort": "Medium",
-                        "epic": "User Authentication System",
-                        "phase": "Development",
-                        "dependencies": ["TASK-001", "TASK-002"],
+                        "id": "T2",
+                        "name": "Gather Menu Content",
+                        "description": "Collect text and images for the menu page from the bakery owner.",
+                        "deliverable": "Menu Content",
+                        "owner_role": "Bakery Owner",
+                        "estimated_effort": "Low",
+                        "epic": "Website Content",
+                        "phase": "Phase 1: Launch Basic Site",
+                        "dependencies": [],
                     },
                     {
-                        "id": "TASK-004",
-                        "name": "Implement user permission system",
-                        "description": "Design and implement role-based access control system with configurable permissions",
-                        "deliverable": "Authorization Microservice",
-                        "owner_role": "Backend Developer",
-                        "estimated_effort": "High",
-                        "epic": "User Authentication System",
-                        "phase": "Development",
-                        "dependencies": ["TASK-001"],
+                        "id": "T3",
+                        "name": "Develop HTML/CSS Structure",
+                        "description": "Build the basic HTML structure and apply CSS styling based on the approved design.",
+                        "deliverable": "Website Codebase",
+                        "owner_role": "Web Developer",
+                        "estimated_effort": "Medium",
+                        "epic": "Website Development",
+                        "phase": "Phase 1: Launch Basic Site",
+                        "dependencies": ["T1", "T2"],
                     },
                     {
-                        "id": "TASK-005",
-                        "name": "Create automated test suite for authentication",
-                        "description": "Develop comprehensive unit and integration tests for all authentication functionality",
-                        "deliverable": "Authentication Test Suite",
-                        "owner_role": "QA Engineer",
-                        "estimated_effort": "Medium",
-                        "epic": "User Authentication System",
-                        "phase": "Testing",
-                        "dependencies": ["TASK-001", "TASK-003", "TASK-004"],
+                        "id": "T4",
+                        "name": "Implement Mobile Responsiveness",
+                        "description": "Ensure the website layout adapts correctly to different screen sizes (mobile, tablet, desktop).",
+                        "deliverable": "Responsive Website Code",
+                        "owner_role": "Web Developer",
+                        "estimated_effort": "Low",
+                        "epic": "Website Development",
+                        "phase": "Phase 1: Launch Basic Site",
+                        "dependencies": ["T3"],
+                    },
+                    {
+                        "id": "T5",
+                        "name": "Deploy Website",
+                        "description": "Upload website files to the hosting server and configure the domain name.",
+                        "deliverable": "Live Website",
+                        "owner_role": "Web Developer",
+                        "estimated_effort": "Low",
+                        "epic": "Website Deployment",
+                        "phase": "Phase 1: Launch Basic Site",
+                        "dependencies": ["T4"],
                     },
                 ],
                 "missing_info": False,
-                "missing_info_details": {
-                    "unclear_aspects": [],
-                    "questions": [],
-                    "suggestions": [],
-                },
+                "missing_info_details": None,
             },
             "missing_plan": {
                 "missing_info": True,
                 "missing_info_details": {
                     "unclear_aspects": [
-                        "The project scope does not specify which user roles need to be supported",
-                        "Integration requirements with existing systems are not defined",
-                        "Performance requirements and expected user load are not specified",
-                        "Security requirements and compliance standards are not detailed",
+                        "Specific hosting provider is not chosen.",
+                        "Domain name registration details are missing.",
+                        "Final approval process for the design is unclear.",
                     ],
                     "questions": [
-                        "What user roles need to be supported in the authentication system?",
-                        "Which existing systems need to integrate with the new authentication service?",
-                        "What is the expected peak user load for authentication services?",
-                        "Are there specific security certifications or compliance standards that must be met?",
-                        "Is single sign-on (SSO) functionality required? If so, which providers?",
+                        "Which hosting provider should be used?",
+                        "Has the domain name been purchased? If so, what are the login details?",
+                        "Who gives the final sign-off on the website design?",
                     ],
                     "suggestions": [
-                        "Conduct a stakeholder workshop to define user roles and permissions",
-                        "Request documentation for existing systems that require integration",
-                        "Perform load testing on current systems to establish performance baselines",
-                        "Consult with the security team to identify compliance requirements",
-                        "Create a technical specification document before proceeding with task definition",
+                        "Research and select a hosting provider based on budget and needs.",
+                        "Confirm domain name status and obtain necessary credentials.",
+                        "Define a clear design approval step with the bakery owner.",
                     ],
                 },
                 "tasks": [],

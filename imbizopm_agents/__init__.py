@@ -1,7 +1,6 @@
 from imbizopm_agents.agents import (
     ClarifierAgent,
     NegotiatorAgent,
-    OutcomeAgent,
     PlannerAgent,
     PMAdapterAgent,
     RiskAgent,
@@ -21,7 +20,6 @@ __all__ = [
     "run_project_planning_graph",
     "DEFAULT_GRAPH_CONFIG",
     "ClarifierAgent",
-    "OutcomeAgent",
     "PlannerAgent",
     "ScoperAgent",
     "TaskifierAgent",

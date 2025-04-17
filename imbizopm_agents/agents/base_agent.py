@@ -1,16 +1,13 @@
-from typing import Annotated, Any, Callable, Dict, Optional, TypedDict
+from typing import Any, Callable, Dict, Optional
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph.graph import CompiledGraph
-from langgraph.graph.message import add_messages
 from langgraph.prebuilt import create_react_agent
 from llm_output_parser import parse_json
 from loguru import logger
 from pydantic import BaseModel
-from typing_extensions import TypedDict
 
-from .agents.config import AgentDtypes
+from .config import AgentDtypes, AgentState
 
 
 def extract_structured_data(text: str) -> Dict[str, Any]:
@@ -29,26 +26,6 @@ def extract_structured_data(text: str) -> Dict[str, Any]:
         return {"text": text, "error": str(e)}
 
 
-class AgentState(TypedDict):
-    input: str
-    start: str
-    backward: str
-    forward: str
-    warn_errors: dict[str, Any]
-    routes: Annotated[list[str], add_messages]
-    messages: Annotated[list[str], add_messages]
-    ClarifierAgent: AgentDtypes.ClarifierAgent
-    OutcomeAgent: AgentDtypes.OutcomeAgent
-    PlannerAgent: AgentDtypes.PlannerAgent
-    ScoperAgent: AgentDtypes.ScoperAgent
-    TaskifierAgent: AgentDtypes.TaskifierAgent
-    TimelineAgent: AgentDtypes.TimelineAgent
-    RiskAgent: AgentDtypes.RiskAgent
-    ValidatorAgent: AgentDtypes.ValidatorAgent
-    PMAdapterAgent: AgentDtypes.PMAdapterAgent
-    NegotiatorAgent: AgentDtypes.NegotiatorAgent
-
-
 class BaseAgent:
     """Base agent class with React pattern support."""
 
@@ -56,8 +33,8 @@ class BaseAgent:
         self,
         llm: BaseChatModel,
         name: str,
-        system_prompt: str,
         format_prompt: str,
+        system_prompt: str,
         model_class: Optional[Callable] = None,
         description: str = "",
     ):
@@ -71,34 +48,29 @@ class BaseAgent:
         self.agent: CompiledGraph = None
         self._build_agent()
 
+    def _format_input(self, content: str) -> str:
+        text = f"======= Input Data =======\n{content}" + (
+            ""
+            if self.structured_output
+            else f"\n\n\n======= Output Data =======\n{self.format_prompt}"
+        )
+        return [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "human", "content": text},
+        ]
+
     def _build_agent(self):
         """Build the React agent."""
-        messages = [
-            ("system", self.system_prompt),
-            (
-                "human",
-                "Here is some additional information to take into account:\n\n{messages}",
-            ),
-        ]
-        if self.structured_output:
-            messges.append(
-                (
-                    "system",
-                    self.format_prompt
-                    + "\n\nFormat your response as JSON (strictly output only the JSON, choose the appropriate format)",
-                )
-            )
-        prompt = ChatPromptTemplate.from_messages(messges)
-
         self.agent: CompiledGraph = create_react_agent(
-            self.llm, tools=[], prompt=prompt, response_format=self.model_class
+            self.llm, tools=[], prompt=None, response_format=self.model_class
         )
 
     def _parse_content(self, content: str):
         parsed_content = extract_structured_data(content)
         retry_text = None
         if "error" in parsed_content:
-            logger.warning(f"Errors found in output: {self.name}")
+            logger.error(f"Errors found in output: {self.name}. Retrying...")
+            logger.error(f"Error: {parsed_content['error']}")
             messages = [
                 {
                     "role": "human",
@@ -123,7 +95,9 @@ class BaseAgent:
             raise ValueError(f"Failed to validate output: {self.name}")
 
     def run(self, state: AgentState) -> AgentState:
-        raw_output = self.agent.invoke({"messages": self._prepare_input(state)})
+        raw_output = self.agent.invoke(
+            {"messages": self._format_input(self._prepare_input(state))}
+        )
         if self.structured_output:
             parsed_content: BaseModel = raw_output["structured_response"]
             logger.debug(parsed_content)

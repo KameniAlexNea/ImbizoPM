@@ -1,17 +1,21 @@
-from typing import List, Literal
+from collections import defaultdict
+from typing import Dict, List
 
 from pydantic import BaseModel, Field
 
 
 class NamedItem(BaseModel):
     name: str = Field(
-        description="Name of the item, such as a project phase, epic, or strategy"
+        default="",  # Added default
+        description="Name of the item, such as a project phase, epic, or strategy",
     )
     description: str = Field(
-        description="Detailed explanation providing context, objectives, or value of the named item"
+        default="",  # Added default
+        description="Detailed explanation providing context, objectives, or value of the named item",
     )
-    kind: Literal["phase", "epic", "strategy"] = Field(
-        description="Type of item, indicating whether it is a phase, epic, or strategy"
+    kind: str = Field(
+        default="phase",  # Added default
+        description="Type of item, indicating whether it is a phase, epic, or strategy. (phase, epic, strategy)",
     )
 
 
@@ -32,7 +36,8 @@ class VagueDetails(BaseModel):
 
 class ProjectPlanOutput(BaseModel):
     too_vague: bool = Field(
-        description="Indicates whether the project is too vague to generate a meaningful plan"
+        default=False,  # Added default
+        description="Indicates whether the project is too vague to generate a meaningful plan",
     )
     vague_details: VagueDetails = Field(
         default_factory=VagueDetails,
@@ -43,9 +48,54 @@ class ProjectPlanOutput(BaseModel):
         description="Collection of items which can be phases, epics, or strategies, providing an integrated view of all planning elements",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the project plan output into a structured string."""
+        if self.too_vague:
+            output = "**Project Plan Status: Too Vague**\n\n"
+            output += "The project description lacks sufficient detail for planning. Please address the following:\n\n"
+
+            if self.vague_details.unclear_aspects:
+                output += "**Unclear Aspects:**\n"
+                for aspect in self.vague_details.unclear_aspects:
+                    output += f"- {aspect}\n"
+                output += "\n"
+
+            if self.vague_details.questions:
+                output += "**Questions to Address:**\n"
+                for question in self.vague_details.questions:
+                    output += f"- {question}\n"
+                output += "\n"
+
+            if self.vague_details.suggestions:
+                output += "**Suggestions for Clarification:**\n"
+                for suggestion in self.vague_details.suggestions:
+                    output += f"- {suggestion}\n"
+                output += "\n"
+        else:
+            output = "**Project Plan Components:**\n\n"
+            if not self.components:
+                output += "No specific components were generated.\n"
+            else:
+                # Group components by kind
+                grouped_components: Dict[str, List[NamedItem]] = defaultdict(list)
+                for component in self.components:
+                    grouped_components[component.kind].append(component)
+
+                # Define the order for display
+                kind_order = ["phase", "epic", "strategy"]
+
+                for kind in kind_order:
+                    if kind in grouped_components:
+                        output += f"**{kind.capitalize()}s:**\n"
+                        for item in grouped_components[kind]:
+                            output += f"- **{item.name}:** {item.description}\n"
+                        output += "\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of the ProjectPlanOutput model."""
+        """Return a simpler example JSON representation of the ProjectPlanOutput model."""
         return {
             "not_too_vague_project": {
                 "too_vague": False,
@@ -56,68 +106,38 @@ class ProjectPlanOutput(BaseModel):
                 },
                 "components": [
                     {
-                        "name": "Discovery and Planning",
-                        "description": "Research user needs, define requirements, and create detailed project roadmap",
+                        "name": "Phase 1: Setup",
+                        "description": "Initial project setup and requirement gathering.",
                         "kind": "phase",
                     },
                     {
-                        "name": "Design and Architecture",
-                        "description": "Create UX/UI designs and establish technical architecture for the solution",
+                        "name": "Phase 2: Development",
+                        "description": "Build the core features.",
                         "kind": "phase",
                     },
                     {
-                        "name": "Development",
-                        "description": "Implement features according to specifications with regular quality checks",
+                        "name": "Phase 3: Launch",
+                        "description": "Testing and deployment.",
                         "kind": "phase",
                     },
                     {
-                        "name": "Testing and Validation",
-                        "description": "Perform comprehensive testing including unit, integration, and user acceptance testing",
-                        "kind": "phase",
-                    },
-                    {
-                        "name": "Deployment and Launch",
-                        "description": "Release the solution to production and support initial user adoption",
-                        "kind": "phase",
-                    },
-                    {
-                        "name": "User Authentication System",
-                        "description": "Features related to user registration, login, profile management, and access control",
+                        "name": "User Login",
+                        "description": "Allow users to sign in.",
                         "kind": "epic",
                     },
                     {
-                        "name": "Data Management",
-                        "description": "Core functionality for data input, storage, retrieval, and export capabilities",
+                        "name": "Product Catalog",
+                        "description": "Display products to users.",
                         "kind": "epic",
                     },
                     {
-                        "name": "Reporting Dashboard",
-                        "description": "Interactive visualizations and analytics features to provide insights from user data",
-                        "kind": "epic",
-                    },
-                    {
-                        "name": "Mobile Responsiveness",
-                        "description": "Ensuring the application functions well on various mobile devices and screen sizes",
-                        "kind": "epic",
-                    },
-                    {
-                        "name": "Agile Development",
-                        "description": "Utilizing two-week sprints with daily standups to maintain velocity and address issues quickly",
+                        "name": "Iterative Development",
+                        "description": "Use sprints for development cycles.",
                         "kind": "strategy",
                     },
                     {
-                        "name": "Continuous Integration",
-                        "description": "Implementing automated testing and deployment pipelines to ensure code quality",
-                        "kind": "strategy",
-                    },
-                    {
-                        "name": "User-Centered Design",
-                        "description": "Involving target users throughout the design process with regular feedback sessions",
-                        "kind": "strategy",
-                    },
-                    {
-                        "name": "Phased Delivery",
-                        "description": "Releasing core functionality first, followed by additional features in prioritized order",
+                        "name": "Cloud Hosting",
+                        "description": "Deploy the application on a cloud platform.",
                         "kind": "strategy",
                     },
                 ],
@@ -126,22 +146,17 @@ class ProjectPlanOutput(BaseModel):
                 "too_vague": True,
                 "vague_details": {
                     "unclear_aspects": [
-                        "Target audience demographics need further specification",
-                        "Integration requirements with existing systems",
-                        "Scope of project is poorly defined",
-                        "Budget constraints are not specified",
+                        "Specific features are not defined.",
+                        "Budget is unknown.",
                     ],
                     "questions": [
-                        "What is the exact timeline for delivery of the first MVP?",
-                        "Are there regulatory compliance requirements to consider?",
-                        "Who are the primary stakeholders for this project?",
-                        "What are the primary success metrics for this initiative?",
+                        "What are the key features required?",
+                        "What is the allocated budget?",
+                        "What is the project deadline?",
                     ],
                     "suggestions": [
-                        "Conduct a stakeholder workshop to define target audience",
-                        "Request documentation of current system APIs for integration planning",
-                        "Create a project charter to formally define scope and objectives",
-                        "Schedule a budget planning meeting with finance team",
+                        "Hold a meeting to define the feature list.",
+                        "Clarify budget constraints with stakeholders.",
                     ],
                 },
                 "components": [],

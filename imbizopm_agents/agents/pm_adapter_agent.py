@@ -2,12 +2,12 @@ from typing import Any, Dict
 
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent
 from ..dtypes import ProjectSummary
 from ..prompts.pm_adapter_prompts import (
     get_pm_adapter_output_format,
     get_pm_adapter_prompt,
 )
+from .base_agent import AgentState, BaseAgent
 from .config import AgentRoute
 
 

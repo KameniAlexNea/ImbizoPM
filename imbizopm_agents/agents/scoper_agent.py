@@ -1,11 +1,11 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent
 from ..dtypes import ScopeDefinition
 from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
 )
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -51,7 +51,7 @@ class ScoperAgent(BaseAgent):
     ) -> AgentState:
         state["forward"] = (
             AgentRoute.NegotiatorAgent
-            if result.overload is not None
+            if result.overload is not None and result.overload.problem_areas
             else AgentRoute.TaskifierAgent
         )
         state["backward"] = AgentRoute.ScoperAgent

@@ -1,11 +1,11 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent
 from ..dtypes import ConflictResolution
 from ..prompts.negotiator_prompts import (
     get_negotiator_output_format,
     get_negotiator_prompt,
 )
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -40,7 +40,7 @@ Consider the main idea, plan and scope. Identify any conflicts or inconsistencie
     ) -> AgentState:
         state["forward"] = (
             AgentRoute.ScoperAgent
-            if result.conflict_area == "scope"
+            if "scope" in result.conflict_area
             else AgentRoute.PlannerAgent
         )
         state["backward"] = AgentRoute.NegotiatorAgent

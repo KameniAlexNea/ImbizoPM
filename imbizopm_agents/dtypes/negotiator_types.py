@@ -1,11 +1,13 @@
-from typing import List, Literal, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 
 # New model to pair issues and solutions
 class ResolutionIssue(BaseModel):
-    issue: str = Field(description="A specific issue or point of disagreement.")
+    issue: str = Field(
+        default="", description="A specific issue or point of disagreement."
+    )  # Added default
     proposed_solution: Optional[str] = Field(
         None,
         description="A suggested resolution or compromise for this specific issue.",
@@ -15,49 +17,75 @@ class ResolutionIssue(BaseModel):
 # Modified NegotiationDetails model
 class NegotiationDetails(BaseModel):
     items: List[ResolutionIssue] = Field(
-        description="A list of issues and their proposed solutions."
+        default_factory=list,  # Added default_factory
+        description="A list of issues and their proposed solutions.",
     )
     priorities: List[str] = Field(
-        description="Key aspects that should be prioritized when resolving the conflict (e.g., timeline, value, feasibility)"
+        default_factory=list,  # Added default_factory
+        description="Key aspects that should be prioritized when resolving the conflict (e.g., timeline, value, feasibility)",
     )
 
 
 # Modified ConflictResolution model
 class ConflictResolution(BaseModel):
-    conflict_area: Literal["scope", "plan"] = Field(
-        description='The area of conflict being addressed, either "scope" or "plan".'
+    conflict_area: str = Field(
+        default="scope",  # Added default
+        description='The area of conflict being addressed, either "scope" or "plan".',
     )
     negotiation: NegotiationDetails = Field(  # Renamed from negotiation_details
-        description="Structured details of the conflict, including issues, proposed solutions, and priorities."
+        default_factory=NegotiationDetails,  # Added default_factory
+        description="Structured details of the conflict, including issues, proposed solutions, and priorities.",
     )
+
+    def to_structured_string(self) -> str:
+        """Formats the conflict resolution details into a structured string."""
+        output = f"**Conflict Area:** {self.conflict_area.capitalize()}\n\n"
+
+        output += "**Negotiation Details:**\n"
+
+        if self.negotiation.items:
+            output += "*   **Issues & Proposed Solutions:**\n"
+            for item in self.negotiation.items:
+                solution_text = (
+                    f" -> Proposed Solution: {item.proposed_solution}"
+                    if item.proposed_solution
+                    else " -> No solution proposed yet"
+                )
+                output += f"    - Issue: {item.issue}{solution_text}\n"
+            output += "\n"
+
+        if self.negotiation.priorities:
+            output += "*   **Priorities:**\n"
+            for priority in self.negotiation.priorities:
+                output += f"    - {priority}\n"
+            output += "\n"
+
+        return output.strip()
 
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of the ConflictResolution model."""
+        """Return a simpler example JSON representation of the ConflictResolution model."""
         return {
-            "conflict_area": "scope",
-            "negotiation": {  # Updated field name
-                "items": [  # Updated structure for issues/solutions
+            "conflict_area": "plan",
+            "negotiation": {
+                "items": [
                     {
-                        "issue": "Feature X exceeds original project boundaries",
-                        "proposed_solution": "Reduce scope of Feature X to core functionality only",
+                        "issue": "The proposed timeline for Phase 1 is too short.",
+                        "proposed_solution": "Extend Phase 1 deadline by two weeks and reduce scope slightly.",
                     },
                     {
-                        "issue": "Stakeholders disagree on the priority of mobile vs. desktop features",
-                        "proposed_solution": "Phase implementation with mobile features in first release",
+                        "issue": "Budget allocation for testing seems insufficient.",
+                        "proposed_solution": "Reallocate $500 from the design budget to testing.",
                     },
                     {
-                        "issue": "Technical limitations make certain requested features difficult to implement",
-                        "proposed_solution": "Use alternative technical approach that satisfies 80% of requirements",
+                        "issue": "Resource availability conflict for the lead developer in week 3.",
+                        "proposed_solution": None,  # No proposed solution yet
                     },
-                    {
-                        "issue": "Unclear requirements for reporting module"
-                    },  # Example issue without a proposed solution yet
                 ],
                 "priorities": [
-                    "Maintaining original timeline",
-                    "Ensuring core user needs are addressed",
-                    "Balancing technical feasibility with stakeholder expectations",
+                    "Meeting the overall project deadline.",
+                    "Ensuring product quality through adequate testing.",
+                    "Keeping the project within the allocated budget.",
                 ],
             },
         }

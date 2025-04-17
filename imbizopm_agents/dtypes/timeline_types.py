@@ -4,8 +4,12 @@ from pydantic import BaseModel, Field
 
 
 class TaskDuration(BaseModel):
-    start: str = Field(description='Relative start time of the task (e.g., "T+0")')
-    end: str = Field(description='Relative end time of the task (e.g., "T+2")')
+    start: str = Field(
+        default="", description='Relative start time of the task (e.g., "T+0")'
+    )
+    end: str = Field(
+        default="", description='Relative end time of the task (e.g., "T+2")'
+    )
 
 
 class ProjectTimeline(BaseModel):
@@ -22,25 +26,73 @@ class ProjectTimeline(BaseModel):
         description="Ordered list of task IDs forming the critical path",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the project timeline into a structured string."""
+        output = "**Project Timeline:**\n\n"
+
+        if self.task_durations:
+            output += "**Task Durations (Relative):**\n"
+            # Sort tasks by start time for better readability
+            sorted_tasks = sorted(
+                self.task_durations.items(),
+                key=lambda item: (
+                    int(item[1].start.split("+")[1]) if "T+" in item[1].start else 0
+                ),
+            )
+            for task_id, duration in sorted_tasks:
+                output += (
+                    f"- **{task_id}:** Start: {duration.start}, End: {duration.end}\n"
+                )
+            output += "\n"
+        else:
+            output += "No task durations defined.\n\n"
+
+        if self.milestones:
+            output += "**Key Milestones:**\n"
+            for milestone in self.milestones:
+                output += f"- {milestone}\n"
+            output += "\n"
+        else:
+            output += "No milestones defined.\n\n"
+
+        if self.critical_path:
+            output += "**Critical Path (Task IDs):**\n"
+            output += f"- {' -> '.join(self.critical_path)}\n"
+            output += "\n"
+        else:
+            output += "Critical path not identified.\n\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of the ProjectTimeline model."""
+        """Return a simpler example JSON representation of the ProjectTimeline model."""
+        # Assuming T represents days from project start (July 1st)
         return {
             "task_durations": {
-                "TASK-001": {"start": "T+0", "end": "T+5"},
-                "TASK-002": {"start": "T+0", "end": "T+3"},
-                "TASK-003": {"start": "T+3", "end": "T+8"},
-                "TASK-004": {"start": "T+5", "end": "T+10"},
-                "TASK-005": {"start": "T+8", "end": "T+12"},
-                "TASK-006": {"start": "T+10", "end": "T+15"},
+                "T1": {"start": "T+0", "end": "T+5"},  # Design Mock-up (5 days)
+                "T2": {
+                    "start": "T+0",
+                    "end": "T+10",
+                },  # Gather Content (10 days, parallel)
+                "T3": {
+                    "start": "T+5",
+                    "end": "T+15",
+                },  # Develop HTML/CSS (10 days, depends on T1)
+                "T4": {
+                    "start": "T+15",
+                    "end": "T+18",
+                },  # Mobile Responsiveness (3 days, depends on T3)
+                "T5": {
+                    "start": "T+18",
+                    "end": "T+20",
+                },  # Deploy Website (2 days, depends on T4)
             },
             "milestones": [
-                "M1: Project Kickoff (T+0)",
-                "M2: Requirements Finalized (T+5)",
-                "M3: Design Complete (T+10)",
-                "M4: Development Complete (T+15)",
-                "M5: Testing Complete (T+20)",
-                "M6: Project Launch (T+22)",
+                "M1: Design Approved (T+5)",
+                "M2: Content Received (T+10)",
+                "M3: Development Complete (T+18)",
+                "M4: Website Launch (T+20)",  # Corresponds to approx. July 21st
             ],
-            "critical_path": ["TASK-001", "TASK-004", "TASK-006"],
+            "critical_path": ["T1", "T3", "T4", "T5"],  # Longest path to completion
         }

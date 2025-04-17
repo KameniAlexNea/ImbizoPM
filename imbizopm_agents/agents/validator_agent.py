@@ -1,11 +1,11 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent
 from ..dtypes import PlanValidation
 from ..prompts.validator_prompts import (
     get_validator_output_format,
     get_validator_prompt,
 )
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -39,7 +39,11 @@ Validate alignment between the idea, goals, and the resulting plan. Stricly outp
         # Check validation result
         state["forward"] = (
             AgentRoute.PMAdapterAgent
-            if result.overall_validation
+            if (
+                result.overall_validation
+                or result.completeness_assessment is None
+                or not result.completeness_assessment.missing_elements
+            )
             else AgentRoute.PlannerAgent
         )
         state["backward"] = AgentRoute.ValidatorAgent

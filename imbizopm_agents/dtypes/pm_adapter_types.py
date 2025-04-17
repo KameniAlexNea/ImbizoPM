@@ -1,14 +1,16 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+
 class ProjectOverview(BaseModel):
-    name: str = Field(description="Project name")
-    description: str = Field(
-        description="Brief description of the project's purpose and scope"
+    name: Optional[str] = Field(default=None, description="Project name")
+    description: Optional[str] = Field(
+        default=None, description="Brief description of the project's purpose and scope"
     )
-    timeline: str = Field(
-        description="Overall timeline of the project, e.g., 'Start date to end date (X weeks/months)'"
+    timeline: Optional[str] = Field(
+        default=None,
+        description="Overall timeline of the project, e.g., 'Start date to end date (X weeks/months)'",
     )
     objectives: List[str] = Field(
         default_factory=list, description="List of specific project objectives"
@@ -20,8 +22,10 @@ class ProjectOverview(BaseModel):
 
 
 class Milestone(BaseModel):
-    name: str = Field(description="Name of the milestone")
-    date: str = Field(description="Expected date or timeframe for the milestone")
+    name: Optional[str] = Field(default=None, description="Name of the milestone")
+    date: Optional[str] = Field(
+        default=None, description="Expected date or timeframe for the milestone"
+    )
     deliverables: List[str] = Field(
         default_factory=list,
         description="List of deliverables associated with this milestone",
@@ -29,11 +33,13 @@ class Milestone(BaseModel):
 
 
 class ResourceRequirement(BaseModel):
-    role: str = Field(
-        description="Name or title of the required role (e.g., Developer, QA Analyst)"
+    role: Optional[str] = Field(
+        default=None,
+        description="Name or title of the required role (e.g., Developer, QA Analyst)",
     )
-    allocation: str = Field(
-        description="Level of effort or time commitment (e.g., Full-time, Part-time)"
+    allocation: Optional[str] = Field(
+        default=None,
+        description="Level of effort or time commitment (e.g., Full-time, Part-time)",
     )
     skills: List[str] = Field(
         default_factory=list,
@@ -42,23 +48,35 @@ class ResourceRequirement(BaseModel):
 
 
 class Task(BaseModel):
-    id: str = Field(description="Unique identifier for the task")
-    title: str = Field(description="Title or name of the task")
-    description: str = Field(description="Detailed description of the task")
+    id: Optional[str] = Field(
+        default=None, description="Unique identifier for the task"
+    )
+    title: Optional[str] = Field(default=None, description="Title or name of the task")
+    description: Optional[str] = Field(
+        default=None, description="Detailed description of the task"
+    )
     assignees: List[str] = Field(
         default_factory=list, description="People responsible for this task"
     )
-    due_date: str = Field(description="Expected due date for this task")
+    due_date: Optional[str] = Field(
+        default=None, description="Expected due date for this task"
+    )
 
 
 class Dependency(BaseModel):
-    from_task: str = Field(description="Task ID that this task depends on")
-    to_task: str = Field(description="Task ID that is dependent")
+    from_task: Optional[str] = Field(
+        default=None, description="Task ID that this task depends on"
+    )
+    to_task: Optional[str] = Field(
+        default=None, description="Task ID that is dependent"
+    )
 
 
 class ResourceLink(BaseModel):
-    name: str = Field(description="Name of the resource")
-    type: str = Field(description="Type of the resource, e.g., tool, person")
+    name: Optional[str] = Field(default=None, description="Name of the resource")
+    type: Optional[str] = Field(
+        default=None, description="Type of the resource, e.g., tool, person"
+    )
     linked_task_ids: List[str] = Field(
         default_factory=list,
         description="IDs of tasks/milestones associated with this resource",
@@ -84,17 +102,21 @@ class PMToolExport(BaseModel):
 
 
 class RiskAssessment(BaseModel):
-    name: str = Field(description="Name of the risk")
-    impact: str = Field(description="Impact level of the risk")
-    mitigation_strategy: str = Field(description="Mitigation plan for this risk")
+    name: Optional[str] = Field(default=None, description="Name of the risk")
+    impact: Optional[str] = Field(default=None, description="Impact level of the risk")
+    mitigation_strategy: Optional[str] = Field(
+        default=None, description="Mitigation plan for this risk"
+    )
 
 
 class ProjectSummary(BaseModel):
-    executive_summary: str = Field(
-        description="Concise overview of the project purpose, approach, and expected outcomes"
+    executive_summary: Optional[str] = Field(
+        default=None,
+        description="Concise overview of the project purpose, approach, and expected outcomes",
     )
-    project_overview: ProjectOverview = Field(
-        description="General overview including name, description, timeline, objectives, and stakeholders"
+    project_overview: Optional[ProjectOverview] = Field(
+        default_factory=ProjectOverview,
+        description="General overview including name, description, timeline, objectives, and stakeholders",
     )
     key_milestones: List[Milestone] = Field(
         default_factory=list,
@@ -112,211 +134,195 @@ class ProjectSummary(BaseModel):
         default_factory=list,
         description="Immediate action items or follow-up steps for the project team",
     )
-    pm_tool_export: PMToolExport = Field(
+    pm_tool_export: Optional[PMToolExport] = Field(
         default_factory=PMToolExport,
         description="Exportable structure for project management tools including tasks, milestones, dependencies, and resources",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the project summary into a structured string."""
+        output = ""
+        if self.executive_summary:
+            output += f"**Executive Summary:**\n{self.executive_summary}\n\n"
+
+        if self.project_overview:
+            output += "**Project Overview:**\n"
+            if self.project_overview.name:
+                output += f"- **Name:** {self.project_overview.name}\n"
+            if self.project_overview.description:
+                output += f"- **Description:** {self.project_overview.description}\n"
+            if self.project_overview.timeline:
+                output += f"- **Timeline:** {self.project_overview.timeline}\n"
+            if self.project_overview.objectives:
+                output += "- **Objectives:**\n"
+                for objective in self.project_overview.objectives:
+                    output += f"  - {objective}\n"
+            if self.project_overview.key_stakeholders:
+                output += "- **Key Stakeholders:**\n"
+                for stakeholder in self.project_overview.key_stakeholders:
+                    output += f"  - {stakeholder}\n"
+            output += "\n"
+
+        if self.key_milestones:
+            output += "**Key Milestones:**\n"
+            for milestone in self.key_milestones:
+                name = milestone.name or "Unnamed Milestone"
+                date = f" ({milestone.date})" if milestone.date else ""
+                output += f"- **{name}{date}:**\n"
+                if milestone.deliverables:
+                    for deliverable in milestone.deliverables:
+                        output += f"  - {deliverable}\n"
+            output += "\n"
+
+        if self.resource_requirements:
+            output += "**Resource Requirements:**\n"
+            for req in self.resource_requirements:
+                role = req.role or "Unnamed Role"
+                allocation = f" ({req.allocation})" if req.allocation else ""
+                output += f"- **Role:** {role}{allocation}\n"
+                if req.skills:
+                    output += f"  - **Skills:** {', '.join(req.skills)}\n"
+            output += "\n"
+
+        if self.top_risks:
+            output += "**Top Risks:**\n"
+            for risk in self.top_risks:
+                name = risk.name or "Unnamed Risk"
+                impact = f" (Impact: {risk.impact})" if risk.impact else ""
+                strategy = risk.mitigation_strategy or "No strategy defined"
+                output += f"- **{name}{impact}:** {strategy}\n"
+            output += "\n"
+
+        if self.next_steps:
+            output += "**Next Steps:**\n"
+            for step in self.next_steps:
+                output += f"- {step}\n"
+            output += "\n"
+
+        # Note: pm_tool_export is intentionally omitted for brevity in the summary string.
+
+        return output.strip()
+
     @staticmethod
     def example() -> dict:
-        """Return an example JSON representation of the ProjectSummary model."""
+        """Return a simpler example JSON representation of the ProjectSummary model."""
         return {
-            "executive_summary": "The Customer Portal Redesign project will modernize our client-facing portal to improve user experience, increase self-service capabilities, and reduce support calls by 30%. Using agile methodology, we'll deliver a mobile-responsive, accessible platform with enhanced security features over a 6-month timeline.",
+            "executive_summary": "Develop a basic website for a local bakery to display their menu and contact information. The project aims to establish an online presence within 4 weeks and a budget of $1000.",
             "project_overview": {
-                "name": "Customer Portal Redesign",
-                "description": "Complete overhaul of the existing customer portal with modern UX/UI, expanded functionality, and improved performance",
-                "timeline": "January 15, 2023 to July 15, 2023 (6 months)",
+                "name": "Bakery Website Launch",
+                "description": "Create a simple, informational website for a local bakery.",
+                "timeline": "July 1, 2024 to July 28, 2024 (4 weeks)",
                 "objectives": [
-                    "Increase customer self-service adoption by 50%",
-                    "Reduce support call volume by 30%",
-                    "Improve customer satisfaction scores from 3.2 to 4.5 (out of 5)",
-                    "Ensure WCAG 2.1 AA accessibility compliance",
+                    "Launch a live website with menu and contact info.",
+                    "Ensure the website is mobile-friendly.",
+                    "Stay within the $1000 budget.",
                 ],
-                "key_stakeholders": [
-                    "VP of Customer Experience",
-                    "Director of IT",
-                    "Customer Support Manager",
-                    "UX Research Team",
-                    "Customer Advisory Board",
-                ],
+                "key_stakeholders": ["Bakery Owner", "Web Developer"],
             },
             "key_milestones": [
                 {
-                    "name": "Requirements & Design Approval",
-                    "date": "February 28, 2023",
-                    "deliverables": [
-                        "Approved requirements document",
-                        "Signed-off wireframes and designs",
-                        "Technical architecture plan",
-                    ],
+                    "name": "Design Approval",
+                    "date": "July 8, 2024",
+                    "deliverables": ["Website mock-up approved"],
                 },
                 {
-                    "name": "Alpha Release",
-                    "date": "April 30, 2023",
-                    "deliverables": [
-                        "Functioning prototype with core features",
-                        "Internal testing results",
-                        "Performance benchmarks",
-                    ],
+                    "name": "Content Finalized",
+                    "date": "July 15, 2024",
+                    "deliverables": ["Menu text and images provided"],
                 },
                 {
-                    "name": "Beta Release",
-                    "date": "June 15, 2023",
-                    "deliverables": [
-                        "Complete feature set",
-                        "User acceptance testing results",
-                        "Migration plan",
-                    ],
-                },
-                {
-                    "name": "Production Launch",
-                    "date": "July 15, 2023",
-                    "deliverables": [
-                        "Fully tested production environment",
-                        "Customer communication materials",
-                        "Support documentation and training",
-                    ],
+                    "name": "Website Launch",
+                    "date": "July 28, 2024",
+                    "deliverables": ["Live website accessible online"],
                 },
             ],
             "resource_requirements": [
                 {
-                    "role": "Project Manager",
-                    "allocation": "Full-time",
-                    "skills": [
-                        "Agile methodology",
-                        "Stakeholder management",
-                        "Risk management",
-                    ],
+                    "role": "Web Developer",
+                    "allocation": "Part-time (approx. 20 hours/week)",
+                    "skills": ["HTML", "CSS", "Basic JavaScript", "Web Hosting"],
                 },
                 {
-                    "role": "UX/UI Designer",
-                    "allocation": "Full-time for first 3 months, part-time after",
-                    "skills": [
-                        "User research",
-                        "Wireframing",
-                        "Accessibility standards",
-                        "Design systems",
-                    ],
-                },
-                {
-                    "role": "Frontend Developer",
-                    "allocation": "Full-time (2 resources)",
-                    "skills": [
-                        "React",
-                        "TypeScript",
-                        "Responsive design",
-                        "API integration",
-                    ],
-                },
-                {
-                    "role": "Backend Developer",
-                    "allocation": "Full-time (2 resources)",
-                    "skills": [
-                        "Node.js",
-                        "GraphQL",
-                        "Database optimization",
-                        "Authentication systems",
-                    ],
-                },
-                {
-                    "role": "QA Engineer",
-                    "allocation": "Part-time initially, full-time during testing phases",
-                    "skills": [
-                        "Automated testing",
-                        "Performance testing",
-                        "Accessibility testing",
-                    ],
+                    "role": "Content Provider (Bakery Owner)",
+                    "allocation": "As needed",
+                    "skills": ["Knowledge of bakery products"],
                 },
             ],
             "top_risks": [
                 {
-                    "name": "Integration with legacy systems complexity",
-                    "impact": "High",
-                    "mitigation_strategy": "Early technical spike to assess integration points; allocate additional buffer for integration work",
-                },
-                {
-                    "name": "Slow user adoption due to change resistance",
+                    "name": "Delay in receiving content",
                     "impact": "Medium",
-                    "mitigation_strategy": "Develop comprehensive change management plan; involve customer representatives early in the process",
+                    "mitigation_strategy": "Set clear deadlines for content delivery; have placeholder content ready.",
                 },
                 {
-                    "name": "Security vulnerabilities in new architecture",
-                    "impact": "High",
-                    "mitigation_strategy": "Conduct security review at architecture phase; implement regular penetration testing",
+                    "name": "Scope creep (requests for extra features)",
+                    "impact": "Medium",
+                    "mitigation_strategy": "Clearly define scope in initial agreement; use change request process for new features.",
                 },
             ],
             "next_steps": [
-                "Schedule kickoff meeting with all stakeholders by January 10",
-                "Finalize project charter and get sign-off by January 17",
-                "Begin user research interviews by January 20",
-                "Set up development environment and CI/CD pipeline by January 25",
+                "Finalize contract with Web Developer.",
+                "Schedule initial meeting to discuss design preferences.",
+                "Gather initial content (logo, contact details).",
             ],
             "pm_tool_export": {
                 "tasks": [
                     {
-                        "id": "TASK-001",
-                        "title": "User Research",
-                        "description": "Conduct interviews and surveys to understand user needs for the new portal.",
-                        "assignees": ["UX Team"],
-                        "due_date": "2023-02-10",
+                        "id": "T1",
+                        "title": "Design Mock-up",
+                        "description": "Create visual design for the website.",
+                        "assignees": ["Web Developer"],
+                        "due_date": "2024-07-07",
                     },
                     {
-                        "id": "TASK-002",
-                        "title": "Wireframe Creation",
-                        "description": "Develop low-fidelity wireframes based on user research.",
-                        "assignees": ["UX Team"],
-                        "due_date": "2023-02-25",
+                        "id": "T2",
+                        "title": "Gather Content",
+                        "description": "Collect menu details, photos, and text from owner.",
+                        "assignees": ["Bakery Owner"],
+                        "due_date": "2024-07-14",
                     },
                     {
-                        "id": "TASK-003",
-                        "title": "Technical Architecture Design",
-                        "description": "Define the technical stack, data models, and integration points.",
-                        "assignees": ["Tech Lead"],
-                        "due_date": "2023-02-20",
+                        "id": "T3",
+                        "title": "Develop Website",
+                        "description": "Build the website based on design and content.",
+                        "assignees": ["Web Developer"],
+                        "due_date": "2024-07-26",
+                    },
+                    {
+                        "id": "T4",
+                        "title": "Deploy Website",
+                        "description": "Publish the website to a live server.",
+                        "assignees": ["Web Developer"],
+                        "due_date": "2024-07-28",
                     },
                 ],
                 "milestones": [
                     {
-                        "name": "Requirements & Design Approval",
-                        "date": "2023-02-28",
-                        "deliverables": ["Approved requirements", "Signed-off designs"],
+                        "name": "Design Approval",
+                        "date": "2024-07-08",
+                        "deliverables": ["Mock-up approved"],
                     },
                     {
-                        "name": "Alpha Release",
-                        "date": "2023-04-30",
-                        "deliverables": ["Functioning prototype"],
-                    },
-                    {
-                        "name": "Beta Release",
-                        "date": "2023-06-15",
-                        "deliverables": ["Complete feature set", "UAT results"],
-                    },
-                    {
-                        "name": "Production Launch",
-                        "date": "2023-07-15",
-                        "deliverables": ["Live portal", "Support docs"],
+                        "name": "Website Launch",
+                        "date": "2024-07-28",
+                        "deliverables": ["Live website"],
                     },
                 ],
                 "dependencies": [
-                    {"from_task": "TASK-001", "to_task": "TASK-002"},
-                    {"from_task": "TASK-002", "to_task": "MS-001"},
-                    {"from_task": "TASK-003", "to_task": "MS-001"},
+                    {"from_task": "T1", "to_task": "T3"},
+                    {"from_task": "T2", "to_task": "T3"},
+                    {"from_task": "T3", "to_task": "T4"},
                 ],
                 "resources": [
                     {
-                        "name": "John Smith (PM)",
+                        "name": "Web Developer",
                         "type": "person",
-                        "linked_task_ids": ["TASK-001", "TASK-002", "TASK-003"],
+                        "linked_task_ids": ["T1", "T3", "T4"],
                     },
                     {
-                        "name": "UX Team",
-                        "type": "team",
-                        "linked_task_ids": ["TASK-001", "TASK-002"],
-                    },
-                    {
-                        "name": "Jira",
-                        "type": "tool",
-                        "linked_task_ids": ["TASK-001", "TASK-002", "TASK-003"],
+                        "name": "Bakery Owner",
+                        "type": "person",
+                        "linked_task_ids": ["T2"],
                     },
                 ],
             },

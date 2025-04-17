@@ -7,7 +7,7 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.graph import CompiledGraph
 from loguru import logger
 
-from .base_agent import AgentState, BaseAgent
+from .agents.base_agent import AgentState, BaseAgent
 from .graph_config import DEFAULT_GRAPH_CONFIG, NodeSuffix
 
 
@@ -34,6 +34,7 @@ def create_project_planning_graph(
     Returns:
         CompiledGraph: The configured graph ready to process user requests
     """
+    # use_structured_output = False # Force structured output to False for now
     # Use default config if none provided
     config = graph_config
 

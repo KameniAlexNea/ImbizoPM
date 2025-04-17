@@ -1,11 +1,11 @@
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent
 from ..dtypes import TaskPlan
 from ..prompts.taskifier_prompts import (
     get_taskifier_output_format,
     get_taskifier_prompt,
 )
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 

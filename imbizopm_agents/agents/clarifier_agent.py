@@ -4,12 +4,12 @@ from langchain_core.language_models import BaseChatModel
 
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
-from ..base_agent import AgentState, BaseAgent
 from ..dtypes import ProjectPlan
 from ..prompts.clarifier_prompts import (
     get_clarifier_output_format,
     get_clarifier_prompt,
 )
+from .base_agent import AgentState, BaseAgent
 from .config import AgentRoute
 
 
@@ -41,7 +41,10 @@ idea: {state['input']}
 
 From the previous refined idea, goals, constraints, it was not possible to extract clear phases, epics, and strategies. Please clarify the project idea, goals, and constraints.
 """
-            elif backward == AgentRoute.TaskifierAgent:
+            elif backward == AgentRoute.TaskifierAgent or (
+                AgentRoute.TaskifierAgent in state
+                and state[AgentRoute.TaskifierAgent] is not None
+            ):
                 return f"""
 idea: {state['input']}
 

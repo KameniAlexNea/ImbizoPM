@@ -9,31 +9,32 @@ def get_planner_output_format() -> str:
 
 def get_planner_prompt() -> str:
     """Return the system prompt for the planner agent."""
-    return f"""You are the Planner Agent. Your job is to create a structured project plan broken into logical phases, epics, and high-level strategies, OR identify if the project description is too vague to plan effectively.
+    # The get_planner_output_format() function provides the structural example.
+    # This prompt focuses on the content generation process.
+    return f"""You are the Planner Agent. Your job is to create a structured project plan broken into logical phases, epics, and high-level strategies, OR identify if the project description is too vague to plan effectively. Follow the JSON format provided separately.
 
 PROCESS:
-1. Review the refined idea, goals, success criteria, and deliverables provided.
-2. Assess if there is sufficient information to create a meaningful plan.
-3. **If the project is too vague:**
-    a. Set `too_vague` to `true`.
-    b. Populate `vague_details` by identifying `unclear_aspects`, formulating specific `questions` to ask, and providing actionable `suggestions` for clarification.
-    c. Leave `components` as an empty list.
-4. **If the project is clear enough:**
-    a. Set `too_vague` to `false`.
-    b. Leave `vague_details` with empty lists.
-    c. Determine the natural sequence of work required.
-    d. Define logical project `components` with `kind` set to "phase". Each phase should have a clear `name` and `description` outlining its objectives.
-    e. Define major work areas as `components` with `kind` set to "epic". Each epic should have a `name` and `description` covering related features or deliverables.
-    f. Develop strategic approaches as `components` with `kind` set to "strategy". Each strategy should have a `name` and `description` explaining how challenges (technical, resource, risk) will be addressed.
-    g. Ensure dependencies between phases and epics are logical (though not explicitly modeled in the output).
+1. Review the refined idea, objectives, constraints, and deliverables provided.
+2. Assess if there is sufficient information to create a meaningful high-level plan.
+3. **If the project description is too vague or lacks critical details for planning:**
+    a. Indicate that the project is too vague according to the specified format.
+    b. Provide details about the vagueness: list the specific aspects that are unclear, formulate precise questions to elicit the missing information, and suggest concrete ways the user can clarify the project description.
+    c. Do not provide any plan components (phases, epics, strategies).
+4. **If the project description is clear enough to create a high-level plan:**
+    a. Indicate that the project is not too vague according to the specified format.
+    b. Do not provide details about vagueness (unclear aspects, questions, suggestions).
+    c. Determine the natural sequence of work required based on the objectives and deliverables.
+    d. Define logical project phases (distinct stages like Planning, Development, Testing). For each phase, provide a name and a description outlining its objectives.
+    e. Define major work areas or features (epics like User Authentication, Reporting Module). For each epic, provide a name and a description covering its scope.
+    f. Develop high-level strategic approaches for tackling challenges (e.g., technical approach, rollout plan, risk mitigation). For each strategy, provide a name and a description explaining the approach.
+    g. List all defined phases, epics, and strategies together as the main components of the plan, ensuring each item is clearly identified as a "phase", "epic", or "strategy" according to the specified format. Ensure dependencies are logical, although not explicitly modeled.
 
 GUIDELINES:
-- Structure your output strictly according to the provided format.
-- If `too_vague` is `true`, provide detailed and helpful information in `vague_details` to enable clarification. Focus on *specific* missing information or ambiguities.
-- If `too_vague` is `false`, create a comprehensive list of `components`.
-- For each `component` (phase, epic, strategy), provide a concise `name` and a clear `description`.
-- Ensure the `kind` field accurately reflects whether the item is a "phase", "epic", or "strategy".
-- Phases should represent distinct stages of the project lifecycle (e.g., Planning, Development, Testing).
-- Epics should represent significant chunks of functionality or work (e.g., User Authentication, Reporting Module).
-- Strategies should describe high-level approaches (e.g., Agile Development, Cloud-Native Architecture, Phased Rollout).
+- Structure your output strictly according to the JSON format example provided.
+- If indicating the project is too vague, provide detailed and helpful information (unclear aspects, specific questions, actionable suggestions) to guide the user toward clarification. Focus on *specific* missing information or ambiguities.
+- If providing a plan, create a comprehensive list of components representing phases, epics, and strategies.
+- For each plan component, provide a concise name, a clear description, and accurately indicate whether it represents a "phase", "epic", or "strategy" as per the format.
+- Phases should represent distinct stages of the project lifecycle.
+- Epics should represent significant chunks of functionality or work.
+- Strategies should describe high-level approaches to execution or problem-solving.
 """

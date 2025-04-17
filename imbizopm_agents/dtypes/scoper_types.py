@@ -4,7 +4,9 @@ from pydantic import BaseModel, Field
 
 
 class MVPItem(BaseModel):
-    feature: str = Field(description="A specific feature included in the MVP.")
+    feature: str = Field(
+        default="", description="A specific feature included in the MVP."
+    )
     user_story: Optional[str] = Field(
         None,
         description="User story for the feature (e.g., 'As a [user type], I want [capability] so that [benefit]').",
@@ -12,9 +14,10 @@ class MVPItem(BaseModel):
 
 
 class Phase(BaseModel):
-    name: str = Field(description="Name of the phase (e.g., MVP, Phase 2)")
-    description: str = Field(
-        description="Detailed description of this phase's focus and activities"
+    name: str = Field(default="", description="Name of the project phase.")
+    features: List[str] = Field(
+        default_factory=list,
+        description="List of features included in this project phase.",
     )
 
 
@@ -31,7 +34,8 @@ class OverloadDetails(BaseModel):
 
 class ScopeDefinition(BaseModel):
     mvp: List[MVPItem] = Field(
-        description="List of Minimum Viable Product features and their corresponding user stories."
+        default_factory=list,
+        description="List of Minimum Viable Product features and their corresponding user stories.",
     )
     exclusions: Optional[List[str]] = Field(
         default_factory=list,
@@ -39,82 +43,118 @@ class ScopeDefinition(BaseModel):
     )
     phases: Optional[List[Phase]] = Field(
         default_factory=list,
-        description="Optional breakdown of the project into phases.",
+        description="Optional breakdown of the project into phases, each with a name and a list of features.",
     )
     overload: Optional[OverloadDetails] = Field(
+        default=None,
         description="Details if the scope is considered overloaded, otherwise None.",
     )
 
+    def to_structured_string(self) -> str:
+        """Formats the scope definition into a structured string."""
+        if self.overload:
+            output = "**Scope Status: Overloaded**\n\n"
+            output += "The proposed scope exceeds feasible limits. Please review the following:\n\n"
+
+            if self.overload.problem_areas:
+                output += "**Problem Areas:**\n"
+                for area in self.overload.problem_areas:
+                    output += f"- {area}\n"
+                output += "\n"
+
+            if self.overload.recommendations:
+                output += "**Recommendations for Scope Reduction:**\n"
+                for rec in self.overload.recommendations:
+                    output += f"- {rec}\n"
+                output += "\n"
+        else:
+            output = "**Scope Definition:**\n\n"
+
+            if self.mvp:
+                output += "**Minimum Viable Product (MVP):**\n"
+                for item in self.mvp:
+                    user_story_text = f" ({item.user_story})" if item.user_story else ""
+                    output += f"- **Feature:** {item.feature}{user_story_text}\n"
+                output += "\n"
+
+            if self.exclusions:
+                output += "**Exclusions (Out of Scope):**\n"
+                for exclusion in self.exclusions:
+                    output += f"- {exclusion}\n"
+                output += "\n"
+
+            if self.phases:
+                output += "**Project Phases:**\n"
+                for phase in self.phases:
+                    output += f"- **{phase.name}:**\n"
+                    for feature in phase.features:
+                        output += f"  - {feature}\n"
+                output += "\n"
+
+        return output.strip()
+
     @staticmethod
     def example() -> Dict[str, Any]:
-        """Return examples of both manageable and overloaded scope definitions."""
+        """Return simpler examples of both manageable and overloaded scope definitions."""
         return {
             "manageable_scope": {
                 "mvp": [
                     {
-                        "feature": "User authentication and account management",
-                        "user_story": "As a customer, I want to create an account so that I can access personalized features",
+                        "feature": "Display Menu Page",
+                        "user_story": "As a customer, I want to see the bakery's menu online so I know what they offer.",
                     },
                     {
-                        "feature": "Basic dashboard with key performance metrics",
-                        "user_story": "As a manager, I want to view key metrics at a glance so that I can make informed decisions quickly",
+                        "feature": "Display Contact Information",
+                        "user_story": "As a customer, I want to find the bakery's address and phone number easily.",
                     },
                     {
-                        "feature": "Search functionality for main content types",
-                        "user_story": "As a user, I want to search for content by keyword so that I can find relevant information efficiently",
-                    },
-                    {
-                        "feature": "Notification system for status updates",
-                        "user_story": "As a team member, I want to receive notifications when tasks are assigned to me so that I can prioritize my work",
+                        "feature": "Mobile Responsiveness",
+                        "user_story": "As a customer, I want the website to look good on my phone.",
                     },
                 ],
                 "exclusions": [
-                    "Advanced analytics and reporting features",
-                    "Integration with third-party platforms",
-                    "Mobile application (web responsive only for MVP)",
-                    "Real-time collaboration tools",
+                    "Online ordering system",
+                    "User accounts or login",
+                    "Blog or news section",
+                    "Photo gallery (beyond menu items)",
                 ],
                 "phases": [
                     {
-                        "name": "MVP",
-                        "description": "Core functionality focused on user authentication, basic dashboard, search, and notifications",
+                        "name": "Phase 1: Launch Basic Site",
+                        "features": [
+                            "Display Menu Page",
+                            "Display Contact Information",
+                            "Mobile Responsiveness",
+                        ],
                     },
                     {
-                        "name": "Phase 2",
-                        "description": "Enhanced analytics, reporting capabilities, and initial third-party integrations",
-                    },
-                    {
-                        "name": "Phase 3",
-                        "description": "Mobile application development and advanced collaboration features",
+                        "name": "Phase 2: Potential Enhancements (Future)",
+                        "features": ["Online ordering system", "Photo gallery"],
                     },
                 ],
                 "overload": None,
             },
             "overloaded_scope": {
                 "mvp": [
-                    {
-                        "feature": "User Authentication",
-                        "user_story": "As a user, I want to log in securely.",
-                    },
-                    {
-                        "feature": "Core Data Entry",
-                        "user_story": "As an admin, I want to input basic data.",
-                    },
+                    {"feature": "Display Menu"},
+                    {"feature": "Contact Form"},
+                    {"feature": "Online Ordering"},
+                    {"feature": "User Accounts"},
+                    {"feature": "Blog"},
+                    {"feature": "Admin Dashboard"},
                 ],
                 "exclusions": None,
                 "phases": None,
                 "overload": {
                     "problem_areas": [
-                        "Too many features planned for the MVP given timeline and resources",
-                        "Mobile application development requires specialized skills not currently available",
-                        "Integration with multiple systems significantly increases complexity and testing requirements",
-                        "Real-time analytics requires substantial backend infrastructure not accounted for in initial planning",
+                        "Online ordering and user accounts add significant complexity.",
+                        "Blog requires ongoing content creation effort.",
+                        "Scope exceeds the typical budget/timeline for a simple bakery site.",
                     ],
                     "recommendations": [
-                        "Reduce MVP to core authentication, basic dashboard, simple search, and essential notifications only",
-                        "Move all integrations to Phase 2 to reduce initial complexity",
-                        "Develop responsive web application first and defer native mobile apps to Phase 3",
-                        "Simplify analytics to basic reporting in MVP and add real-time capabilities in later phases",
+                        "Focus MVP on Menu, Contact Info, and Mobile Responsiveness.",
+                        "Defer online ordering, user accounts, and blog to future phases.",
+                        "Re-evaluate budget and timeline if advanced features are critical for launch.",
                     ],
                 },
             },
