@@ -84,13 +84,24 @@ class PlanValidation(BaseModel):
         description="Summary of what's missing and how the plan could be improved",
     )
 
+    def is_valid(self):
+        return (
+            self.overall_validation
+            or self.completeness_assessment is None
+            or not self.completeness_assessment.missing_elements
+        )
+
     def to_structured_string(self) -> str:
         """Formats the plan validation results into a structured string."""
-        validation_status = "Validated" if self.overall_validation else "Not Validated"
+        validation_status = (
+            "Validated"
+            if self.is_valid()
+            else "Not Validated"
+        )
         output = f"**Plan Validation Status: {validation_status}**\n"
         output += f"**Overall Alignment Score:** {self.alignment_score}\n\n"
 
-        if not self.overall_validation:
+        if not self.is_valid():
             output += "**Completeness Assessment (Issues Found):**\n"
             if self.completeness_assessment.missing_elements:
                 output += "*   **Missing Elements:**\n"
