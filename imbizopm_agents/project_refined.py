@@ -1,6 +1,6 @@
 import gradio as gr
-from langchain.prompts import PromptTemplate
 from langchain.chat_models import init_chat_model
+from langchain.prompts import PromptTemplate
 
 # Create a LangChain prompt template for refining the project idea
 prompt_template = """
@@ -56,7 +56,7 @@ def refine_project_idea_with_feedback(
 ):
     if not refined_understanding or not feedback:
         raise ValueError("Both refined understanding and feedback must be provided")
-    
+
     try:
         llm = init_chat_model(model=model_name, api_key=api_key)
         prompt = PromptTemplate(
@@ -85,21 +85,21 @@ def interface_function(
 ):
     if not project_idea or not project_idea.strip():
         return "Please provide a project idea."
-    
+
     if not model_name or not model_name.strip():
         return "Please specify an AI model."
-        
+
     # First-time project idea submission with no feedback
     if not feedback or not feedback.strip():
         try:
             return refine_project_idea(project_idea, model_name, api_key)
         except Exception as e:
             return f"Error processing your request: {str(e)}"
-    
+
     # Refinement with feedback
     if not output_text or not output_text.strip():
         return "Missing previous refinement. Please submit your project idea first."
-        
+
     try:
         return refine_project_idea_with_feedback(
             project_idea, output_text, feedback, model_name, api_key

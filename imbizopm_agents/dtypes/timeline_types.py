@@ -41,9 +41,7 @@ class ProjectTimeline(BaseModel):
                 ),
             )
             for duration in sorted_tasks:
-                output += (
-                    f"- **{duration.task_id}:** Start: {duration.start}, End: {duration.end}\n"
-                )
+                output += f"- **{duration.task_id}:** Start: {duration.start}, End: {duration.end}\n"
             output += "\n"
         else:
             output += "No task durations defined.\n\n"

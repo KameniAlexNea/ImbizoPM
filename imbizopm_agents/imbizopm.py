@@ -1,5 +1,5 @@
-import os
-from typing import Dict, List, Generator, Any, Optional, Tuple
+from typing import Any, Dict, Generator, List, Optional, Tuple
+
 import gradio as gr
 from langchain.chat_models import init_chat_model
 from langgraph.graph.graph import CompiledGraph
@@ -11,7 +11,9 @@ from imbizopm_agents.graph import (
     create_project_planning_graph,
     run_project_planning_graph,
 )
-from imbizopm_agents.project_refined import get_interface as refine_project_idea
+from imbizopm_agents.project_refined import (
+    get_interface as refine_project_idea,
+)
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 # Configuration
@@ -393,7 +395,7 @@ def main(share: bool = False, server_name: str = "0.0.0.0", server_port: int = 7
     demo = gr.TabbedInterface(
         [planner, refined],
         ["Project Planner", "Project Idea Refinement"],
-        theme=gr.themes.Soft()
+        theme=gr.themes.Soft(),
     )
 
     # Launch the interface
