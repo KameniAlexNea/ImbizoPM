@@ -11,6 +11,7 @@ from imbizopm_agents.graph import (
     create_project_planning_graph,
     run_project_planning_graph,
 )
+from imbizopm_agents.project_refined import get_interface as refine_project_idea
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 # Configuration
@@ -386,7 +387,14 @@ def main(share: bool = False, server_name: str = "0.0.0.0", server_port: int = 7
     """
     # Initialize and create the UI
     planner_ui = PlannerUI()
-    demo = planner_ui.create_interface()
+    planner = planner_ui.create_interface()
+    refined = refine_project_idea()
+
+    demo = gr.TabbedInterface(
+        [planner, refined],
+        ["Project Planner", "Project Idea Refinement"],
+        theme=gr.themes.Soft()
+    )
 
     # Launch the interface
     demo.launch(

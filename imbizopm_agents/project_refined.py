@@ -42,7 +42,9 @@ Your response should:
 1. Integrate the feedback meaningfully 
 2. Clarify any ambiguities
 3. Identify the project's scope, goals, and potential implementation steps
-4. Be specific and actionable
+4. Ask follow-up questions if necessary to clarify the project idea. 
+5. Keep asking until the user confirms that your understanding is correct.
+6. Be specific and actionable
 
 REFINED PROJECT DEFINITION:
 """
@@ -158,5 +160,5 @@ def get_interface():
 
 
 if __name__ == "__main__":
-    iface = get_interface()
-    iface.launch()
+    demo = get_interface()
+    demo.launch()
