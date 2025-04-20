@@ -1,4 +1,5 @@
 from typing import Union  # Add Union
+
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import ConflictResolution
@@ -6,7 +7,7 @@ from ..prompts.negotiator_prompts import (
     get_negotiator_output_format,
     get_negotiator_prompt,
 )
-from .base_agent import AgentState, BaseAgent, END  # Import END if needed
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -29,14 +30,20 @@ class NegotiatorAgent(BaseAgent):
     def _prepare_input_logic(self, state: AgentState) -> str:
         """Prepares the input prompt using the idea, scope, and plan components."""
         clarifier_output = state.get(AgentRoute.ClarifierAgent)
-        refined_idea = getattr(clarifier_output, 'refined_idea', "N/A")
+        refined_idea = getattr(clarifier_output, "refined_idea", "N/A")
 
-        scoper_output = state.get(AgentRoute.ScoperAgent)  # Output from Scoper (where overload was detected)
+        scoper_output = state.get(
+            AgentRoute.ScoperAgent
+        )  # Output from Scoper (where overload was detected)
         planner_output = state.get(AgentRoute.PlannerAgent)
-        planner_components = getattr(planner_output, 'components', {})
+        planner_components = getattr(planner_output, "components", {})
 
         # It's crucial to include the specific overload details from Scoper
-        overload_details = getattr(getattr(scoper_output, 'overload', None), 'problem_areas', "Overload detected, specific areas not detailed.")
+        overload_details = getattr(
+            getattr(scoper_output, "overload", None),
+            "problem_areas",
+            "Overload detected, specific areas not detailed.",
+        )
 
         return f"""# Project Idea:
 {refined_idea}
@@ -60,12 +67,18 @@ A conflict or overload has been identified, primarily related to the scope defin
         state["backward"] = AgentRoute.NegotiatorAgent  # Store string
         return state
 
-    def _next_step_logic(self, state: AgentState, result: AgentDtypes.NegotiatorAgent) -> AgentRoute:
+    def _next_step_logic(
+        self, state: AgentState, result: AgentDtypes.NegotiatorAgent
+    ) -> AgentRoute:
         """Determines the next agent based on the type of conflict identified."""
         # Routes back to the agent responsible for the conflict area for revision
         # Based on the prompt, conflict is usually scope vs plan/idea
-        if result.is_scope_conflict():  # Check if the resolution primarily impacts scope
-            return AgentRoute.ScoperAgent  # Send back to Scoper with negotiation suggestions
+        if (
+            result.is_scope_conflict()
+        ):  # Check if the resolution primarily impacts scope
+            return (
+                AgentRoute.ScoperAgent
+            )  # Send back to Scoper with negotiation suggestions
         else:
             # If negotiation suggests plan changes are needed more than scope
             return AgentRoute.PlannerAgent  # Send back to Planner

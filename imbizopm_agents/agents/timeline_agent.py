@@ -1,4 +1,5 @@
 from typing import Union  # Add Union
+
 from imbizopm_agents.prompts.timeline_prompts import (
     get_timeline_output_format,
     get_timeline_prompt,
@@ -6,7 +7,7 @@ from imbizopm_agents.prompts.timeline_prompts import (
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import ProjectTimeline
-from .base_agent import AgentState, BaseAgent, END  # Import END if needed
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -30,10 +31,10 @@ class TimelineAgent(BaseAgent):
         """Prepares the input prompt using the clarified idea and task list."""
         clarifier_output = state.get(AgentRoute.ClarifierAgent, {})
         taskifier_output = state.get(AgentRoute.TaskifierAgent)
-        tasks = getattr(taskifier_output, 'tasks', [])
+        tasks = getattr(taskifier_output, "tasks", [])
 
         # Consider including constraints from Clarifier if relevant to timeline
-        constraints = getattr(clarifier_output, 'constraints', [])
+        constraints = getattr(clarifier_output, "constraints", [])
 
         return f"""# Clarified Project Details (Constraints):
 {dumps_to_yaml(constraints, indent=4)}
@@ -51,6 +52,8 @@ Estimate the duration for each task. Sequence the tasks considering their depend
         state["backward"] = AgentRoute.TimelineAgent  # Store string
         return state
 
-    def _next_step_logic(self, state: AgentState, result: AgentDtypes.TimelineAgent) -> AgentRoute:
+    def _next_step_logic(
+        self, state: AgentState, result: AgentDtypes.TimelineAgent
+    ) -> AgentRoute:
         """Determines the next agent to route to."""
         return AgentRoute.RiskAgent

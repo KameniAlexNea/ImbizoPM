@@ -1,9 +1,10 @@
 from typing import Union  # Add Union
+
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import FeasibilityAssessment
 from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
-from .base_agent import AgentState, BaseAgent, END  # Import END if needed
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -30,12 +31,12 @@ class RiskAgent(BaseAgent):
         taskifier_output = state.get(AgentRoute.TaskifierAgent)
         timeline_output = state.get(AgentRoute.TimelineAgent)
 
-        plan_components = getattr(planner_output, 'components', {})
-        tasks = getattr(taskifier_output, 'tasks', [])
+        plan_components = getattr(planner_output, "components", {})
+        tasks = getattr(taskifier_output, "tasks", [])
         # Extract relevant timeline info (e.g., total duration, milestones)
         timeline_summary = {
-            "estimated_duration": getattr(timeline_output, 'estimated_duration', 'N/A'),
-            "milestones": getattr(timeline_output, 'milestones', [])
+            "estimated_duration": getattr(timeline_output, "estimated_duration", "N/A"),
+            "milestones": getattr(timeline_output, "milestones", []),
         }
 
         return f"""# Clarified Project Details:
@@ -60,7 +61,9 @@ Assess the overall feasibility of the project based on the clarified goals, cons
         state["backward"] = AgentRoute.RiskAgent  # Store string
         return state
 
-    def _next_step_logic(self, state: AgentState, result: AgentDtypes.RiskAgent) -> AgentRoute:
+    def _next_step_logic(
+        self, state: AgentState, result: AgentDtypes.RiskAgent
+    ) -> AgentRoute:
         """Determines the next agent based on feasibility and dealbreakers."""
         # If feasible or no dealbreakers, proceed to Validator
         if result.feasible or not result.dealbreakers:

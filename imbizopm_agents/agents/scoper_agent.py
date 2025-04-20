@@ -1,4 +1,5 @@
 from typing import Union  # Add Union
+
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import ScopeDefinition
@@ -6,7 +7,7 @@ from ..prompts.scoper_prompts import (
     get_scoper_output_format,
     get_scoper_prompt,
 )
-from .base_agent import AgentState, BaseAgent, END  # Import END if needed
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -30,25 +31,37 @@ class ScoperAgent(BaseAgent):
         """Prepares the input prompt, incorporating feedback from the Negotiator if necessary."""
         clarifier_output = state.get(AgentRoute.ClarifierAgent, {})
         planner_output = state.get(AgentRoute.PlannerAgent)
-        planner_components = getattr(planner_output, 'components', {})
+        planner_components = getattr(planner_output, "components", {})
 
         prompt_parts = [
             f"# Clarified Project Details:\n{dumps_to_yaml(clarifier_output, indent=4)}",
-            f"\n# Current Plan Components:\n{dumps_to_yaml(planner_components, indent=4)}\n"
+            f"\n# Current Plan Components:\n{dumps_to_yaml(planner_components, indent=4)}\n",
         ]
 
         # Check for negotiation feedback
         if state.get("backward") == AgentRoute.NegotiatorAgent:
             negotiator_output = state.get(AgentRoute.NegotiatorAgent)
-            negotiation_details = getattr(negotiator_output, 'negotiation', "No details provided")
-            previous_scope = state.get(AgentRoute.ScoperAgent)  # Get previous scope output
+            negotiation_details = getattr(
+                negotiator_output, "negotiation", "No details provided"
+            )
+            previous_scope = state.get(
+                AgentRoute.ScoperAgent
+            )  # Get previous scope output
 
-            prompt_parts.append(f"# Negotiation Feedback:\n{dumps_to_yaml(negotiation_details)}")
+            prompt_parts.append(
+                f"# Negotiation Feedback:\n{dumps_to_yaml(negotiation_details)}"
+            )
             if previous_scope:
-                prompt_parts.append(f"\n# Previous Scope Definition (for context):\n{dumps_to_yaml(previous_scope)}")
-            prompt_parts.append("\nPlease revise the scope based on the negotiation feedback.")
+                prompt_parts.append(
+                    f"\n# Previous Scope Definition (for context):\n{dumps_to_yaml(previous_scope)}"
+                )
+            prompt_parts.append(
+                "\nPlease revise the scope based on the negotiation feedback."
+            )
         else:
-            prompt_parts.append("Define the Minimum Viable Product (MVP) scope based on the plan. Identify potential overload.")
+            prompt_parts.append(
+                "Define the Minimum Viable Product (MVP) scope based on the plan. Identify potential overload."
+            )
 
         return "\n".join(prompt_parts)
 
@@ -59,7 +72,9 @@ class ScoperAgent(BaseAgent):
         state["backward"] = AgentRoute.ScoperAgent  # Store string
         return state
 
-    def _next_step_logic(self, state: AgentState, result: AgentDtypes.ScoperAgent) -> AgentRoute:
+    def _next_step_logic(
+        self, state: AgentState, result: AgentDtypes.ScoperAgent
+    ) -> AgentRoute:
         """Determines the next agent based on whether overload needs negotiation."""
         # If overload is identified, go to Negotiator
         if result.overload and result.overload.problem_areas:

@@ -1,4 +1,3 @@
-from typing import Union
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import PlanValidation
@@ -6,7 +5,7 @@ from ..prompts.validator_prompts import (
     get_validator_output_format,
     get_validator_prompt,
 )
-from .base_agent import AgentState, BaseAgent, END
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -30,17 +29,17 @@ class ValidatorAgent(BaseAgent):
     def _prepare_input_logic(self, state: AgentState) -> str:
         """Prepares the input prompt using the clarified idea, plan, and tasks."""
         clarifier_output = state.get(AgentRoute.ClarifierAgent, {})
-        planner_output = state.get(AgentRoute.PlannerAgent) # Or Scoper if used
+        planner_output = state.get(AgentRoute.PlannerAgent)  # Or Scoper if used
         taskifier_output = state.get(AgentRoute.TaskifierAgent)
         # Optionally include Risk assessment summary
         risk_output = state.get(AgentRoute.RiskAgent)
         risk_summary = {
-            "feasible": getattr(risk_output, 'feasible', 'N/A'),
-            "key_risks": getattr(risk_output, 'key_risks', [])
+            "feasible": getattr(risk_output, "feasible", "N/A"),
+            "key_risks": getattr(risk_output, "key_risks", []),
         }
 
-        plan_components = getattr(planner_output, 'components', {})
-        tasks = getattr(taskifier_output, 'tasks', [])
+        plan_components = getattr(planner_output, "components", {})
+        tasks = getattr(taskifier_output, "tasks", [])
 
         return f"""# Clarified Project Goals & Constraints:
 {dumps_to_yaml(clarifier_output, indent=4)}
@@ -61,10 +60,12 @@ Validate the overall alignment and completeness of the project plan. Check if th
         self, state: AgentState, result: AgentDtypes.ValidatorAgent
     ) -> AgentState:
         """Processes the result, setting the backward route."""
-        state["backward"] = AgentRoute.ValidatorAgent # Store string
+        state["backward"] = AgentRoute.ValidatorAgent  # Store string
         return state
 
-    def _next_step_logic(self, state: AgentState, result: AgentDtypes.ValidatorAgent) -> AgentRoute:
+    def _next_step_logic(
+        self, state: AgentState, result: AgentDtypes.ValidatorAgent
+    ) -> AgentRoute:
         """Determines the next agent based on validation success."""
         # If valid, proceed to PMAdapter
         if result.is_valid():

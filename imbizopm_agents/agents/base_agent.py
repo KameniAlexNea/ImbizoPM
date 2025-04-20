@@ -49,15 +49,25 @@ class BaseAgent:
         self.structured_output = model_class is not None
         self.system_prompt = system_prompt
         self.format_prompt = format_prompt
-        self.prepare_input: Callable[[AgentState], str] = prepare_input or self._default_prepare_input
-        self.process_result: Callable[[AgentState, Any], AgentState] = process_result or self._default_process_result
-        self.next_step: Callable[[AgentState, Any], Union[str, str]] = next_step or self._default_next_step
+        self.prepare_input: Callable[[AgentState], str] = (
+            prepare_input or self._default_prepare_input
+        )
+        self.process_result: Callable[[AgentState, Any], AgentState] = (
+            process_result or self._default_process_result
+        )
+        self.next_step: Callable[[AgentState, Any], Union[str, str]] = (
+            next_step or self._default_next_step
+        )
         self.agent: CompiledGraph = None
         self._build_agent()
 
     def _default_prepare_input(self, state: AgentState) -> str:
         """Default input preparation logic."""
-        return state.get("messages")[-1].content if state.get("messages") else state["input"]
+        return (
+            state.get("messages")[-1].content
+            if state.get("messages")
+            else state["input"]
+        )
 
     def _default_process_result(self, state: AgentState, result: Any) -> AgentState:
         """Default result processing logic (minimal)."""
@@ -118,13 +128,13 @@ class BaseAgent:
         input_content = self.prepare_input(state)
         logger.debug(f"Running agent {self.name} with input:\n{input_content}")
 
-        raw_output = self.agent.invoke(
-            {"messages": self._format_input(input_content)}
-        )
+        raw_output = self.agent.invoke({"messages": self._format_input(input_content)})
 
         if self.structured_output:
             parsed_content: BaseModel = raw_output["structured_response"]
-            logger.debug(f"Structured output received for {self.name}: {parsed_content}")
+            logger.debug(
+                f"Structured output received for {self.name}: {parsed_content}"
+            )
         else:
             raw_text_output = raw_output["messages"][-1].content
             parsed_content = self._parse_content(raw_text_output)

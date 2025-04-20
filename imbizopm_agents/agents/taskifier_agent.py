@@ -1,4 +1,5 @@
 from typing import Union  # Add Union
+
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import TaskPlan
@@ -6,7 +7,7 @@ from ..prompts.taskifier_prompts import (
     get_taskifier_output_format,
     get_taskifier_prompt,
 )
-from .base_agent import AgentState, BaseAgent, END  # Import END if needed
+from .base_agent import AgentState, BaseAgent
 from .config import AgentDtypes, AgentRoute
 
 
@@ -33,9 +34,11 @@ class TaskifierAgent(BaseAgent):
         scope_output = state.get(AgentRoute.ScoperAgent)
         planner_output = state.get(AgentRoute.PlannerAgent)
 
-        plan_source_key = AgentRoute.ScoperAgent if scope_output else AgentRoute.PlannerAgent
+        AgentRoute.ScoperAgent if scope_output else AgentRoute.PlannerAgent
         plan_source_name = "Scoped Plan (MVP)" if scope_output else "Initial Plan"
-        plan_components = getattr(scope_output or planner_output, 'components', {})  # Get components from scope or plan
+        plan_components = getattr(
+            scope_output or planner_output, "components", {}
+        )  # Get components from scope or plan
 
         # TODO: Refine which parts of Clarifier/Scope/Plan are most relevant for task breakdown
         return f"""# Clarified Project Details:
@@ -54,7 +57,9 @@ Based on the project details and the current plan components, break the work dow
         state["backward"] = AgentRoute.TaskifierAgent  # Store string
         return state
 
-    def _next_step_logic(self, state: AgentState, result: AgentDtypes.TaskifierAgent) -> AgentRoute:
+    def _next_step_logic(
+        self, state: AgentState, result: AgentDtypes.TaskifierAgent
+    ) -> AgentRoute:
         """Determines the next agent based on task plan validity."""
         # If tasks are invalid/incomplete, go back to Clarifier for more details
         if not result.is_valid():
