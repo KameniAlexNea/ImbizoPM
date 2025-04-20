@@ -46,7 +46,7 @@ def _convert_basemodel(item):
         return item
 
 
-def dumps_to_yaml(data: Union[dict, list, BaseModel], indent=4) -> str:
+def dumps_to_yaml(data: Union[dict, list, BaseModel], indent=4, add_type=True) -> str:
     # Convert a dictionary, list, or BaseModel to a structured string or YAML string
     processed_data = _convert_basemodel(data)
 
@@ -62,6 +62,8 @@ def dumps_to_yaml(data: Union[dict, list, BaseModel], indent=4) -> str:
         output = yaml.dump(
             processed_data, default_flow_style=False, allow_unicode=True, indent=indent
         )
+    if not add_type:
+        return output
     if isinstance(data, BaseModel):
         output = (
             "<"
