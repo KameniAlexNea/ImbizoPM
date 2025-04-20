@@ -8,3 +8,11 @@ ollama
 gradio>=4.0.0
 tqdm
 concurrent-log-handler
+langchain-openai
+langchain-grok
+langchain-anthropic
+langchain-ollama
+loguru
+langgraph
+llm-output-parser
+langchain
