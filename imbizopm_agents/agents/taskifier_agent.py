@@ -33,11 +33,9 @@ Break into detailed tasks with effort, roles, and dependencies."""
     def _process_result(
         self, state: AgentState, result: AgentDtypes.TaskifierAgent
     ) -> AgentState:
-        tasks = result.tasks
-
         state["forward"] = (
             AgentRoute.ClarifierAgent
-            if result.missing_info or not tasks
+            if not result.is_valid()
             else AgentRoute.TimelineAgent
         )
         state["backward"] = AgentRoute.TaskifierAgent

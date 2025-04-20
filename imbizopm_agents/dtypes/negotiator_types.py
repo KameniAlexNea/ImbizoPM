@@ -37,6 +37,13 @@ class ConflictResolution(BaseModel):
         description="Structured details of the conflict, including issues, proposed solutions, and priorities.",
     )
 
+    def is_scope_conflict(self) -> bool:
+        """Checks if the conflict is related to the project scope."""
+        return self.conflict_area.lower() == "scope" or (
+            "scope" in self.conflict_area.lower()
+            and "plan" not in self.conflict_area.lower()
+        )
+
     def to_structured_string(self) -> str:
         """Formats the conflict resolution details into a structured string."""
         output = f"**Conflict Area:** {self.conflict_area.capitalize()}\n\n"

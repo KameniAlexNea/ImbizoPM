@@ -38,8 +38,7 @@ Validate alignment between the idea, goals, and the resulting plan. Stricly outp
     ) -> AgentState:
         # Check validation result
         state["forward"] = (
-            AgentRoute.PMAdapterAgent
-            if result.is_valid() else AgentRoute.PlannerAgent
+            AgentRoute.PMAdapterAgent if result.is_valid() else AgentRoute.PlannerAgent
         )
         state["backward"] = AgentRoute.ValidatorAgent
         return state
