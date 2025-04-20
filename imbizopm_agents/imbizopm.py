@@ -1,5 +1,4 @@
 import os  # Import os to potentially set API keys as environment variables
-
 import gradio as gr
 from langchain.chat_models import init_chat_model
 from langgraph.graph.graph import CompiledGraph
@@ -73,6 +72,9 @@ def main(share, server_name, server_port):
         route_info_output = gr.Markdown(
             "Execution path will appear here."
         )  # Added route info output
+        message_trace_output = gr.Markdown(
+            "Message trace will appear here."
+        )  # Added message trace output
 
         # Agent output tabs
         md_outputs = {}
@@ -109,6 +111,7 @@ def main(share, server_name, server_port):
                         md: gr.update(value=f"### {name}\nInput Error.")
                         for name, md in md_outputs.items()
                     },
+                    message_trace_output: gr.update(value="```yaml\n[]\n```"),  # Clear trace on error
                 }
                 yield error_updates  # Yield updates for all components
                 return  # Stop processing
@@ -122,13 +125,6 @@ def main(share, server_name, server_port):
                 # Prepare kwargs for init_chat_model, handling potential API keys
                 model_kwargs = {}
                 if api_key:
-                    # Heuristic: Set common env vars or pass directly if init_chat_model supports it
-                    # This might need adjustment based on specific provider needs in init_chat_model
-                    # if "openai" in model_name or "azure" in model_name:
-                    #     model_kwargs["api_key"] = api_key
-                    # elif "anthropic" in model_name:
-                    #     model_kwargs["api_key"] = api_key
-                    # else:
                     model_kwargs["api_key"] = api_key
 
                 llm = init_chat_model(model_name, **model_kwargs)
@@ -148,6 +144,7 @@ def main(share, server_name, server_port):
                         md: gr.update(value=f"### {name}\nInitialization failed.")
                         for name, md in md_outputs.items()
                     },
+                    message_trace_output: gr.update(value="```yaml\n[]\n```"),  # Clear trace on error
                 }
                 yield error_updates  # Yield updates for all components
                 return  # Stop processing
@@ -161,6 +158,7 @@ def main(share, server_name, server_port):
                         md: gr.update(value=f"### {name}\nInitialization failed.")
                         for name, md in md_outputs.items()
                     },
+                    message_trace_output: gr.update(value="```yaml\n[]\n```"),  # Clear trace on error
                 }
                 yield error_updates  # Yield updates for all components
                 return  # Stop processing
@@ -174,11 +172,13 @@ def main(share, server_name, server_port):
                     md: gr.update(value=f"### {name}\nProcessing...")
                     for name, md in md_outputs.items()
                 },
+                message_trace_output: gr.update(value="```yaml\n[]\n```"),  # Initialize trace with yaml
             }
             yield current_updates  # Yield initial state
 
             try:
                 execution_path_history = []  # Initialize history list
+                all_messages_dict = []  # Initialize list to store all message dicts
 
                 for event in run_project_planning_graph(
                     graph,
@@ -189,6 +189,7 @@ def main(share, server_name, server_port):
                 ):
                     backward_node = event.get("backward")
                     forward_node = event.get("forward")
+                    messages = event.get("messages", [])  # Get messages from event
 
                     # Update agent output if available
                     agent_name = backward_node
@@ -210,12 +211,29 @@ def main(share, server_name, server_port):
                             value="<br>".join(execution_path_history)
                         )
 
+                    # Update message trace
+                    if messages:
+                        # Append new messages to the accumulated list
+                        new_message_dicts = [msg.dict() for msg in messages]
+                        all_messages_dict.extend(new_message_dicts)  # Use extend to add new messages
+                        messages_yaml = dumps_to_yaml(all_messages_dict)  # Use the accumulated list
+                        current_updates[message_trace_output] = gr.update(
+                            value=messages_yaml # f"```yaml\n{messages_yaml}\n```"  # Use yaml code block
+                        )
+
                     yield current_updates  # Yield the full state dictionary
 
                 # Final success update
                 current_updates[status_output] = gr.update(
                     value="✅ Planning complete!"
                 )
+                # Ensure final messages are captured using the accumulated list
+                if all_messages_dict:  # Check the accumulated list
+                    messages_yaml = dumps_to_yaml(all_messages_dict)  # Use the accumulated list
+                    current_updates[message_trace_output] = gr.update(
+                        value=messages_yaml # f"```yaml\n{messages_yaml}\n```"  # Use yaml code block
+                    )
+
                 logger.info(f"Finished planning run: {thread_id}")
                 yield current_updates  # Yield final state
 
@@ -237,6 +255,10 @@ def main(share, server_name, server_port):
                         md: gr.update(value=f"### {name}\n❌ Error processing.")
                         for name, md in md_outputs.items()
                     },
+                    message_trace_output: gr.update(
+                        # Use dumps_to_yaml for the accumulated trace before the error
+                        value=f"```yaml\n{dumps_to_yaml(all_messages_dict)}\n```\n**Error:** {e}"  # Use accumulated list
+                    ),  # Show trace up to error
                 }
                 yield final_error_updates  # Yield full error state
 
@@ -247,6 +269,7 @@ def main(share, server_name, server_port):
                 model_name_input,
                 api_key_input,
             ],  # Added model inputs
-            outputs=[status_output, route_info_output] + list(md_outputs.values()),
+            outputs=[status_output, route_info_output, message_trace_output]
+            + list(md_outputs.values()),  # Added message_trace_output to outputs
         )
     demo.launch(share=share, server_name=server_name, server_port=server_port)
