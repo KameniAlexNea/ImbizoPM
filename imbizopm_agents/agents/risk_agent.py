@@ -1,46 +1,70 @@
+from typing import Union  # Add Union
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import FeasibilityAssessment
 from ..prompts.risk_prompts import get_risk_output_format, get_risk_prompt
-from .base_agent import AgentDtypes, AgentState, BaseAgent
-from .config import AgentRoute
+from .base_agent import AgentState, BaseAgent, END  # Import END if needed
+from .config import AgentDtypes, AgentRoute
 
 
 class RiskAgent(BaseAgent):
     """Agent that reviews feasibility and spots contradictions."""
 
     def __init__(self, llm, use_structured_output: bool = False):
+        model_cls = FeasibilityAssessment if use_structured_output else None
         super().__init__(
             llm,
-            AgentRoute.RiskAgent,
-            get_risk_output_format(),
-            get_risk_prompt(),
-            FeasibilityAssessment if use_structured_output else None,
+            name=AgentRoute.RiskAgent,
+            format_prompt=get_risk_output_format(),
+            system_prompt=get_risk_prompt(),
+            model_class=model_cls,
+            prepare_input=self._prepare_input_logic,
+            process_result=self._process_result_logic,
+            next_step=self._next_step_logic,
         )
 
-    def _prepare_input(self, state: AgentState) -> str:
-        return f"""# Clarifier Agent
-{dumps_to_yaml(state[AgentRoute.ClarifierAgent], indent=4)}
+    def _prepare_input_logic(self, state: AgentState) -> str:
+        """Prepares the input prompt using the plan, tasks, and timeline."""
+        clarifier_output = state.get(AgentRoute.ClarifierAgent, {})
+        planner_output = state.get(AgentRoute.PlannerAgent)  # Or Scoper if used
+        taskifier_output = state.get(AgentRoute.TaskifierAgent)
+        timeline_output = state.get(AgentRoute.TimelineAgent)
 
-# Plan Agent
-{dumps_to_yaml(state[AgentRoute.PlannerAgent].components, indent=4)}
+        plan_components = getattr(planner_output, 'components', {})
+        tasks = getattr(taskifier_output, 'tasks', [])
+        # Extract relevant timeline info (e.g., total duration, milestones)
+        timeline_summary = {
+            "estimated_duration": getattr(timeline_output, 'estimated_duration', 'N/A'),
+            "milestones": getattr(timeline_output, 'milestones', [])
+        }
 
-# Taskifier Agent
-{dumps_to_yaml(state[AgentRoute.TaskifierAgent].tasks, indent=4)}
+        return f"""# Clarified Project Details:
+{dumps_to_yaml(clarifier_output, indent=4)}
 
-# Timeline Agent
-{dumps_to_yaml(state[AgentRoute.TimelineAgent], indent=4)}
+# Plan Components:
+{dumps_to_yaml(plan_components, indent=4)}
 
-Assess risks and overall feasibility. You should output a JSON format"""
+# Detailed Tasks:
+{dumps_to_yaml(tasks, indent=4)}
 
-    def _process_result(
+# Estimated Timeline Summary:
+{dumps_to_yaml(timeline_summary, indent=4)}
+
+Assess the overall feasibility of the project based on the clarified goals, constraints, plan, tasks, and timeline. Identify potential risks, contradictions, or inconsistencies. Specifically highlight any "dealbreaker" risks that fundamentally challenge the project's viability. Output should be in JSON format.
+"""
+
+    def _process_result_logic(
         self, state: AgentState, result: AgentDtypes.RiskAgent
     ) -> AgentState:
-        # Move instead of planning to negotiate
-        state["forward"] = (
-            AgentRoute.ValidatorAgent
-            if result.feasible or not result.dealbreakers
-            else AgentRoute.PlannerAgent
-        )
-        state["backward"] = AgentRoute.RiskAgent
+        """Processes the result, setting the backward route."""
+        state["backward"] = AgentRoute.RiskAgent  # Store string
         return state
+
+    def _next_step_logic(self, state: AgentState, result: AgentDtypes.RiskAgent) -> AgentRoute:
+        """Determines the next agent based on feasibility and dealbreakers."""
+        # If feasible or no dealbreakers, proceed to Validator
+        if result.feasible or not result.dealbreakers:
+            return AgentRoute.ValidatorAgent
+        # Otherwise (not feasible due to dealbreakers), go back to Planner
+        else:
+            return AgentRoute.PlannerAgent
