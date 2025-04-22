@@ -55,5 +55,23 @@ Estimate the duration for each task. Sequence the tasks considering their depend
     def _next_step_logic(
         self, state: AgentState, result: AgentDtypes.TimelineAgent
     ) -> AgentRoute:
-        """Determines the next agent to route to."""
+        """Determines the next agent based on timeline creation success and failure type."""
+        # Check if information is missing (a flag in the result)
+        if hasattr(result, "information_missing") and result.information_missing:
+            missing_info = getattr(result, "missing_information_details", None)
+            
+            # Check for explicit source indication
+            if missing_info and hasattr(missing_info, "source"):
+                source = missing_info.source
+                if source in ["tasks", "dependencies"]:
+                    # Task dependency or definition issues - return to Taskifier
+                    return AgentRoute.TaskifierAgent
+                elif source == "resources":
+                    # Resource issues - might need clarification on constraints/resources
+                    return AgentRoute.ClarifierAgent
+            
+            # Default to Taskifier for general timeline issues
+            return AgentRoute.TaskifierAgent
+        
+        # If timeline is valid, proceed to Risk assessment
         return AgentRoute.RiskAgent

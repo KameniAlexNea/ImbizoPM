@@ -46,6 +46,10 @@ class MissingInfoDetails(BaseModel):
         default_factory=list,
         description="Concrete suggestions to resolve ambiguity or missing details",
     )
+    source: Optional[str] = Field(
+        default=None,
+        description="Identifies the likely source of the missing information: 'scope', 'plan', 'requirements', or other",
+    )
 
 
 class TaskPlan(BaseModel):
@@ -126,81 +130,37 @@ class TaskPlan(BaseModel):
                     {
                         "id": "T1",
                         "name": "Design Website Mock-up",
-                        "description": "Create a visual design concept for the bakery website.",
+                        "description": "Create a visual design concept",
                         "deliverable": "Website Mock-up",
                         "owner_role": "Web Designer",
                         "estimated_effort": "Low",
                         "epic": "Website Visuals",
-                        "phase": "Phase 1: Launch Basic Site",
-                        "dependencies": [],
+                        "phase": "Phase 1",
+                        "dependencies": []
                     },
                     {
                         "id": "T2",
-                        "name": "Gather Menu Content",
-                        "description": "Collect text and images for the menu page from the bakery owner.",
-                        "deliverable": "Menu Content",
-                        "owner_role": "Bakery Owner",
-                        "estimated_effort": "Low",
-                        "epic": "Website Content",
-                        "phase": "Phase 1: Launch Basic Site",
-                        "dependencies": [],
-                    },
-                    {
-                        "id": "T3",
-                        "name": "Develop HTML/CSS Structure",
-                        "description": "Build the basic HTML structure and apply CSS styling based on the approved design.",
-                        "deliverable": "Website Codebase",
-                        "owner_role": "Web Developer",
+                        "name": "Develop HTML/CSS",
+                        "description": "Build the basic structure",
+                        "deliverable": "Website Code",
+                        "owner_role": "Developer", 
                         "estimated_effort": "Medium",
-                        "epic": "Website Development",
-                        "phase": "Phase 1: Launch Basic Site",
-                        "dependencies": ["T1", "T2"],
-                    },
-                    {
-                        "id": "T4",
-                        "name": "Implement Mobile Responsiveness",
-                        "description": "Ensure the website layout adapts correctly to different screen sizes (mobile, tablet, desktop).",
-                        "deliverable": "Responsive Website Code",
-                        "owner_role": "Web Developer",
-                        "estimated_effort": "Low",
-                        "epic": "Website Development",
-                        "phase": "Phase 1: Launch Basic Site",
-                        "dependencies": ["T3"],
-                    },
-                    {
-                        "id": "T5",
-                        "name": "Deploy Website",
-                        "description": "Upload website files to the hosting server and configure the domain name.",
-                        "deliverable": "Live Website",
-                        "owner_role": "Web Developer",
-                        "estimated_effort": "Low",
-                        "epic": "Website Deployment",
-                        "phase": "Phase 1: Launch Basic Site",
-                        "dependencies": ["T4"],
-                    },
+                        "epic": "Development",
+                        "phase": "Phase 1",
+                        "dependencies": ["T1"]
+                    }
                 ],
                 "missing_info": False,
-                "missing_info_details": None,
+                "missing_info_details": None
             },
             "missing_plan": {
                 "missing_info": True,
                 "missing_info_details": {
-                    "unclear_aspects": [
-                        "Specific hosting provider is not chosen.",
-                        "Domain name registration details are missing.",
-                        "Final approval process for the design is unclear.",
-                    ],
-                    "questions": [
-                        "Which hosting provider should be used?",
-                        "Has the domain name been purchased? If so, what are the login details?",
-                        "Who gives the final sign-off on the website design?",
-                    ],
-                    "suggestions": [
-                        "Research and select a hosting provider based on budget and needs.",
-                        "Confirm domain name status and obtain necessary credentials.",
-                        "Define a clear design approval step with the bakery owner.",
-                    ],
+                    "unclear_aspects": ["Hosting details missing"],
+                    "questions": ["Which hosting provider?"],
+                    "suggestions": ["Select a hosting provider"],
+                    "source": "requirements"
                 },
-                "tasks": [],
-            },
+                "tasks": []
+            }
         }

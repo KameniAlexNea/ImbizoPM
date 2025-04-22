@@ -207,123 +207,62 @@ class ProjectSummary(BaseModel):
     def example() -> dict:
         """Return a simpler example JSON representation of the ProjectSummary model."""
         return {
-            "executive_summary": "Develop a basic website for a local bakery to display their menu and contact information. The project aims to establish an online presence within 4 weeks and a budget of $1000.",
+            "executive_summary": "Develop a basic website for a local bakery",
             "project_overview": {
-                "name": "Bakery Website Launch",
-                "description": "Create a simple, informational website for a local bakery.",
-                "timeline": "July 1, 2024 to July 28, 2024 (4 weeks)",
-                "objectives": [
-                    "Launch a live website with menu and contact info.",
-                    "Ensure the website is mobile-friendly.",
-                    "Stay within the $1000 budget.",
-                ],
-                "key_stakeholders": ["Bakery Owner", "Web Developer"],
+                "name": "Bakery Website",
+                "description": "Create a simple website",
+                "timeline": "4 weeks",
+                "objectives": ["Launch website", "Mobile-friendly"],
+                "key_stakeholders": ["Owner", "Developer"]
             },
             "key_milestones": [
                 {
                     "name": "Design Approval",
-                    "date": "July 8, 2024",
-                    "deliverables": ["Website mock-up approved"],
-                },
-                {
-                    "name": "Content Finalized",
-                    "date": "July 15, 2024",
-                    "deliverables": ["Menu text and images provided"],
-                },
-                {
-                    "name": "Website Launch",
-                    "date": "July 28, 2024",
-                    "deliverables": ["Live website accessible online"],
-                },
+                    "date": "T0+1w",
+                    "deliverables": ["Mock-up approved"]
+                }
             ],
             "resource_requirements": [
                 {
                     "role": "Web Developer",
-                    "allocation": "Part-time (approx. 20 hours/week)",
-                    "skills": ["HTML", "CSS", "Basic JavaScript", "Web Hosting"],
-                },
-                {
-                    "role": "Content Provider (Bakery Owner)",
-                    "allocation": "As needed",
-                    "skills": ["Knowledge of bakery products"],
-                },
+                    "allocation": "Part-time",
+                    "skills": ["HTML", "CSS"]
+                }
             ],
             "top_risks": [
                 {
-                    "name": "Delay in receiving content",
+                    "name": "Content delay",
                     "impact": "Medium",
-                    "mitigation_strategy": "Set clear deadlines for content delivery; have placeholder content ready.",
-                },
-                {
-                    "name": "Scope creep (requests for extra features)",
-                    "impact": "Medium",
-                    "mitigation_strategy": "Clearly define scope in initial agreement; use change request process for new features.",
-                },
+                    "mitigation_strategy": "Set clear deadlines"
+                }
             ],
-            "next_steps": [
-                "Finalize contract with Web Developer.",
-                "Schedule initial meeting to discuss design preferences.",
-                "Gather initial content (logo, contact details).",
-            ],
+            "next_steps": ["Finalize contract", "Schedule meeting"],
             "pm_tool_export": {
                 "tasks": [
                     {
                         "id": "T1",
                         "title": "Design Mock-up",
-                        "description": "Create visual design for the website.",
-                        "assignees": ["Web Developer"],
-                        "due_date": "2024-07-07",
-                    },
-                    {
-                        "id": "T2",
-                        "title": "Gather Content",
-                        "description": "Collect menu details, photos, and text from owner.",
-                        "assignees": ["Bakery Owner"],
-                        "due_date": "2024-07-14",
-                    },
-                    {
-                        "id": "T3",
-                        "title": "Develop Website",
-                        "description": "Build the website based on design and content.",
-                        "assignees": ["Web Developer"],
-                        "due_date": "2024-07-26",
-                    },
-                    {
-                        "id": "T4",
-                        "title": "Deploy Website",
-                        "description": "Publish the website to a live server.",
-                        "assignees": ["Web Developer"],
-                        "due_date": "2024-07-28",
-                    },
+                        "description": "Create visual design",
+                        "assignees": ["Developer"],
+                        "due_date": "T0+7d"
+                    }
                 ],
                 "milestones": [
                     {
                         "name": "Design Approval",
-                        "date": "2024-07-08",
-                        "deliverables": ["Mock-up approved"],
-                    },
-                    {
-                        "name": "Website Launch",
-                        "date": "2024-07-28",
-                        "deliverables": ["Live website"],
-                    },
+                        "date": "T0+8d",
+                        "deliverables": ["Mock-up approved"]
+                    }
                 ],
                 "dependencies": [
-                    {"from_task": "T1", "to_task": "T3"},
-                    {"from_task": "T2", "to_task": "T3"},
-                    {"from_task": "T3", "to_task": "T4"},
+                    {"from_task": "T1", "to_task": "T2"}
                 ],
                 "resources": [
                     {
-                        "name": "Web Developer",
+                        "name": "Developer",
                         "type": "person",
-                        "linked_task_ids": ["T1", "T3", "T4"],
-                    },
-                    {
-                        "name": "Bakery Owner",
-                        "type": "person",
-                        "linked_task_ids": ["T2"],
-                    },
-                ],
-            },
+                        "linked_task_ids": ["T1"]
+                    }
+                ]
+            }
         }

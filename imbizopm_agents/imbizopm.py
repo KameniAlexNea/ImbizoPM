@@ -17,7 +17,7 @@ from imbizopm_agents.project_refined import (
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 # Configuration
-DEFAULT_MODEL = "ollama:cogito:32b"
+DEFAULT_MODEL = "groq:llama3-70b-8192"
 LOGO_PATH = "examples/image.png"
 
 # Agent tabs to display in the UI

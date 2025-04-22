@@ -21,7 +21,11 @@ Follow these steps carefully to generate the output:
 3.  **If Information is Missing**:
     a. Indicate that information is missing according to the specified format (e.g., set a flag to true).
     b. Provide details about the missing information: list the specific aspects that are unclear, formulate precise questions to elicit the missing details, and suggest concrete ways the user can provide the needed clarification. Structure these details as specified in the format example.
-    c. Ensure the list intended for tasks remains empty.
+    c. **Identify the source of the missing information** by setting the "source" field to one of the following values:
+       - "scope" - if the issue relates to unclear MVP definition, features, or scope boundaries
+       - "plan" - if the issue relates to unclear plan components, architecture, or approach
+       - "requirements" - if the issue relates to unclear project requirements or constraints
+    d. Ensure the list intended for tasks remains empty.
 4.  **If Information is Sufficient**:
     a. Indicate that information is sufficient according to the specified format (e.g., set the flag for missing info to false).
     b. Do not provide details about missing information (unclear aspects, questions, suggestions).
@@ -32,6 +36,7 @@ Follow these steps carefully to generate the output:
 ### GUIDELINES:
 - Structure your output strictly according to the JSON format example provided.
 - If indicating that information is missing, provide detailed and helpful clarification details (unclear aspects, specific questions, actionable suggestions) to guide the user. Focus on *specific* missing information needed for task breakdown.
+- Always indicate the source of missing information explicitly so we can route to the right agent.
 - If providing tasks, create a comprehensive list of task items.
 - Each task item should represent work ideally achievable by one person/role in a short timeframe (e.g., 1-5 days).
 - Task names should typically start with a verb (e.g., "Create", "Implement", "Test", "Design").

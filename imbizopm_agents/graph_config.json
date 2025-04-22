@@ -50,9 +50,15 @@
         },
         "TaskifierAgent": {
             "ClarifierAgent": "ClarifierAgent",
+            "ScoperAgent": "ScoperAgent",
+            "PlannerAgent": "PlannerAgent",
             "TimelineAgent": "TimelineAgent"
         },
-        "TimelineAgent": ["RiskAgent"],
+        "TimelineAgent": {
+            "TaskifierAgent": "TaskifierAgent",
+            "ClarifierAgent": "ClarifierAgent",
+            "RiskAgent": "RiskAgent"
+        },
         "RiskAgent": {
             "ValidatorAgent": "ValidatorAgent",
             "PlannerAgent": "PlannerAgent"

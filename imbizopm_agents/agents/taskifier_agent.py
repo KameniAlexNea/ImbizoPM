@@ -60,10 +60,23 @@ Based on the project details and the current plan components, break the work dow
     def _next_step_logic(
         self, state: AgentState, result: AgentDtypes.TaskifierAgent
     ) -> AgentRoute:
-        """Determines the next agent based on task plan validity."""
-        # If tasks are invalid/incomplete, go back to Clarifier for more details
-        if not result.is_valid():
-            return AgentRoute.ClarifierAgent
-        # Otherwise, proceed to Timeline
-        else:
+        """Determines the next agent based on task plan validity and failure type."""
+        # If tasks are valid, proceed to Timeline
+        if result.is_valid():
             return AgentRoute.TimelineAgent
+        
+        # When invalid, analyze the type of failure to determine proper routing
+        missing_info = getattr(result, "missing_info_details", None)
+        
+        # Check for explicit source indication in the missing info
+        if missing_info and hasattr(missing_info, "source"):
+            source = missing_info.source
+            if source == "scope":
+                return AgentRoute.ScoperAgent
+            elif source == "plan":
+                return AgentRoute.PlannerAgent
+            elif source == "requirements":
+                return AgentRoute.ClarifierAgent
+        
+        # Default to Clarifier if we can't determine the source
+        return AgentRoute.ClarifierAgent
