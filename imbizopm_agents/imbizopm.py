@@ -71,8 +71,10 @@ class PlannerUI:
                 "### Status: Ready for input", elem_id="status-area"
             )
 
-            with gr.Accordion("Execution Details", open=False):
+            with gr.Accordion("Execution Path", open=False):
                 self.route_info_output = gr.Markdown("Execution path will appear here.")
+            
+            with gr.Accordion("Message Trace", open=False):
                 self.message_trace_output = gr.Code(
                     language="yaml", value="[]", label="Message Trace", lines=10
                 )
@@ -148,14 +150,14 @@ class PlannerUI:
         """Create the model configuration controls."""
         model_name = gr.Textbox(
             label="⚙️ AI Model",
-            placeholder="e.g., ollama:cogito:32b, openai:gpt-4o, anthropic:claude-3-5-sonnet-latest",
+            placeholder="e.g., groq:qwen-qwq-32b, ollama:cogito:32b, openai:gpt-4o, anthropic:claude-3-5-sonnet-latest",
             value=DEFAULT_MODEL,
             scale=3,
             elem_id="model-selection",
         )
         api_key = gr.Textbox(
-            label="🔑 API Key (Optional)",
-            placeholder="Enter API key if required by the model provider",
+            label="🔑 API Key",
+            placeholder="Model provider API key if required",
             type="password",
             scale=2,
             elem_id="api-key",
