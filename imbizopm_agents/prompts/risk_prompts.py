@@ -30,7 +30,6 @@ PROCESS:
 6. Based on the severity and number of risks, concerns, and especially the presence of dealbreakers (particularly those without viable solutions), determine the overall feasibility status (true or false).
 
 GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - For each identified risk in the list, ensure all required details (description, category, impact, probability, priority, mitigation strategy, contingency plan) are accurately populated, adhering to the specified value options (e.g., for impact, probability) shown in the format example.
 - Risk priority should generally reflect a combination of impact and probability (e.g., High impact and High probability usually means High priority). Adjust based on context.
 - Mitigation strategies and contingency plans must be specific and actionable.

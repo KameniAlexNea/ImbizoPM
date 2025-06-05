@@ -115,37 +115,17 @@ class ProjectPlanOutput(BaseModel):
                 "components": [
                     {
                         "name": "Phase 1: Setup",
-                        "description": "Initial project setup and requirement gathering.",
-                        "kind": "phase",
-                    },
-                    {
-                        "name": "Phase 2: Development",
-                        "description": "Build the core features.",
-                        "kind": "phase",
-                    },
-                    {
-                        "name": "Phase 3: Launch",
-                        "description": "Testing and deployment.",
+                        "description": "Initial project setup",
                         "kind": "phase",
                     },
                     {
                         "name": "User Login",
-                        "description": "Allow users to sign in.",
-                        "kind": "epic",
-                    },
-                    {
-                        "name": "Product Catalog",
-                        "description": "Display products to users.",
+                        "description": "Allow users to sign in",
                         "kind": "epic",
                     },
                     {
                         "name": "Iterative Development",
-                        "description": "Use sprints for development cycles.",
-                        "kind": "strategy",
-                    },
-                    {
-                        "name": "Cloud Hosting",
-                        "description": "Deploy the application on a cloud platform.",
+                        "description": "Use sprints",
                         "kind": "strategy",
                     },
                 ],
@@ -153,19 +133,9 @@ class ProjectPlanOutput(BaseModel):
             "too_vague_project": {
                 "too_vague": True,
                 "vague_details": {
-                    "unclear_aspects": [
-                        "Specific features are not defined.",
-                        "Budget is unknown.",
-                    ],
-                    "questions": [
-                        "What are the key features required?",
-                        "What is the allocated budget?",
-                        "What is the project deadline?",
-                    ],
-                    "suggestions": [
-                        "Hold a meeting to define the feature list.",
-                        "Clarify budget constraints with stakeholders.",
-                    ],
+                    "unclear_aspects": ["Features not defined"],
+                    "questions": ["What features are required?"],
+                    "suggestions": ["Define feature list"],
                 },
                 "components": [],
             },

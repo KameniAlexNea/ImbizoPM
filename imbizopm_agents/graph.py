@@ -22,6 +22,7 @@ def create_project_planning_graph(
     graph_config: Optional[Dict[str, Dict]] = DEFAULT_GRAPH_CONFIG,
     use_checkpointing: bool = True,
     use_structured_output: bool = True,
+    use_two_step_generation: bool = True,
 ) -> CompiledGraph:
     """
     Create the project planning graph with all agents and their connections.
@@ -30,6 +31,8 @@ def create_project_planning_graph(
         llm: The language model to use for all agents
         graph_config: Optional custom configuration for the graph structure
         use_checkpointing: Whether to use memory checkpointing for the graph
+        use_structured_output: Whether to use structured output from LLMs
+        use_two_step_generation: Whether to use two-step text-then-JSON generation
 
     Returns:
         CompiledGraph: The configured graph ready to process user requests
@@ -48,7 +51,11 @@ def create_project_planning_graph(
     for node_name, node_config in config["nodes"].items():
         # Create and add agent nodes
         agent_class: Type[BaseAgent] = node_config["agent_class"]
-        agent = agent_class(llm, use_structured_output=use_structured_output)
+        agent = agent_class(
+            llm,
+            use_structured_output=use_structured_output,
+            use_two_step_generation=use_two_step_generation,
+        )
         # agents[node_name] = agent
         workflow.add_node(update_name(node_name), agent.run)
 

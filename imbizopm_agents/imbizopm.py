@@ -17,7 +17,7 @@ from imbizopm_agents.project_refined import (
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 # Configuration
-DEFAULT_MODEL = "ollama:cogito:32b"
+DEFAULT_MODEL = "groq:llama3-70b-8192"
 LOGO_PATH = "examples/image.png"
 
 # Agent tabs to display in the UI
@@ -71,8 +71,10 @@ class PlannerUI:
                 "### Status: Ready for input", elem_id="status-area"
             )
 
-            with gr.Accordion("Execution Details", open=False):
+            with gr.Accordion("Execution Path", open=False):
                 self.route_info_output = gr.Markdown("Execution path will appear here.")
+
+            with gr.Accordion("Message Trace", open=False):
                 self.message_trace_output = gr.Code(
                     language="yaml", value="[]", label="Message Trace", lines=10
                 )
@@ -148,14 +150,14 @@ class PlannerUI:
         """Create the model configuration controls."""
         model_name = gr.Textbox(
             label="⚙️ AI Model",
-            placeholder="e.g., ollama:cogito:32b, openai:gpt-4o, anthropic:claude-3-5-sonnet-latest",
+            placeholder="e.g., groq:qwen-qwq-32b, ollama:cogito:32b, openai:gpt-4o, anthropic:claude-3-5-sonnet-latest",
             value=DEFAULT_MODEL,
             scale=3,
             elem_id="model-selection",
         )
         api_key = gr.Textbox(
-            label="🔑 API Key (Optional)",
-            placeholder="Enter API key if required by the model provider",
+            label="🔑 API Key",
+            placeholder="Model provider API key if required",
             type="password",
             scale=2,
             elem_id="api-key",
@@ -260,7 +262,10 @@ class PlannerUI:
             # Initialize model and graph
             llm = init_chat_model(model_name, **model_kwargs)
             graph = create_project_planning_graph(
-                llm, use_checkpointing=True, use_structured_output=False
+                llm,
+                use_checkpointing=True,
+                use_structured_output=False,
+                use_two_step_generation=True,
             )
             return llm, graph
         except ImportError as e:

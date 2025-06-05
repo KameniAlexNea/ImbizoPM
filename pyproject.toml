@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imbizopm"
+version = "0.1.0"
+description = "A tool to help you get started with your GitHub projects"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "KameniAlexNea", email = "kamenialexnea@example.com"}
+]
+keywords = ["github", "project-management", "automation"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "PyGithub",
+    "python-dotenv",
+    "argparse",
+    "openai",
+    "anthropic",
+    "httpx",
+    "ollama",
+    "gradio>=4.0.0",
+    "tqdm",
+    "concurrent-log-handler",
+    "loguru",
+    "llm-output-parser",
+    "langchain-openai",
+    "langchain-groq",
+    "langchain-anthropic",
+    "langchain-ollama",
+    "langchain",
+    "langgraph",
+]
+
+[project.optional-dependencies]
+dev = [
+    "tox",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "black",
+    "flake8",
+    "isort",
+    "autoflake",
+    "mypy",
+    "safety",
+    "sphinx",
+    "wheel",
+    "twine",
+    "build",
+    "pickleshare",
+    "coverage",
+]
+agents = [
+    "langchain-openai",
+    "langgraph",
+    "langchain",
+    "pygraphviz",
+]
+
+[project.urls]
+Homepage = "https://github.com/KameniAlexNea/ImbizoPM"
+Repository = "https://github.com/KameniAlexNea/ImbizoPM"
+
+[project.scripts]
+imbizopm = "imbizopm.cli:main"
+imbizopm-ui = "imbizopm.ui.launcher:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["imbizopm*", "imbizopm_agents*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.md", "*.txt"]

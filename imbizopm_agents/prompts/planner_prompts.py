@@ -30,7 +30,6 @@ PROCESS:
     g. List all defined phases, epics, and strategies together as the main components of the plan, ensuring each item is clearly identified as a "phase", "epic", or "strategy" according to the specified format. Ensure dependencies are logical, although not explicitly modeled.
 
 GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - If indicating the project is too vague, provide detailed and helpful information (unclear aspects, specific questions, actionable suggestions) to guide the user toward clarification. Focus on *specific* missing information or ambiguities.
 - If providing a plan, create a comprehensive list of components representing phases, epics, and strategies.
 - For each plan component, provide a concise name, a clear description, and accurately indicate whether it represents a "phase", "epic", or "strategy" as per the format.

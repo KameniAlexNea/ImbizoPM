@@ -24,7 +24,6 @@ PROCESS:
     c. List the key tangible items or results (deliverables) that need to be produced to meet *this specific goal*. Describe each deliverable clearly.
 
 GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - If the original idea is vague, make reasonable assumptions based on common practices or industry standards to fill gaps, but note significant assumptions if necessary.
 - Focus on clarifying the "what" (scope, objectives) and "why" (purpose) before detailing the "how".
 - Consider various types of constraints even if not explicitly mentioned by the user.

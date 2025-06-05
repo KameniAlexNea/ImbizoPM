@@ -32,6 +32,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ImbizoPM UI Application Launcher")
     parser.add_argument(
         "--agent",
+        default=True,
         action="store_true",
         help="Launch the ImbizoPM Agent-based Planner UI.",
     )

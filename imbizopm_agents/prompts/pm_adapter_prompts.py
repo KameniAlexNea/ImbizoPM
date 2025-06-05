@@ -28,7 +28,6 @@ PROCESS:
     - A list of resources (e.g., people, teams, tools), each linked to the relevant task or milestone identifiers they support.
 
 GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - The executive summary should be brief (1-2 paragraphs) but capture the essence of the project.
 - The project overview timeline should be a high-level estimate (e.g., "Q1 2024 - Q3 2024 (9 months)").
 - The project overview objectives should align closely with the refined project goals/objectives.

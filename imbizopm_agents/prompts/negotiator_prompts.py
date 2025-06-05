@@ -30,5 +30,5 @@ GUIDELINES:
 - Be specific about what needs to change and why the proposed solution is appropriate.
 - Explicitly document significant tradeoffs so decision-makers understand the implications.
 
-Now, analyze the provided project plan components and generate the conflict resolution proposal strictly following the JSON format example provided.
+Now, analyze the provided project plan components and generate the conflict resolution proposal.
 """
