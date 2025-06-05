@@ -14,7 +14,12 @@ from .config import AgentDtypes, AgentRoute
 class TimelineAgent(BaseAgent):
     """Agent that maps tasks to durations and milestones."""
 
-    def __init__(self, llm, use_structured_output: bool = False, use_two_step_generation: bool = True):
+    def __init__(
+        self,
+        llm,
+        use_structured_output: bool = False,
+        use_two_step_generation: bool = True,
+    ):
         model_cls = ProjectTimeline if use_structured_output else None
         super().__init__(
             llm,
@@ -60,7 +65,7 @@ Estimate the duration for each task. Sequence the tasks considering their depend
         # Check if information is missing (a flag in the result)
         if hasattr(result, "information_missing") and result.information_missing:
             missing_info = getattr(result, "missing_information_details", None)
-            
+
             # Check for explicit source indication
             if missing_info and hasattr(missing_info, "source"):
                 source = missing_info.source
@@ -70,9 +75,9 @@ Estimate the duration for each task. Sequence the tasks considering their depend
                 elif source == "resources":
                     # Resource issues - might need clarification on constraints/resources
                     return AgentRoute.ClarifierAgent
-            
+
             # Default to Taskifier for general timeline issues
             return AgentRoute.TaskifierAgent
-        
+
         # If timeline is valid, proceed to Risk assessment
         return AgentRoute.RiskAgent

@@ -14,14 +14,21 @@ from .config import AgentDtypes, AgentRoute
 class NegotiatorAgent(BaseAgent):
     """Agent that coordinates conflict resolution among agents."""
 
-    def __init__(self, llm, use_structured_output: bool = False, use_two_step_generation: bool = True):
+    def __init__(
+        self,
+        llm,
+        use_structured_output: bool = False,
+        use_two_step_generation: bool = True,
+    ):
         model_cls = ConflictResolution if use_structured_output else None
         super().__init__(
             llm,
             name=AgentRoute.NegotiatorAgent,
             format_prompt=get_negotiator_output_format(),
             system_prompt=get_negotiator_prompt(),
-            model_class=model_cls if not use_two_step_generation else ConflictResolution,
+            model_class=(
+                model_cls if not use_two_step_generation else ConflictResolution
+            ),
             prepare_input=self._prepare_input_logic,
             process_result=self._process_result_logic,
             next_step=self._next_step_logic,

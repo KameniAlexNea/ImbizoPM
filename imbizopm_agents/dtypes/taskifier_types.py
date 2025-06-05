@@ -136,22 +136,22 @@ class TaskPlan(BaseModel):
                         "estimated_effort": "Low",
                         "epic": "Website Visuals",
                         "phase": "Phase 1",
-                        "dependencies": []
+                        "dependencies": [],
                     },
                     {
                         "id": "T2",
                         "name": "Develop HTML/CSS",
                         "description": "Build the basic structure",
                         "deliverable": "Website Code",
-                        "owner_role": "Developer", 
+                        "owner_role": "Developer",
                         "estimated_effort": "Medium",
                         "epic": "Development",
                         "phase": "Phase 1",
-                        "dependencies": ["T1"]
-                    }
+                        "dependencies": ["T1"],
+                    },
                 ],
                 "missing_info": False,
-                "missing_info_details": None
+                "missing_info_details": None,
             },
             "missing_plan": {
                 "missing_info": True,
@@ -159,8 +159,8 @@ class TaskPlan(BaseModel):
                     "unclear_aspects": ["Hosting details missing"],
                     "questions": ["Which hosting provider?"],
                     "suggestions": ["Select a hosting provider"],
-                    "source": "requirements"
+                    "source": "requirements",
                 },
-                "tasks": []
-            }
+                "tasks": [],
+            },
         }

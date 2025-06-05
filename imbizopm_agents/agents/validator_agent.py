@@ -12,7 +12,12 @@ from .config import AgentDtypes, AgentRoute
 class ValidatorAgent(BaseAgent):
     """Agent that verifies alignment between idea, plan, and goals."""
 
-    def __init__(self, llm, use_structured_output: bool = False, use_two_step_generation: bool = True):
+    def __init__(
+        self,
+        llm,
+        use_structured_output: bool = False,
+        use_two_step_generation: bool = True,
+    ):
         model_cls = PlanValidation if use_structured_output else None
         super().__init__(
             llm,

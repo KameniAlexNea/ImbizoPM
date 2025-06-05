@@ -14,7 +14,12 @@ from .config import AgentDtypes, AgentRoute
 class ScoperAgent(BaseAgent):
     """Agent that trims the plan into an MVP and resolves overload."""
 
-    def __init__(self, llm, use_structured_output: bool = False, use_two_step_generation: bool = True):
+    def __init__(
+        self,
+        llm,
+        use_structured_output: bool = False,
+        use_two_step_generation: bool = True,
+    ):
         model_cls = ScopeDefinition if use_structured_output else None
         super().__init__(
             llm,

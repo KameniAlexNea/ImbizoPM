@@ -8,20 +8,14 @@ from llm_output_parser import parse_json
 from loguru import logger
 from pydantic import BaseModel
 
+from ..utilities.two_step_json import (
+    TwoStepJSONGenerator,
+    create_two_step_system_prompt,
+)
 from .config import AgentDtypes, AgentState
-from ..utilities.two_step_json import TwoStepJSONGenerator, create_two_step_system_prompt
 
 
 def extract_structured_data(text: str) -> Dict[str, Any]:
-    """
-    Extract structured data from agent response text.
-
-    Args:
-        text: The text output from an agent
-
-    Returns:
-        Dict with extracted structured data
-    """
     try:
         return parse_json(text)
     except Exception as e:
@@ -52,7 +46,7 @@ class BaseAgent:
         self.use_two_step_generation = use_two_step_generation
         self.system_prompt = system_prompt
         self.format_prompt = format_prompt
-        
+
         # Initialize two-step JSON generator if needed
         if self.use_two_step_generation and self.model_class:
             self.two_step_generator = TwoStepJSONGenerator(llm)
@@ -147,20 +141,27 @@ class BaseAgent:
             parsed_content = self.two_step_generator.generate_text_then_json(
                 system_prompt=self.two_step_system_prompt,
                 user_input=input_content,
-                target_model_class=self.model_class
+                target_model_class=self.model_class,
             )
             # Create mock messages for consistency with existing flow
             raw_output = {
                 "messages": [
                     {"role": "system", "content": self.two_step_system_prompt},
                     {"role": "human", "content": input_content},
-                    {"role": "assistant", "content": f"Generated structured output for {self.name}"}
+                    {
+                        "role": "assistant",
+                        "content": f"Generated structured output for {self.name}",
+                    },
                 ]
             }
-            logger.debug(f"Two-step generation completed for {self.name}: {parsed_content}")
+            logger.debug(
+                f"Two-step generation completed for {self.name}: {parsed_content}"
+            )
         else:
             # Use original approach
-            raw_output = self.agent.invoke({"messages": self._format_input(input_content)})
+            raw_output = self.agent.invoke(
+                {"messages": self._format_input(input_content)}
+            )
 
             if self.structured_output:
                 parsed_content: BaseModel = raw_output["structured_response"]

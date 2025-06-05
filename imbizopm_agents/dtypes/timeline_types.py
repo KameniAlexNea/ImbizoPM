@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -25,8 +25,8 @@ class MissingInformationDetails(BaseModel):
 class Milestone(BaseModel):
     name: str = Field(default="", description="Name of the milestone")
     time_point: str = Field(
-        default="", 
-        description="Relative time point of the milestone (e.g., 'T0+2w' for 2 weeks after start)"
+        default="",
+        description="Relative time point of the milestone (e.g., 'T0+2w' for 2 weeks after start)",
     )
     description: Optional[str] = Field(
         default=None, description="Description of what this milestone represents"
@@ -36,18 +36,17 @@ class Milestone(BaseModel):
 class ScheduledTask(BaseModel):
     task_id: str = Field(default="", description="ID of the task")
     start_point: str = Field(
-        default="", 
-        description="Relative start time point (e.g., 'T0', 'T0+2w')"
+        default="", description="Relative start time point (e.g., 'T0', 'T0+2w')"
     )
     end_point: str = Field(
-        default="", 
-        description="Relative end time point (e.g., 'T0+1w', 'T0+3w')"
+        default="", description="Relative end time point (e.g., 'T0+1w', 'T0+3w')"
     )
     duration: str = Field(
         default="", description="Duration estimate (e.g., '3 days', '1 week')"
     )
     dependencies_satisfied: bool = Field(
-        default=True, description="Whether all dependencies are satisfied by this schedule"
+        default=True,
+        description="Whether all dependencies are satisfied by this schedule",
     )
 
 
@@ -64,18 +63,18 @@ class ProjectTimeline(BaseModel):
         default=None, description="Overall estimated project duration (e.g., '3 weeks')"
     )
     start_point: Optional[str] = Field(
-        default="T0", 
-        description="Project start reference point, typically 'T0'"
+        default="T0", description="Project start reference point, typically 'T0'"
     )
     end_point: Optional[str] = Field(
-        default=None, 
-        description="Relative project end point (e.g., 'T0+12w' for 12 weeks after start)"
+        default=None,
+        description="Relative project end point (e.g., 'T0+12w' for 12 weeks after start)",
     )
     milestones: List[Milestone] = Field(
         default_factory=list, description="List of project milestones"
     )
     scheduled_tasks: List[ScheduledTask] = Field(
-        default_factory=list, description="List of scheduled tasks with timing information"
+        default_factory=list,
+        description="List of scheduled tasks with timing information",
     )
     critical_path: List[str] = Field(
         default_factory=list,
@@ -102,7 +101,7 @@ class ProjectTimeline(BaseModel):
                     {
                         "name": "Design Approval",
                         "time_point": "T0+1w",
-                        "description": "Client approval"
+                        "description": "Client approval",
                     }
                 ],
                 "scheduled_tasks": [
@@ -111,18 +110,18 @@ class ProjectTimeline(BaseModel):
                         "start_point": "T0",
                         "end_point": "T0+5d",
                         "duration": "5 days",
-                        "dependencies_satisfied": True
+                        "dependencies_satisfied": True,
                     },
                     {
                         "task_id": "T2",
                         "start_point": "T0+6d",
                         "end_point": "T0+10d",
                         "duration": "5 days",
-                        "dependencies_satisfied": True
-                    }
+                        "dependencies_satisfied": True,
+                    },
                 ],
                 "critical_path": ["T1", "T2"],
-                "risks": ["Potential delay in design approval"]
+                "risks": ["Potential delay in design approval"],
             },
             "missing_timeline": {
                 "information_missing": True,
@@ -130,12 +129,12 @@ class ProjectTimeline(BaseModel):
                     "unclear_aspects": ["Task dependencies are ambiguous"],
                     "questions": ["What is the logical sequence between tasks?"],
                     "suggestions": ["Clarify the dependencies between tasks"],
-                    "source": "tasks"
+                    "source": "tasks",
                 },
                 "start_point": "T0",
                 "milestones": [],
                 "scheduled_tasks": [],
                 "critical_path": [],
-                "risks": []
-            }
+                "risks": [],
+            },
         }

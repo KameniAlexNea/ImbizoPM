@@ -110,33 +110,33 @@ class ProjectPlanOutput(BaseModel):
                 "vague_details": {
                     "unclear_aspects": [],
                     "questions": [],
-                    "suggestions": []
+                    "suggestions": [],
                 },
                 "components": [
                     {
                         "name": "Phase 1: Setup",
                         "description": "Initial project setup",
-                        "kind": "phase"
+                        "kind": "phase",
                     },
                     {
                         "name": "User Login",
                         "description": "Allow users to sign in",
-                        "kind": "epic"
+                        "kind": "epic",
                     },
                     {
                         "name": "Iterative Development",
                         "description": "Use sprints",
-                        "kind": "strategy"
-                    }
-                ]
+                        "kind": "strategy",
+                    },
+                ],
             },
             "too_vague_project": {
                 "too_vague": True,
                 "vague_details": {
                     "unclear_aspects": ["Features not defined"],
                     "questions": ["What features are required?"],
-                    "suggestions": ["Define feature list"]
+                    "suggestions": ["Define feature list"],
                 },
-                "components": []
-            }
+                "components": [],
+            },
         }

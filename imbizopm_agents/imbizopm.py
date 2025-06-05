@@ -73,7 +73,7 @@ class PlannerUI:
 
             with gr.Accordion("Execution Path", open=False):
                 self.route_info_output = gr.Markdown("Execution path will appear here.")
-            
+
             with gr.Accordion("Message Trace", open=False):
                 self.message_trace_output = gr.Code(
                     language="yaml", value="[]", label="Message Trace", lines=10
@@ -262,10 +262,10 @@ class PlannerUI:
             # Initialize model and graph
             llm = init_chat_model(model_name, **model_kwargs)
             graph = create_project_planning_graph(
-                llm, 
-                use_checkpointing=True, 
+                llm,
+                use_checkpointing=True,
                 use_structured_output=False,
-                use_two_step_generation=True
+                use_two_step_generation=True,
             )
             return llm, graph
         except ImportError as e:

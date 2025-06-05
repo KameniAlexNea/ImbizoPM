@@ -14,7 +14,12 @@ from .config import AgentDtypes, AgentRoute
 class TaskifierAgent(BaseAgent):
     """Agent that produces detailed tasks with owners and dependencies."""
 
-    def __init__(self, llm, use_structured_output: bool = False, use_two_step_generation: bool = True):
+    def __init__(
+        self,
+        llm,
+        use_structured_output: bool = False,
+        use_two_step_generation: bool = True,
+    ):
         model_cls = TaskPlan if use_structured_output else None
         super().__init__(
             llm,
@@ -65,10 +70,10 @@ Based on the project details and the current plan components, break the work dow
         # If tasks are valid, proceed to Timeline
         if result.is_valid():
             return AgentRoute.TimelineAgent
-        
+
         # When invalid, analyze the type of failure to determine proper routing
         missing_info = getattr(result, "missing_info_details", None)
-        
+
         # Check for explicit source indication in the missing info
         if missing_info and hasattr(missing_info, "source"):
             source = missing_info.source
@@ -78,6 +83,6 @@ Based on the project details and the current plan components, break the work dow
                 return AgentRoute.PlannerAgent
             elif source == "requirements":
                 return AgentRoute.ClarifierAgent
-        
+
         # Default to Clarifier if we can't determine the source
         return AgentRoute.ClarifierAgent

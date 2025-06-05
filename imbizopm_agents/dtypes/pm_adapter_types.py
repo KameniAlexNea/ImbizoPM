@@ -213,27 +213,27 @@ class ProjectSummary(BaseModel):
                 "description": "Create a simple website",
                 "timeline": "4 weeks",
                 "objectives": ["Launch website", "Mobile-friendly"],
-                "key_stakeholders": ["Owner", "Developer"]
+                "key_stakeholders": ["Owner", "Developer"],
             },
             "key_milestones": [
                 {
                     "name": "Design Approval",
                     "date": "T0+1w",
-                    "deliverables": ["Mock-up approved"]
+                    "deliverables": ["Mock-up approved"],
                 }
             ],
             "resource_requirements": [
                 {
                     "role": "Web Developer",
                     "allocation": "Part-time",
-                    "skills": ["HTML", "CSS"]
+                    "skills": ["HTML", "CSS"],
                 }
             ],
             "top_risks": [
                 {
                     "name": "Content delay",
                     "impact": "Medium",
-                    "mitigation_strategy": "Set clear deadlines"
+                    "mitigation_strategy": "Set clear deadlines",
                 }
             ],
             "next_steps": ["Finalize contract", "Schedule meeting"],
@@ -244,25 +244,19 @@ class ProjectSummary(BaseModel):
                         "title": "Design Mock-up",
                         "description": "Create visual design",
                         "assignees": ["Developer"],
-                        "due_date": "T0+7d"
+                        "due_date": "T0+7d",
                     }
                 ],
                 "milestones": [
                     {
                         "name": "Design Approval",
                         "date": "T0+8d",
-                        "deliverables": ["Mock-up approved"]
+                        "deliverables": ["Mock-up approved"],
                     }
                 ],
-                "dependencies": [
-                    {"from_task": "T1", "to_task": "T2"}
-                ],
+                "dependencies": [{"from_task": "T1", "to_task": "T2"}],
                 "resources": [
-                    {
-                        "name": "Developer",
-                        "type": "person",
-                        "linked_task_ids": ["T1"]
-                    }
-                ]
-            }
+                    {"name": "Developer", "type": "person", "linked_task_ids": ["T1"]}
+                ],
+            },
         }

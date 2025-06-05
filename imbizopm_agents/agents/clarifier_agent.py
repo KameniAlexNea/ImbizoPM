@@ -14,7 +14,12 @@ from .config import AgentDtypes, AgentRoute
 class ClarifierAgent(BaseAgent):
     """Agent that refines the idea, extracts goals, scope, and constraints."""
 
-    def __init__(self, llm: BaseChatModel, use_structured_output: bool = False, use_two_step_generation: bool = True):
+    def __init__(
+        self,
+        llm: BaseChatModel,
+        use_structured_output: bool = False,
+        use_two_step_generation: bool = True,
+    ):
         model_cls = ProjectPlan if use_structured_output else None
         super().__init__(
             llm,
