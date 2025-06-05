@@ -125,6 +125,10 @@ JSON OUTPUT:"""
 
                 if "error" in parsed_json:
                     raise ValueError(f"JSON parsing error: {parsed_json['error']}")
+                if len(parsed_json) == 1:
+                    logger.debug("Single key JSON detected, extracting value")
+                    logger.debug(f"Parsed JSON: {parsed_json}")
+                    parsed_json = list(parsed_json.values())[0]
 
                 # Validate against the Pydantic model
                 validated_model = target_model_class.model_validate(parsed_json)
