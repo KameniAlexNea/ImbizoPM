@@ -34,7 +34,6 @@ Follow these steps carefully to generate the output:
     e. Populate the main list of tasks with all the defined task items.
 
 ### GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - If indicating that information is missing, provide detailed and helpful clarification details (unclear aspects, specific questions, actionable suggestions) to guide the user. Focus on *specific* missing information needed for task breakdown.
 - Always indicate the source of missing information explicitly so we can route to the right agent.
 - If providing tasks, create a comprehensive list of task items.

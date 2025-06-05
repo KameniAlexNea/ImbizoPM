@@ -12,7 +12,7 @@ from .config import AgentDtypes, AgentRoute
 class ValidatorAgent(BaseAgent):
     """Agent that verifies alignment between idea, plan, and goals."""
 
-    def __init__(self, llm, use_structured_output: bool = False):
+    def __init__(self, llm, use_structured_output: bool = False, use_two_step_generation: bool = True):
         model_cls = PlanValidation if use_structured_output else None
         super().__init__(
             llm,
@@ -20,10 +20,11 @@ class ValidatorAgent(BaseAgent):
             # Correct order: system_prompt first, then format_prompt
             system_prompt=get_validator_prompt(),
             format_prompt=get_validator_output_format(),
-            model_class=model_cls,
+            model_class=model_cls if not use_two_step_generation else PlanValidation,
             prepare_input=self._prepare_input_logic,
             process_result=self._process_result_logic,
             next_step=self._next_step_logic,
+            use_two_step_generation=use_two_step_generation,
         )
 
     def _prepare_input_logic(self, state: AgentState) -> str:

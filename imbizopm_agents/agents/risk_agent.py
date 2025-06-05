@@ -11,17 +11,18 @@ from .config import AgentDtypes, AgentRoute
 class RiskAgent(BaseAgent):
     """Agent that reviews feasibility and spots contradictions."""
 
-    def __init__(self, llm, use_structured_output: bool = False):
+    def __init__(self, llm, use_structured_output: bool = False, use_two_step_generation: bool = True):
         model_cls = FeasibilityAssessment if use_structured_output else None
         super().__init__(
             llm,
             name=AgentRoute.RiskAgent,
             format_prompt=get_risk_output_format(),
             system_prompt=get_risk_prompt(),
-            model_class=model_cls,
+            model_class=model_cls if not use_two_step_generation else FeasibilityAssessment,
             prepare_input=self._prepare_input_logic,
             process_result=self._process_result_logic,
             next_step=self._next_step_logic,
+            use_two_step_generation=use_two_step_generation,
         )
 
     def _prepare_input_logic(self, state: AgentState) -> str:

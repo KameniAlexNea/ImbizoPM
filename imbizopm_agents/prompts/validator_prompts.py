@@ -23,7 +23,6 @@ PROCESS:
 7.  **Determine Overall Validation**: Based on the alignment score, constraint respect, outcome achievability, and completeness assessment, determine the final overall validation status (true or false). The plan is generally not valid if critical goals are not aligned, major constraints are violated, key outcomes are unachievable, or essential plan elements are missing.
 
 GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - Be specific and objective in your evaluations. Base your assessments (alignment status, constraint respect status, achievability status) on concrete evidence found within the provided project plan documents.
 - Use the status indicators (e.g., "Yes", "Partial", "No") as shown in the format example.
 - Evidence provided should cite specific parts of the plan (e.g., tasks, deliverables, strategies, timeline entries, risk mitigations).

@@ -26,7 +26,6 @@ PROCESS:
     a. Indicate that the scope is not overloaded according to the specified format.
 
 GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - The list of essential MVP items must contain only core features needed to achieve the primary goal and enable learning.
 - User stories, while optional, are highly recommended for clarity and should follow the standard format ('As a..., I want..., so that...').
 - Exclusions should be clear and unambiguous to prevent scope creep. List specific features/functionalities, not just general categories, where possible.

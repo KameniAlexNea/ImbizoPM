@@ -262,7 +262,10 @@ class PlannerUI:
             # Initialize model and graph
             llm = init_chat_model(model_name, **model_kwargs)
             graph = create_project_planning_graph(
-                llm, use_checkpointing=True, use_structured_output=False
+                llm, 
+                use_checkpointing=True, 
+                use_structured_output=False,
+                use_two_step_generation=True
             )
             return llm, graph
         except ImportError as e:

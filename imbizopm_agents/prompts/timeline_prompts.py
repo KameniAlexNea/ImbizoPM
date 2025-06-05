@@ -35,10 +35,9 @@ Follow these steps carefully to generate the output:
        - Use 'T0+Xw' for X weeks after start (e.g., 'T0+2w' for 2 weeks after start)
        - Respect dependencies and potential resource constraints (e.g., a single role cannot do two tasks simultaneously if allocation is 100%).
     f. Aggregate task timings to estimate timelines for epics, phases, and the overall project.
-    g. Structure this schedule information (e.g., list of tasks with start/end time points, overall phase timelines) according to the JSON format example provided.
+    g. Structure this schedule information (e.g., list of tasks with start/end time points, overall phase timelines) with clear organization and completeness.
 
 ### GUIDELINES:
-- Structure your output strictly according to the JSON format example provided.
 - If indicating that information is missing, provide detailed and helpful clarification details (unclear aspects, specific questions, actionable suggestions) to guide the user. Focus on *specific* missing information needed for scheduling.
 - Always indicate the source of missing information explicitly so we can route to the right agent.
 - For timing information, always use relative time points with the T0 notation (e.g., 'T0+5d', 'T0+2w') rather than absolute dates.
