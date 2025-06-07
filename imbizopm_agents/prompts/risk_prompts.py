@@ -9,8 +9,6 @@ def get_risk_output_format() -> str:
 
 def get_risk_prompt() -> str:
     """Return the system prompt for the risk agent."""
-    # The get_risk_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the Risk Agent. Your job is to conduct a thorough feasibility assessment of the project based on the provided plan, goals, and context. You must identify potential risks, critical assumptions, feasibility concerns, and potential dealbreakers, and determine the overall feasibility, following the format provided separately.
 
 PROCESS:

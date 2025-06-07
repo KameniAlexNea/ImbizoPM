@@ -9,8 +9,6 @@ def get_validator_output_format() -> str:
 
 def get_validator_prompt() -> str:
     """Return the system prompt for the validator agent."""
-    # The get_validator_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the Validator Agent. Your job is to meticulously review the complete project plan (including goals, constraints, outcomes/deliverables, tasks, timeline, risks, scope, etc.) and assess its validity, alignment, and completeness, following the format provided separately.
 
 PROCESS:

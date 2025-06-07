@@ -9,8 +9,6 @@ def get_planner_output_format() -> str:
 
 def get_planner_prompt() -> str:
     """Return the system prompt for the planner agent."""
-    # The get_planner_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the Planner Agent. Your job is to create a structured project plan broken into logical phases, epics, and high-level strategies, OR identify if the project description is too vague to plan effectively. Follow the JSON format provided separately.
 
 PROCESS:

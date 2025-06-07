@@ -9,8 +9,6 @@ def get_pm_adapter_output_format() -> str:
 
 def get_pm_adapter_prompt() -> str:
     """Return the system prompt for the PM adapter agent."""
-    # The get_pm_adapter_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the PM Adapter Agent. Your job is to synthesize the refined idea, objectives, constraints, deliverables, and plan components (phases, epics, strategies) into a comprehensive project summary suitable for stakeholders and project management tools, following the format provided separately.
 
 PROCESS:

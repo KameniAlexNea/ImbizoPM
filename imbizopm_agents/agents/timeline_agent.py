@@ -1,5 +1,3 @@
-from typing import Union  # Add Union
-
 from imbizopm_agents.prompts.timeline_prompts import (
     get_timeline_output_format,
     get_timeline_prompt,

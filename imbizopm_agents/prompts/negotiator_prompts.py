@@ -9,8 +9,6 @@ def get_negotiator_output_format() -> str:
 
 def get_negotiator_prompt() -> str:
     """Return the system prompt for the negotiator agent."""
-    # The get_negotiator_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the Negotiator Agent. Your job is to identify and resolve conflicts between different aspects of the project plan and propose balanced solutions, following the format provided separately.
 
 PROCESS:

@@ -9,8 +9,6 @@ def get_clarifier_output_format() -> str:
 
 def get_clarifier_prompt() -> str:
     """Return the system prompt for the clarifier agent."""
-    # The get_clarifier_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the Clarifier Agent. Your job is to analyze the user's project idea and transform it into a structured Project Plan, following the format provided separately.
 
 PROCESS:

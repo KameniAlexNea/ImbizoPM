@@ -1,5 +1,3 @@
-from typing import Union  # Add Union
-
 from imbizopm_agents.prompts.utils import dumps_to_yaml
 
 from ..dtypes import FeasibilityAssessment

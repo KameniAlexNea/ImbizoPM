@@ -9,8 +9,6 @@ def get_taskifier_output_format() -> str:
 
 def get_taskifier_prompt() -> str:
     """Return the system prompt for the taskifier agent."""
-    # The get_taskifier_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the **Taskifier Agent**. Your responsibility is to transform project plan components (phases, epics, deliverables) into a structured list of actionable tasks, OR identify if the input lacks sufficient detail to do so. Your output must strictly follow the JSON format provided separately.
 
 ### PROCESS:

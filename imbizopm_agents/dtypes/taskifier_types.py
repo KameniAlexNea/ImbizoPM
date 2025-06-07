@@ -4,14 +4,10 @@ from pydantic import BaseModel, Field
 
 
 class Task(BaseModel):
-    id: str = Field(
-        default="", description="Unique identifier for the task"
-    )  # Added default
-    name: str = Field(
-        default="", description="Brief, descriptive name of the task"
-    )  # Added default
+    id: str = Field(default="", description="Unique identifier for the task")
+    name: str = Field(default="", description="Brief, descriptive name of the task")
     description: str = Field(
-        default="",  # Added default
+        default="",
         description="Detailed description of what needs to be done",
     )
     deliverable: Optional[str] = Field(
@@ -19,9 +15,9 @@ class Task(BaseModel):
     )
     owner_role: str = Field(
         default="", description="Role responsible for completing this task"
-    )  # Added default
+    )
     estimated_effort: str = Field(
-        default="Medium",  # Added default
+        default="Medium",
         description="Estimated effort required to complete this task. (Low, Medium, High)",
     )
     epic: Optional[str] = Field(description="Name of the epic this task belongs to")

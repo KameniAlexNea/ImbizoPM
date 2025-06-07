@@ -123,8 +123,8 @@ class PlanValidation(BaseModel):
         else:
             if self.goals_alignment:
                 output += "**Goals Alignment:**\n"
-                for alignment in self.goals_alignment:  # Iterate over list
-                    output += f"- **Goal:** {alignment.name}\n"  # Access name field
+                for alignment in self.goals_alignment:
+                    output += f"- **Goal:** {alignment.name}\n"
                     output += f"  - **Alignment:** {alignment.aligned}\n"
                     output += f"  - **Evidence:** {alignment.evidence}\n"
                     if alignment.gaps:
@@ -133,8 +133,8 @@ class PlanValidation(BaseModel):
 
             if self.constraints_respected:
                 output += "**Constraints Respected:**\n"
-                for respect in self.constraints_respected:  # Iterate over list
-                    output += f"- **Constraint:** {respect.name}\n"  # Access name field
+                for respect in self.constraints_respected:
+                    output += f"- **Constraint:** {respect.name}\n"
                     output += f"  - **Respected:** {respect.respected}\n"
                     output += f"  - **Evidence:** {respect.evidence}\n"
                     if respect.concerns:
@@ -143,10 +143,8 @@ class PlanValidation(BaseModel):
 
             if self.outcomes_achievable:
                 output += "**Outcomes Achievability:**\n"
-                for achievability in self.outcomes_achievable:  # Iterate over list
-                    output += (
-                        f"- **Outcome:** {achievability.name}\n"  # Access name field
-                    )
+                for achievability in self.outcomes_achievable:
+                    output += f"- **Outcome:** {achievability.name}\n"
                     output += f"  - **Achievable:** {achievability.achievable}\n"
                     output += f"  - **Evidence:** {achievability.evidence}\n"
                     if achievability.risks:
@@ -179,37 +177,37 @@ class PlanValidation(BaseModel):
             "validated": {
                 "overall_validation": True,
                 "alignment_score": "90%",
-                "goals_alignment": [  # Changed to list
+                "goals_alignment": [
                     {
-                        "name": "Launch a basic informational website",  # Added name
+                        "name": "Launch a basic informational website",
                         "aligned": "Yes",
                         "evidence": "Plan includes tasks for design, content, development, and deployment of core pages (menu, contact).",
                         "gaps": [],
                     },
                     {
-                        "name": "Ensure the website is mobile-friendly",  # Added name
+                        "name": "Ensure the website is mobile-friendly",
                         "aligned": "Yes",
                         "evidence": "Task T4 specifically addresses mobile responsiveness.",
                         "gaps": [],
                     },
                 ],
-                "constraints_respected": [  # Changed to list
+                "constraints_respected": [
                     {
-                        "name": "Budget: $1000",  # Added name
+                        "name": "Budget: $1000",
                         "respected": "Yes",
                         "evidence": "Estimated effort for tasks aligns with typical costs for a simple site within this budget.",
                         "concerns": ["Assumes no major scope changes."],
                     },
                     {
-                        "name": "Timeline: 4 weeks",  # Added name
+                        "name": "Timeline: 4 weeks",
                         "respected": "Yes",
                         "evidence": "Timeline estimates T+20 days for launch, fitting within 4 weeks.",
                         "concerns": ["Dependent on timely content delivery (Task T2)."],
                     },
                 ],
-                "outcomes_achievable": [  # Changed to list
+                "outcomes_achievable": [
                     {
-                        "name": "Live website with menu and contact info",  # Added name
+                        "name": "Live website with menu and contact info",
                         "achievable": "Yes",
                         "evidence": "Tasks cover all necessary steps from design to deployment.",
                         "risks": ["Potential delays if content (T2) is late."],
@@ -226,17 +224,17 @@ class PlanValidation(BaseModel):
             "not_validated": {
                 "overall_validation": False,
                 "alignment_score": "40%",
-                "goals_alignment": [  # Changed to list
+                "goals_alignment": [
                     {
-                        "name": "Launch a basic informational website",  # Added name
+                        "name": "Launch a basic informational website",
                         "aligned": "Partial",
                         "evidence": "Tasks exist, but key dependencies are missing.",
                         "gaps": ["No task for acquiring hosting or domain."],
                     }
                 ],
-                "constraints_respected": [  # Changed to list
+                "constraints_respected": [
                     {
-                        "name": "Budget: $1000",  # Added name
+                        "name": "Budget: $1000",
                         "respected": "No",
                         "evidence": "Plan lacks cost estimation for hosting/domain.",
                         "concerns": [
@@ -244,9 +242,9 @@ class PlanValidation(BaseModel):
                         ],
                     }
                 ],
-                "outcomes_achievable": [  # Changed to list
+                "outcomes_achievable": [
                     {
-                        "name": "Live website with menu and contact info",  # Added name
+                        "name": "Live website with menu and contact info",
                         "achievable": "No",
                         "evidence": "Cannot launch without hosting/domain.",
                         "risks": ["Project blocked until hosting/domain are secured."],

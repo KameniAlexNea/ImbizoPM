@@ -6,15 +6,15 @@ from pydantic import BaseModel, Field
 
 class NamedItem(BaseModel):
     name: str = Field(
-        default="",  # Added default
+        default="",
         description="Name of the item, such as a project phase, epic, or strategy",
     )
     description: str = Field(
-        default="",  # Added default
+        default="",
         description="Detailed explanation providing context, objectives, or value of the named item",
     )
     kind: str = Field(
-        default="phase",  # Added default
+        default="phase",
         description="Type of item, indicating whether it is a phase, epic, or strategy. (phase, epic, strategy)",
     )
 
@@ -36,7 +36,7 @@ class VagueDetails(BaseModel):
 
 class ProjectPlanOutput(BaseModel):
     too_vague: bool = Field(
-        default=False,  # Added default
+        default=False,
         description="Indicates whether the project is too vague to generate a meaningful plan",
     )
     vague_details: VagueDetails = Field(

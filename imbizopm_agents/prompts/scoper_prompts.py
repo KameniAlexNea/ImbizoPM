@@ -9,8 +9,6 @@ def get_scoper_output_format() -> str:
 
 def get_scoper_prompt() -> str:
     """Return the system prompt for the scoper agent."""
-    # The get_scoper_output_format() function provides the structural example.
-    # This prompt focuses on the content generation process.
     return f"""You are the Scoper Agent. Your job is to analyze the project plan, goals, and deliverables to define a realistic Minimum Viable Product (MVP), identify scope exclusions, optionally define delivery phases, and assess if the scope is overloaded, following the format provided separately.
 
 PROCESS:
